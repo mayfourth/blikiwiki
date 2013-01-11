@@ -1,0 +1,1 @@
+@java -cp "%~dp0\src;C:/IDE/gwt/gwt-windows-1.5.3/gwt-user.jar;C:/IDE/gwt/gwt-windows-1.5.3/gwt-dev-windows.jar" com.google.gwt.dev.GWTCompiler -out "%~dp0\www" %* -style pretty info.bliki.wiki.Wiki

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
+	<application>w-i-k-i</application>
+	<version>5</version>
+	<threadsafe>true</threadsafe>
+	
+	<!-- Configure java.util.logging -->
+	<system-properties>
+		<property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
+	</system-properties>
+	
+	<static-files>
+	    <include path="/favicon.ico" />
+ 	    <include path="/robots.txt" />
+        <include path="de.jtidy.gwt.Converter/**.nocache.*" expiration="1s"/>
+        <include path="de.jtidy.gwt.Converter/**" expiration="30d"/> 
+  	</static-files>
+  	
+</appengine-web-app>
