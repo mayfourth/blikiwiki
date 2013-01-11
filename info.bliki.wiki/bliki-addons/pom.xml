@@ -3,20 +3,20 @@
 	<parent>
 		<groupId>info.bliki.wiki</groupId>
 		<artifactId>bliki</artifactId>
-		<version>3.1.01-SNAPSHOT</version>
+		<version>3.0.19</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>bliki-addons</artifactId>
 	<groupId>info.bliki.wiki</groupId>
 	<packaging>jar</packaging>
 	<name>Bliki (Addons)</name>
-	<version>3.1.01-SNAPSHOT</version>
+	<version>3.0.19</version>
 	<description> This is the Bliki Add-ons project. </description>
 	<dependencies>
 		<dependency>
 			<groupId>info.bliki.wiki</groupId>
 			<artifactId>bliki-core</artifactId>
-			<version>3.1.01-SNAPSHOT</version>
+			<version>3.0.19</version>
 		</dependency>
 		<dependency>
 			<groupId>stax</groupId>
@@ -42,8 +42,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.5</source>
+					<target>1.5</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>

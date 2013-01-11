@@ -170,63 +170,6 @@ public class Util {
 			}
 			end--;
 		}
-		if ((start < end) && str.charAt(end - 1) == '\r') {
-			end--;
-		}
 		return ((start > 0) || (end < str.length())) ? str.substring(start, end) : str;
-	}
-
-	/**
-	 * Check if the template name contains an invalid (ISO Control) character.
-	 * 
-	 * @param templateName
-	 * @return
-	 */
-	public static boolean isInvalidTemplateName(CharSequence templateName) {
-		boolean noNamespaceCharacter = true;
-		for (int i = 0; i < templateName.length(); i++) {
-			if (templateName.charAt(i) == ':') {
-				noNamespaceCharacter = false;
-				continue;
-			}
-			if (Character.isISOControl(templateName.charAt(i))) {
-				if (noNamespaceCharacter) {
-					return true;
-				}
-				continue;
-			}
-			noNamespaceCharacter = true;
-		}
-		return false;
-	}
-
-	/**
-	 * Get the first position of the <code>rawWikitext</code> string, which
-	 * contains a character requiring template parsing.
-	 * 
-	 * @param rawWikitext
-	 *          the raw wiki text
-	 * @return <code>-1</code> if character is found, which requires template
-	 *         parsing.
-	 */
-	public static int indexOfTemplateParsing(CharSequence rawWikitext) {
-		char ch;
-		int len = rawWikitext.length() - 2;
-		for (int i = 0; i < len; i++) {
-			ch = rawWikitext.charAt(i);
-			if (ch == '{') {
-				return i;
-			}
-			if (ch == '<') {
-				return i;
-			}
-			if (ch == '[') {
-				return i;
-			}
-			if (ch == '~') {
-				return i;
-			}
-		}
-		return -1;
 	}
 }

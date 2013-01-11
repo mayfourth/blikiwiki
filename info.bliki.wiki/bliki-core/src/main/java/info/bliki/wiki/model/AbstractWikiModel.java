@@ -7,26 +7,22 @@ import info.bliki.htmlcleaner.TagNode;
 import info.bliki.htmlcleaner.TagToken;
 import info.bliki.htmlcleaner.Utils;
 import info.bliki.wiki.filter.AbstractParser;
-import info.bliki.wiki.filter.AbstractParser.ParsedPageName;
 import info.bliki.wiki.filter.Encoder;
 import info.bliki.wiki.filter.HTMLConverter;
 import info.bliki.wiki.filter.ITextConverter;
 import info.bliki.wiki.filter.MagicWord;
-import info.bliki.wiki.filter.MagicWord.MagicWordE;
 import info.bliki.wiki.filter.PDFConverter;
 import info.bliki.wiki.filter.SectionHeader;
 import info.bliki.wiki.filter.TemplateParser;
 import info.bliki.wiki.filter.WikipediaParser;
 import info.bliki.wiki.namespaces.INamespace;
-import info.bliki.wiki.namespaces.INamespace.INamespaceValue;
-import info.bliki.wiki.namespaces.INamespace.NamespaceCode;
 import info.bliki.wiki.namespaces.Namespace;
-import info.bliki.wiki.tags.HTMLTag;
 import info.bliki.wiki.tags.TableOfContentTag;
 import info.bliki.wiki.tags.WPATag;
 import info.bliki.wiki.tags.WPTag;
 import info.bliki.wiki.tags.code.SourceCodeFormatter;
 import info.bliki.wiki.tags.util.TagStack;
+import info.bliki.wiki.template.AbstractTemplateFunction;
 import info.bliki.wiki.template.ITemplateFunction;
 import info.bliki.wiki.template.extension.AttributeList;
 import info.bliki.wiki.template.extension.AttributeRenderer;
@@ -40,10 +36,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.Map.Entry;
 
 /**
  * Standard model implementation for the Wikipedia syntax
@@ -70,7 +66,9 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 
 	private IEventListener fWikiListener = null;
 
-	final protected INamespace fNamespace;
+	protected INamespace fNamespace;
+
+	// private ResourceBundle fResourceBundle;
 
 	protected String fRedirectLink = null;
 
@@ -113,8 +111,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	 */
 	protected Map<String, Object> attributes;
 
-	protected Map<String, Counter> fTemplates;
-
 	/**
 	 * A Map<Class,Object> that allows people to register a renderer for a
 	 * particular kind of object to be displayed in this template. This overrides
@@ -124,7 +120,7 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	 * the general renderer map for all templates in that group. Sometimes though
 	 * you want to override the group's renderers.
 	 */
-	protected Map<Class<?>, Object> attributeRenderers;
+	protected Map<Class, Object> attributeRenderers;
 
 	public AbstractWikiModel() {
 		this(Configuration.DEFAULT_CONFIGURATION);
@@ -138,18 +134,74 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 		this(configuration, locale, Messages.getResourceBundle(locale), new Namespace(locale));
 	}
 
+	/**
+	 * 
+	 * @deprecated use the
+	 *             <code>(Configuration configuration, Locale locale,...)</code>
+	 *             constructors instead.
+	 * @param configuration
+	 * @param resourceBundle
+	 * @param namespace
+	 */
+	@Deprecated
+	public AbstractWikiModel(Configuration configuration, ResourceBundle resourceBundle, INamespace namespace) {
+		this(configuration, Locale.ENGLISH, resourceBundle, namespace);
+	}
+
 	public AbstractWikiModel(Configuration configuration, Locale locale, ResourceBundle resourceBundle, INamespace namespace) {
 		fLocale = locale;
 		fInitialized = false;
 		fConfiguration = configuration;
+		// fResourceBundle = resourceBundle;
 		fNamespace = namespace;
+		// initializeNamespaces();
 		initialize();
 	}
+
+	// private void initializeNamespaces() {
+	// String ns1, ns2;
+	//
+	// ns1 = Messages.getString(fResourceBundle, Messages.WIKI_API_MEDIA1);
+	// if (ns1 != null) {
+	// fImageNamespaces[0] = ns1;
+	// ns2 = Messages.getString(fResourceBundle, Messages.WIKI_API_MEDIA2);
+	// if (ns2 != null) {
+	// fImageNamespaces[1] = ns2;
+	// }
+	// }
+	//
+	// ns1 = Messages.getString(fResourceBundle, Messages.WIKI_API_IMAGE1);
+	// if (ns1 != null) {
+	// fImageNamespaces[0] = ns1;
+	// ns2 = Messages.getString(fResourceBundle, Messages.WIKI_API_IMAGE2);
+	// if (ns2 != null) {
+	// fImageNamespaces[1] = ns2;
+	// }
+	// }
+	//
+	// ns1 = Messages.getString(fResourceBundle, Messages.WIKI_API_TEMPLATE1);
+	// if (ns1 != null) {
+	// fTemplateNamespaces[0] = ns1;
+	// ns2 = Messages.getString(fResourceBundle, Messages.WIKI_API_TEMPLATE2);
+	// if (ns2 != null) {
+	// fTemplateNamespaces[1] = ns2;
+	// }
+	// }
+	//
+	// ns1 = Messages.getString(fResourceBundle, Messages.WIKI_API_CATEGORY1);
+	// if (ns1 != null) {
+	// fCategoryNamespaces[0] = ns1;
+	// ns2 = Messages.getString(fResourceBundle, Messages.WIKI_API_CATEGORY2);
+	// if (ns2 != null) {
+	// fCategoryNamespaces[1] = ns2;
+	// }
+	// }
+	//
+	// }
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void addCategory(String categoryName, String sortKey) {
 
 	}
@@ -157,7 +209,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public SourceCodeFormatter addCodeFormatter(String key, SourceCodeFormatter value) {
 		return fConfiguration.addCodeFormatter(key, value);
 	}
@@ -165,7 +216,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String addInterwikiLink(String key, String value) {
 		return fConfiguration.addInterwikiLink(key, value);
 	}
@@ -173,7 +223,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void addLink(String topicName) {
 
 	}
@@ -181,7 +230,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean addSemanticAttribute(String attribute, String attributeValue) {
 		return false;
 	}
@@ -189,7 +237,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean addSemanticRelation(String relation, String relationValue) {
 		return false;
 	}
@@ -197,7 +244,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void addTemplate(String template) {
 
 	}
@@ -205,14 +251,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	public void addInclude(String pageName) {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public ITemplateFunction addTemplateFunction(String key, ITemplateFunction value) {
 		return fConfiguration.addTemplateFunction(key, value);
 	}
@@ -220,7 +258,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public TagToken addTokenTag(String key, TagToken value) {
 		return fConfiguration.addTokenTag(key, value);
 	}
@@ -228,7 +265,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String[] addToReferences(String reference, String nameAttribute) {
 		String[] result = new String[2];
 		result[1] = null;
@@ -284,9 +320,7 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 		} else {
 			if (toc.size() > 0) {
 				if (toc.get(toc.size() - 1) instanceof List) {
-					@SuppressWarnings("unchecked")
-					final List<Object> list = (List<Object>) toc.get(toc.size() - 1);
-					addToTableOfContent(list, strPair, --headLevel);
+					addToTableOfContent((List<Object>) toc.get(toc.size() - 1), strPair, --headLevel);
 					return;
 				}
 			}
@@ -299,7 +333,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void append(BaseToken contentNode) {
 		fTagStack.append(contentNode);
 	}
@@ -307,7 +340,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void appendExternalImageLink(String imageSrc, String imageAltText) {
 		TagNode spanTagNode = new TagNode("span");
 		append(spanTagNode);
@@ -318,6 +350,28 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 		imgTagNode.addAttribute("alt", imageAltText, true);
 		// "nofollow" keyword is not allowed for XHTML
 		// imgTagNode.addAttribute("rel", "nofollow", true);
+	}
+
+	/**
+	 * Append an external link (starting with http, https, ftp,...) as described
+	 * in <a href="http://en.wikipedia.org/wiki/Help:Link#External_links">Help
+	 * Links</a>
+	 * 
+	 * @param link
+	 *          the external link with <code>http://, https:// or ftp://</code>
+	 *          prefix
+	 * @param linkName
+	 *          the link name which is separated from the URL by a space
+	 * @param withoutSquareBrackets
+	 *          if <code>true</code> a link with no square brackets around the
+	 *          link was parsed
+	 * @deprecated use
+	 *             {@link IWikiModel#appendExternalLink(String, String, String, boolean)}
+	 *             instead.
+	 */
+	@Deprecated
+	public void appendExternalLink(String link, String linkName, boolean withoutSquareBrackets) {
+		appendExternalLink("", link, linkName, withoutSquareBrackets);
 	}
 
 	/**
@@ -339,31 +393,43 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	 *          if <code>true</code> a link with no square brackets around the
 	 *          link was parsed
 	 */
-	@Override
 	public void appendExternalLink(String uriSchemeName, String link, String linkName, boolean withoutSquareBrackets) {
 		link = Utils.escapeXml(link, true, false, false);
-
+		// is the given link an image?
+		// int indx = link.lastIndexOf(".");
+		// if (indx > 0 && indx < (link.length() - 3)) {
+		// String ext = link.substring(indx + 1);
+		// if (ext.equalsIgnoreCase("gif") || ext.equalsIgnoreCase("png") ||
+		// ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg")
+		// || ext.equalsIgnoreCase("bmp")) {
+		// appendExternalImageLink(link, linkName);
+		// return;
+		// }
+		// }
 		TagNode aTagNode = new TagNode("a");
 		aTagNode.addAttribute("href", link, true);
 		aTagNode.addAttribute("rel", "nofollow", true);
 		if (withoutSquareBrackets) {
-			aTagNode.addAttribute("class", "external free", true);
-			// aTagNode.addAttribute("title", link, true);
+			aTagNode.addAttribute("class", "externallink", true);
+			aTagNode.addAttribute("title", link, true);
 			append(aTagNode);
 			aTagNode.addChild(new ContentToken(linkName));
 		} else {
 			String trimmedText = linkName.trim();
 			if (trimmedText.length() > 0) {
 				pushNode(aTagNode);
-				if (linkName.equals(link)
-				// protocol-relative URLs also get auto-numbered if there is no real
-						// alias
-						|| (link.length() >= 2 && link.charAt(0) == '/' && link.charAt(1) == '/' && link.substring(2).equals(linkName))) {
-					aTagNode.addAttribute("class", "external autonumber", true);
-					aTagNode.addChild(new ContentToken("[" + (++fExternalLinksCounter) + "]"));
+				if (linkName.equals(link)) {
+					if (withoutSquareBrackets) {
+						aTagNode.addAttribute("class", "externallink", true);
+						aTagNode.addAttribute("title", link, true);
+						aTagNode.addChild(new ContentToken(trimmedText));
+					} else {
+						aTagNode.addAttribute("class", "external autonumber", true);
+						aTagNode.addChild(new ContentToken("[" + (++fExternalLinksCounter) + "]"));
+					}
 				} else {
-					aTagNode.addAttribute("class", "external text", true);
-					// aTagNode.addAttribute("title", link, true);
+					aTagNode.addAttribute("class", "externallink", true);
+					aTagNode.addAttribute("title", link, true);
 					WikipediaParser.parseRecursive(trimmedText, this, false, true);
 				}
 				popNode();
@@ -372,12 +438,18 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public ITableOfContent appendHead(String rawHead, int headLevel, boolean noToC, int headCounter) {
+		return appendHead(rawHead, headLevel, noToC, headCounter, 0, 0);
+	}
+
+	/**
 	 * Append a new head to the table of content
 	 * 
 	 * @param rawHead
 	 * @param headLevel
 	 */
-	@Override
 	public ITableOfContent appendHead(String rawHead, int headLevel, boolean noToC, int headCounter, int startPosition,
 			int endPosition) {
 		TagStack localStack = WikipediaParser.parseRecursive(rawHead.trim(), this, true, true);
@@ -421,20 +493,39 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void appendInternalImageLink(String hrefImageLink, String srcImageLink, ImageFormat imageFormat) {
+		// int pxWidth = imageFormat.getWidth();
+		// int pxHeight = imageFormat.getHeight();
 		String caption = imageFormat.getCaption();
 		String imageType = imageFormat.getType();
 		TagNode divInnerTagNode = new TagNode("div");
 		divInnerTagNode.addAttribute("id", "image", false);
-
+		// String link = imageFormat.getLink();
+		// if (link != null) {
+		// String href = encodeTitleToUrl(link, true);
+		// divTagNode.addAttribute("href", href, false);
+		// } else {
 		if (hrefImageLink.length() != 0) {
 			divInnerTagNode.addAttribute("href", hrefImageLink, false);
 		}
+		// }
 
 		divInnerTagNode.addAttribute("src", srcImageLink, false);
 		setDefaultThumbWidth(imageFormat);
 		divInnerTagNode.addObjectAttribute("wikiobject", imageFormat);
+		// if (pxHeight != -1) {
+		// if (pxWidth != -1) {
+		// divInnerTagNode.addAttribute("style", "height:" + pxHeight + "px; " +
+		// "width:" + pxWidth + "px", false);
+		// } else {
+		// divInnerTagNode.addAttribute("style", "height:" + pxHeight + "px",
+		// false);
+		// }
+		// } else {
+		// if (pxWidth != -1) {
+		// divInnerTagNode.addAttribute("style", "width:" + pxWidth + "px", false);
+		// }
+		// }
 		pushNode(divInnerTagNode);
 		try {
 			// TODO: test all these cases
@@ -483,12 +574,13 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void appendInternalLink(String topic, String hashSection, String topicDescription, String cssClass, boolean parseRecursive) {
 		WPATag aTagNode = new WPATag();
+		// append(aTagNode);
+		// aTagNode.addAttribute("id", "w", true);
 		String href = encodeTitleToUrl(topic, true);
 		if (hashSection != null) {
-			href = href + '#' + encodeTitleDotUrl(hashSection, false);
+			href = href + '#' + encodeTitleDotUrl(hashSection, true);
 		}
 		aTagNode.addAttribute("href", href, true);
 		if (cssClass != null) {
@@ -503,12 +595,14 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 			aTagNode.addChild(new ContentToken(topicDescription));
 		}
 		popNode();
+
+		// ContentToken text = new ContentToken(topicDescription);
+		// aTagNode.addChild(text);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void appendInterWikiLink(String namespace, String title, String linkText) {
 		String hrefLink = getInterwikiMap().get(namespace);
 		if (hrefLink == null) {
@@ -535,7 +629,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void appendISBNLink(String isbnPureText) {
 		StringBuffer isbnUrl = new StringBuffer(isbnPureText.length() + 100);
 		isbnUrl.append("http://www.amazon.com/exec/obidos/ASIN/");
@@ -559,8 +652,19 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void appendMailtoLink(String link, String linkName, boolean withoutSquareBrackets) {
+		// is it an image?
+		// link = Utils.escapeXml(link, true, false, false);
+		// int indx = link.lastIndexOf(".");
+		// if (indx > 0 && indx < (link.length() - 3)) {
+		// String ext = link.substring(indx + 1);
+		// if (ext.equalsIgnoreCase("gif") || ext.equalsIgnoreCase("png") ||
+		// ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg")
+		// || ext.equalsIgnoreCase("bmp")) {
+		// appendExternalImageLink(link, linkName);
+		// return;
+		// }
+		// }
 		TagNode aTagNode = new TagNode("a");
 		append(aTagNode);
 		aTagNode.addAttribute("href", link, true);
@@ -573,7 +677,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean appendRawNamespaceLinks(String rawNamespaceTopic, String viewableLinkDescription, boolean containsNoPipe) {
 		int colonIndex = rawNamespaceTopic.indexOf(':');
 
@@ -607,7 +710,7 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 				}
 
 			}
-			if (fNamespace.isNamespace(nameSpace, NamespaceCode.CATEGORY_NAMESPACE_KEY)) {
+			if (isCategoryNamespace(nameSpace)) {
 				// add the category to this texts metadata
 				String category = rawNamespaceTopic.substring(colonIndex + 1).trim();
 				if (category != null && category.length() > 0) {
@@ -631,7 +734,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean appendRawWikipediaLink(String rawLinkText, String suffix) {
 		String rawTopicName = rawLinkText;
 		if (rawTopicName != null) {
@@ -644,14 +746,15 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 				rawTopicName = rawTopicName.substring(trimLeftIndex);
 			}
 			// Is there an alias like [alias|link] ?
-			int pipeIndex = rawTopicName.indexOf('|');
+			int pipeIndex = rawTopicName.lastIndexOf('|');
 			String alias = "";
 			if (-1 != pipeIndex) {
 				alias = rawTopicName.substring(pipeIndex + 1);
 				rawTopicName = rawTopicName.substring(0, pipeIndex);
 				if (alias.length() == 0) {
 					// special cases like: [[Test:hello world|]] or [[Test(hello
-					// world)|]] or [[Test, hello world|]]
+					// world)|]]
+					// or [[Test, hello world|]]
 					alias = rawTopicName;
 					int index = alias.indexOf(':');
 					if (index != -1) {
@@ -672,7 +775,7 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 
 			int hashIndex = rawTopicName.lastIndexOf('#');
 
-			String hash = null;
+			String hash = "";
 			if (-1 != hashIndex && hashIndex != rawTopicName.length() - 1) {
 				hash = rawTopicName.substring(hashIndex + 1);
 				rawTopicName = rawTopicName.substring(0, hashIndex);
@@ -692,11 +795,10 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 			if (-1 != pipeIndex) {
 				viewableLinkDescription = alias + suffix;
 			} else {
-				final String hashStr = (hash != null) ? "&#35;" + hash : ""; // #....
 				if (rawTopicName.length() > 0 && rawTopicName.charAt(0) == ':') {
-					viewableLinkDescription = rawTopicName.substring(1) + hashStr + suffix;
+					viewableLinkDescription = rawTopicName.substring(1) + suffix;
 				} else {
-					viewableLinkDescription = rawTopicName + hashStr + suffix;
+					viewableLinkDescription = rawTopicName + suffix;
 				}
 			}
 
@@ -709,7 +811,7 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 			if (indx >= 0) {
 				namespace = rawTopicName.substring(0, indx);
 			}
-			if (namespace != null && fNamespace.isNamespace(namespace, NamespaceCode.FILE_NAMESPACE_KEY)) {
+			if (namespace != null && isImageNamespace(namespace)) {
 				parseInternalImageLink(namespace, rawLinkText);
 				return false;
 			} else {
@@ -720,7 +822,11 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 					rawTopicName = rawTopicName.substring(1);
 				}
 				addLink(rawTopicName);
-				appendInternalLink(rawTopicName, hash, viewableLinkDescription, null, true);
+				if (-1 != hashIndex) {
+					appendInternalLink(rawTopicName, hash, viewableLinkDescription, null, true);
+				} else {
+					appendInternalLink(rawTopicName, null, viewableLinkDescription, null, true);
+				}
 				return true;
 			}
 		}
@@ -730,7 +836,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean appendRedirectLink(String redirectLink) {
 		fRedirectLink = redirectLink;
 		return true;
@@ -739,7 +844,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void appendSignature(Appendable writer, int numberOfTildes) throws IOException {
 		switch (numberOfTildes) {
 		case 3:
@@ -757,13 +861,15 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void appendStack(TagStack stack) {
 		if (stack != null) {
 			fTagStack.append(stack);
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public TagNode appendToCAnchor(String anchor) {
 		TagNode aTagNode = new TagNode("a");
 		aTagNode.addAttribute("name", anchor, true);
@@ -774,14 +880,12 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void buildEditLinkUrl(int section) {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public AbstractParser createNewInstance(String rawWikitext) {
 		return new WikipediaParser(rawWikitext, isTemplateTopic(), getWikiListener());
 	}
@@ -791,7 +895,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	 * @param isTOCIdentifier
 	 *          <code>true</code> if the __TOC__ keyword was parsed
 	 */
-	@Override
 	public ITableOfContent createTableOfContent(boolean isTOCIdentifier) {
 		if (fTableOfContentTag == null) {
 			TableOfContentTag tableOfContentTag = new TableOfContentTag("div");
@@ -826,7 +929,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public int decrementRecursionLevel() {
 		return --fRecursionLevel;
 	}
@@ -834,7 +936,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public int decrementTemplateRecursionLevel() {
 		return --fTemplateRecursionCount;
 	}
@@ -842,7 +943,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String encodeTitleDotUrl(String wikiTitle, boolean firstCharacterAsUpperCase) {
 		return Encoder.encodeTitleDotUrl(wikiTitle, firstCharacterAsUpperCase);
 	}
@@ -850,9 +950,29 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String encodeTitleToUrl(String wikiTitle, boolean firstCharacterAsUpperCase) {
 		return Encoder.encodeTitleToUrl(wikiTitle, firstCharacterAsUpperCase);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String get2ndCategoryNamespace() {
+		return fNamespace.getCategory2();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String get2ndImageNamespace() {
+		return fNamespace.getImage2();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String get2ndTemplateNamespace() {
+		return fNamespace.getTemplate2();
 	}
 
 	/**
@@ -881,7 +1001,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	 * 
 	 * This method is not static so people can override functionality.
 	 */
-	@Override
 	public Object getAttribute(String attribute) { // StringTemplate self, String
 		// attribute) {
 		// System.out.println("### get("+self.getEnclosingInstanceStackString()+", "+
@@ -947,22 +1066,36 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	 * What renderer is registered for this attributeClassType for this template.
 	 * If not found, the template's group is queried.
 	 */
-	@Override
-	public AttributeRenderer getAttributeRenderer(Class<?> attributeClassType) {
+	public AttributeRenderer getAttributeRenderer(Class attributeClassType) {
 		AttributeRenderer renderer = null;
 		if (attributeRenderers != null) {
 			renderer = (AttributeRenderer) attributeRenderers.get(attributeClassType);
 		}
 		if (renderer != null) {
+			// found it!
 			return renderer;
 		}
+
+		// we have no renderer overrides for the template or none for class arg
+		// check parent template if we are embedded
+		// if ( enclosingInstance!=null ) {
+		// return enclosingInstance.getAttributeRenderer(attributeClassType);
+		// }
+		// // else check group
+		// return group.getAttributeRenderer(attributeClassType);
 		return null;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+	public String getCategoryNamespace() {
+		return fNamespace.getCategory();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Map<String, SourceCodeFormatter> getCodeFormatterMap() {
 		return fConfiguration.getCodeFormatterMap();
 	}
@@ -970,7 +1103,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public Date getCurrentTimeStamp() {
 		return new Date(System.currentTimeMillis());
 	}
@@ -978,7 +1110,13 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+	public String getImageNamespace() {
+		return fNamespace.getImage();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Map<String, String> getInterwikiMap() {
 		return fConfiguration.getInterwikiMap();
 	}
@@ -986,7 +1124,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public Locale getLocale() {
 		return fLocale;
 	}
@@ -994,7 +1131,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public synchronized int getNextNumber() {
 		return fNextNumberCounter++;
 	}
@@ -1002,7 +1138,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public TagToken getNode(int offset) {
 		return fTagStack.get(offset);
 	}
@@ -1037,28 +1172,31 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String getPageName() {
 		return fPageTitle;
-	}
-
-	@Override
-	public MagicWordE getMagicWord(String name) {
-		return MagicWord.getMagicWord(name);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	public String getRawWikiContent(ParsedPageName parsedPagename, Map<String, String> templateParameters) {
-		INamespaceValue namespace = parsedPagename.namespace;
-		String templateName = parsedPagename.pagename;
+	public String getRawWikiContent(String namespace, String templateName, Map<String, String> templateParameters) {
 		if (Configuration.RAW_CONTENT) {
 			System.out.println("AbstractWikiModel raw: " + " " + namespace + " " + templateName);
 		}
-		if (parsedPagename.magicWord != null) {
-			return MagicWord.processMagicWord((MagicWordE) parsedPagename.magicWord, parsedPagename.magicWordParameter, this);
+		if (isTemplateNamespace(namespace)) {
+			String magicWord = templateName;
+			String parameter = "";
+			int index = magicWord.indexOf(':');
+			if (index > 0) {
+				parameter = magicWord.substring(index + 1);
+				if (parameter.length() != 0) {
+					parameter = AbstractTemplateFunction.parseTrim(parameter, this);
+				}
+				magicWord = magicWord.substring(0, index);
+			}
+			if (MagicWord.isMagicWord(magicWord)) {
+				return MagicWord.processMagicWord(magicWord, parameter, this);
+			}
 		}
 		return null;
 	}
@@ -1066,7 +1204,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public int getRecursionLevel() {
 		return fRecursionLevel;
 	}
@@ -1074,7 +1211,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String getRedirectLink() {
 		return fRedirectLink;
 	}
@@ -1082,7 +1218,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public List<Reference> getReferences() {
 		return fReferences;
 	}
@@ -1090,7 +1225,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public ResourceBundle getResourceBundle() {
 		return fNamespace.getResourceBundle();
 	}
@@ -1098,7 +1232,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public List<SemanticAttribute> getSemanticAttributes() {
 		return null;
 	}
@@ -1106,7 +1239,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public List<SemanticRelation> getSemanticRelations() {
 		return null;
 	}
@@ -1114,7 +1246,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public SimpleDateFormat getSimpleDateFormat() {
 		if (fFormatter != null) {
 			return fFormatter;
@@ -1128,7 +1259,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public ITableOfContent getTableOfContent() {
 		return fTableOfContentTag;
 	}
@@ -1136,7 +1266,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public Map<String, String> getTemplateCallsCache() {
 		return fConfiguration.getTemplateCallsCache();
 	}
@@ -1144,7 +1273,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public ITemplateFunction getTemplateFunction(String name) {
 		return getTemplateMap().get(name);
 	}
@@ -1152,7 +1280,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public Map<String, ITemplateFunction> getTemplateMap() {
 		return fConfiguration.getTemplateMap();
 	}
@@ -1160,7 +1287,13 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+	public String getTemplateNamespace() {
+		return fNamespace.getTemplate();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Map<String, TagToken> getTokenMap() {
 		return fConfiguration.getTokenMap();
 	}
@@ -1168,7 +1301,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public Set<String> getUriSchemeSet() {
 		return fConfiguration.getUriSchemeSet();
 	}
@@ -1176,7 +1308,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public IEventListener getWikiListener() {
 		return fWikiListener;
 	}
@@ -1184,7 +1315,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public int incrementRecursionLevel() {
 		return ++fRecursionLevel;
 	}
@@ -1192,7 +1322,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public int incrementTemplateRecursionLevel() {
 		return ++fTemplateRecursionCount;
 	}
@@ -1215,14 +1344,12 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 			fSectionCounter = 0;
 			fExternalLinksCounter = 0;
 			fInitialized = true;
-			fTemplates = new HashMap<String, Counter>();
 		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean isCamelCaseEnabled() {
 		return false;
 	}
@@ -1230,7 +1357,13 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+	public boolean isCategoryNamespace(String namespace) {
+		return namespace.equalsIgnoreCase(fNamespace.getCategory()) || namespace.equalsIgnoreCase(fNamespace.getCategory2());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean isEditorMode() {
 		return false;
 	}
@@ -1238,15 +1371,20 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	public boolean isInterWiki(String namespace) {
-		return !isNamespace(namespace) && getInterwikiMap().containsKey(namespace);
+	public boolean isImageNamespace(String namespace) {
+		return namespace.equalsIgnoreCase(fNamespace.getImage()) || namespace.equalsIgnoreCase(fNamespace.getImage2());
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+	public boolean isInterWiki(String namespace) {
+		return getInterwikiMap().containsKey(namespace);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean isMathtranRenderer() {
 		return false;
 	}
@@ -1254,15 +1392,13 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean isNamespace(String namespace) {
-		return fNamespace.getNamespace(namespace) != null;
+		return isImageNamespace(namespace) || isTemplateNamespace(namespace) || isCategoryNamespace(namespace);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean isPreviewMode() {
 		return false;
 	}
@@ -1270,7 +1406,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean isSemanticWebActive() {
 		return false;
 	}
@@ -1278,7 +1413,13 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+	public boolean isTemplateNamespace(String namespace) {
+		return namespace.equalsIgnoreCase(fNamespace.getTemplate()) || namespace.equalsIgnoreCase(fNamespace.getTemplate2());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean isTemplateTopic() {
 		return fTemplateTopic;
 	}
@@ -1286,7 +1427,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean isValidUriScheme(String uriScheme) {
 		return getUriSchemeSet().contains(uriScheme);
 	}
@@ -1294,7 +1434,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean isValidUriSchemeSpecificPart(String uriScheme, String uriSchemeSpecificPart) {
 		if (uriScheme.equals("ftp") || uriScheme.equals("http") || uriScheme.equals("https")) {
 			return uriSchemeSpecificPart.length() >= 2 && uriSchemeSpecificPart.substring(0, 2).equals("//");
@@ -1305,7 +1444,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean parseBBCodes() {
 		return false;
 	}
@@ -1313,7 +1451,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean parseBehaviorSwitch(String identifier) {
 		for (int i = 0; i < WikipediaParser.TOC_IDENTIFIERS.length; i++) {
 			if (WikipediaParser.TOC_IDENTIFIERS[i].equals(identifier)) {
@@ -1326,7 +1463,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void parseEvents(IEventListener listener, String rawWikiText) {
 		initialize();
 		if (rawWikiText == null) {
@@ -1340,7 +1476,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String parseTemplates(String rawWikiText) {
 		return parseTemplates(rawWikiText, false);
 	}
@@ -1348,7 +1483,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String parseTemplates(String rawWikiText, boolean parseOnlySignature) {
 		if (rawWikiText == null) {
 			return "";
@@ -1369,7 +1503,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public TagToken peekNode() {
 		return fTagStack.peek();
 	}
@@ -1377,7 +1510,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public TagToken popNode() {
 		return fTagStack.pop();
 	}
@@ -1385,7 +1517,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean pushNode(TagToken node) {
 		return fTagStack.push(node);
 	}
@@ -1395,7 +1526,15 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	 * attribute is not formally defined in self's specific template and a formal
 	 * argument list exists.
 	 */
-	protected void rawSetAttribute(Map<String, Object> attributes, String name, Object value) {
+	protected void rawSetAttribute(Map attributes, String name, Object value) {
+		// if ( formalArguments!=FormalArgument.UNKNOWN &&
+		// getFormalArgument(name)==null )
+		// {
+		// // a normal call to setAttribute with unknown attribute
+		// throw new NoSuchElementException("no such attribute: "+name+
+		// " in template context "+
+		// getEnclosingInstanceStackString());
+		// }
 		if (value == null) {
 			return;
 		}
@@ -1406,10 +1545,9 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	 * Register a renderer for all objects of a particular type. This overrides
 	 * any renderer set in the group for this class type.
 	 */
-	@Override
-	public void registerRenderer(Class<?> attributeClassType, AttributeRenderer renderer) {
+	public void registerRenderer(Class attributeClassType, AttributeRenderer renderer) {
 		if (attributeRenderers == null) {
-			attributeRenderers = new HashMap<Class<?>, Object>();
+			attributeRenderers = new HashMap();
 		}
 		attributeRenderers.put(attributeClassType, renderer);
 	}
@@ -1417,7 +1555,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String render(ITextConverter converter, String rawWikiText) {
 		return render(converter, rawWikiText, false);
 	}
@@ -1425,7 +1562,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String render(ITextConverter converter, String rawWikiText, boolean templateTopic) {
 		initialize();
 		if (rawWikiText == null) {
@@ -1444,7 +1580,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void render(ITextConverter converter, String rawWikiText, Appendable buf, boolean templateTopic, boolean parseTemplates)
 			throws IOException {
 		initialize();
@@ -1468,7 +1603,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String render(String rawWikiText) {
 		return render(rawWikiText, false);
 	}
@@ -1476,7 +1610,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String render(String rawWikiText, boolean templateTopic) {
 		return render(new HTMLConverter(), rawWikiText, templateTopic);
 	}
@@ -1484,7 +1617,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String renderPDF(String rawWikiText) {
 		return render(new PDFConverter(), rawWikiText, false);
 	}
@@ -1492,7 +1624,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean replaceColon() {
 		return true;
 	}
@@ -1507,7 +1638,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	 * values. This will be a new list object so that incoming objects are not
 	 * altered. If you send in an array, it is converted to an ArrayIterator.
 	 */
-	@Override
 	public void setAttribute(String name, Object value) {
 		if (value == null || name == null) {
 			return;
@@ -1536,11 +1666,9 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 		Object o = this.attributes.get(name);
 		if (o == null) { // new attribute
 			if (value instanceof List) {
-				@SuppressWarnings("unchecked")
-				final List<Object> list = (List<Object>) value;
-				v = new AttributeList(list.size());
+				v = new AttributeList(((List) value).size());
 				// flatten incoming list into existing
-				v.addAll(list);
+				v.addAll((List) value);
 				rawSetAttribute(this.attributes, name, v);
 				return;
 			}
@@ -1552,8 +1680,7 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 			v = (AttributeList) o;
 		} else if (o instanceof List) { // existing attribute is non-ST List
 			// must copy to an ST-managed list before adding new attribute
-			@SuppressWarnings("unchecked")
-			List<Object> listAttr = (List<Object>) o;
+			List listAttr = (List) o;
 			v = new AttributeList(listAttr.size());
 			v.addAll(listAttr);
 			rawSetAttribute(this.attributes, name, v); // replace attribute w/list
@@ -1567,9 +1694,7 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 		if (value instanceof List) {
 			// flatten incoming list into existing
 			if (v != value) { // avoid weird cyclic add
-				@SuppressWarnings("unchecked")
-				final List<Object> list = (List<Object>) value;
-				v.addAll(list);
+				v.addAll((List) value);
 			}
 		} else {
 			v.add(value);
@@ -1580,14 +1705,13 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	 * Specify a complete map of what object classes should map to which renderer
 	 * objects.
 	 */
-	public void setAttributeRenderers(Map<Class<?>, Object> renderers) {
+	public void setAttributeRenderers(Map renderers) {
 		this.attributeRenderers = renderers;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void setPageName(String pageTitle) {
 		fPageTitle = pageTitle;
 	}
@@ -1595,7 +1719,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void setSemanticWebActive(boolean semanticWeb) {
 
 	}
@@ -1603,7 +1726,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void setTemplateCallsCache(Map<String, String> map) {
 		fConfiguration.setTemplateCallsCache(map);
 	}
@@ -1611,7 +1733,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void setUp() {
 		fFormatter = null;
 		fToCSet = null;
@@ -1625,13 +1746,11 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 		fRedirectLink = null;
 		fSectionCounter = 0;
 		fExternalLinksCounter = 0;
-		fTemplates = new HashMap<String, Counter>();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean showSyntax(String tagName) {
 		return true;
 	}
@@ -1639,7 +1758,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public int stackSize() {
 		return fTagStack.size();
 	}
@@ -1654,82 +1772,59 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	 *          the templates parameter <code>java.util.SortedMap</code>
 	 * @param writer
 	 *          the buffer to append the substituted template content
+	 * @param cacheKey
+	 *          a key for using in a cache
 	 * @throws IOException
 	 */
-	@Override
 	public void substituteTemplateCall(String templateName, Map<String, String> parameterMap, Appendable writer) throws IOException {
-		Counter val = null;
-		try {
-			ParsedPageName parsedPagename = AbstractParser.parsePageName(this, templateName, fNamespace.getTemplate(), true, true);
-			if (!parsedPagename.valid) {
-				writer.append("{{");
-				writer.append(templateName);
-				writer.append("}}");
-				return;
+
+		Map<String, String> templateCallsCache = null;
+		String cacheKey = null;
+		int cacheKeyLength = 0;
+		templateCallsCache = fConfiguration.getTemplateCallsCache();
+		if (templateCallsCache != null) {
+			cacheKeyLength += templateName.length() + 1;
+			for (Entry<String, String> entry : parameterMap.entrySet()) {
+				cacheKeyLength += entry.getKey().length() + entry.getValue().length() + 2;
 			}
-			String fullTemplateStr = parsedPagename.namespace.makeFullPagename(parsedPagename.pagename);
-			
-			val = fTemplates.get(fullTemplateStr);
-			if (val == null) {
-				val = new Counter(0);
-				fTemplates.put(fullTemplateStr, val);
-			}
-			if (val.inc() > 1) {
-				writer.append("<span class=\"error\">Template loop detected: <strong class=\"selflink\">" + fullTemplateStr
-						+ "</strong></span>");
-				return;
-			}
-			
-			Map<String, String> templateCallsCache = null;
-			String cacheKey = null;
-			int cacheKeyLength = 0;
-			templateCallsCache = fConfiguration.getTemplateCallsCache();
-			if (templateCallsCache != null) {
-				cacheKeyLength += fullTemplateStr.length() + 1;
+			if (cacheKeyLength < Configuration.MAX_CACHE_KEY_LENGTH) {
+				StringBuilder cacheKeyBuffer = new StringBuilder(cacheKeyLength);
+				cacheKeyBuffer.append(templateName);
+				cacheKeyBuffer.append("|");
 				for (Entry<String, String> entry : parameterMap.entrySet()) {
-					cacheKeyLength += entry.getKey().length() + entry.getValue().length() + 2;
-				}
-				if (cacheKeyLength < Configuration.MAX_CACHE_KEY_LENGTH) {
-					StringBuilder cacheKeyBuffer = new StringBuilder(cacheKeyLength);
-					cacheKeyBuffer.append(fullTemplateStr);
+					cacheKeyBuffer.append(entry.getKey());
+					cacheKeyBuffer.append("=");
+					cacheKeyBuffer.append(entry.getValue());
 					cacheKeyBuffer.append("|");
-					for (Entry<String, String> entry : parameterMap.entrySet()) {
-						cacheKeyBuffer.append(entry.getKey());
-						cacheKeyBuffer.append("=");
-						cacheKeyBuffer.append(entry.getValue());
-						cacheKeyBuffer.append("|");
-					}
-					cacheKey = cacheKeyBuffer.toString();
-
-					String value = templateCallsCache.get(cacheKey);
-					if (value != null) {
-						// System.out.println("Cache key: " + cacheKey);
-						writer.append(value);
-						if (Configuration.TEMPLATE_NAMES) {
-							System.out.println("Cached: " + fullTemplateStr + "-" + cacheKey);
-						}
-						return;
-					}
 				}
-				if (Configuration.TEMPLATE_NAMES) {
-					System.out.println("Not Cached: " + fullTemplateStr + "-" + cacheKeyLength);
+				cacheKey = cacheKeyBuffer.toString();
+
+				String value = templateCallsCache.get(cacheKey);
+				if (value != null) {
+					// System.out.println("Cache key: " + cacheKey);
+					writer.append(value);
+					if (Configuration.TEMPLATE_NAMES) {
+						System.out.println("Cached: " + templateName + "-" + cacheKey);
+					}
+					return;
 				}
 			}
-
-			if (parsedPagename.namespace.isType(NamespaceCode.TEMPLATE_NAMESPACE_KEY)) {
-				addTemplate(parsedPagename.pagename);
-			} else {
-				addInclude(fullTemplateStr);
-				// invalidate cache:
-				templateCallsCache = null;
+			if (Configuration.TEMPLATE_NAMES) {
+				System.out.println("Not Cached: " + templateName + "-" + cacheKeyLength);
 			}
+		}
 
-			String plainContent = getRawWikiContent(parsedPagename, parameterMap);
-			if (plainContent == null) {
-				// content of this transclusion is missing => render as link:
-				plainContent = "[[:" + fullTemplateStr + "]]";
-			}
+		String plainContent;
+		if (templateName.length() > 0 && templateName.charAt(0) == ':') {
+			// invalidate cache:
+			templateCallsCache = null;
+			plainContent = getRawWikiContent("", templateName.substring(1), parameterMap);
+		} else {
+			addTemplate(templateName);
+			plainContent = getRawWikiContent(getTemplateNamespace(), templateName, parameterMap);
+		}
 
+		if (plainContent != null) {
 			StringBuilder templateBuffer = new StringBuilder(plainContent.length());
 			TemplateParser.parseRecursive(plainContent.trim(), this, templateBuffer, false, false, parameterMap);
 			if (templateCallsCache != null && cacheKey != null) {
@@ -1740,17 +1835,17 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 			} else {
 				writer.append(templateBuffer);
 			}
-		} finally {
-			if (val != null) {
-				val.dec();
-			}
+			return;
 		}
+		// if no template found insert plain template name string:
+		writer.append("{{");
+		writer.append(templateName);
+		writer.append("}}");
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public TagStack swapStack(TagStack stack) {
 		TagStack temp = fTagStack;
 		fTagStack = stack;
@@ -1760,16 +1855,33 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void tearDown() {
 
+	}
+
+	/**
+	 * Initialize the wiki model and parse the <code>rawWikiText</code> and return
+	 * the parsed node list.
+	 * 
+	 * @param rawWikiText
+	 * @return
+	 * @deprecated
+	 */
+	@Deprecated
+	public List<BaseToken> toNodeList(String rawWikiText) {
+		initialize();
+		if (rawWikiText == null) {
+			return new ArrayList<BaseToken>();
+		}
+		WikipediaParser.parse(rawWikiText, this, true, null);
+		fInitialized = false;
+		return fTagStack.getNodeList();
 	}
 
 	/**
 	 * Reduce the current token stack until an allowed parent is at the top of the
 	 * stack
 	 */
-	@Override
 	public void reduceTokenStack(TagToken node) {
 		String allowedParents = node.getParents();
 		if (allowedParents != null) {
@@ -1790,12 +1902,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 					break;
 				}
 			}
-			if (stackSize() == 0 && (node instanceof HTMLTag)) {
-				HTMLTag defParent = ((HTMLTag) node).getDefaultParentTag();
-				if (defParent != null) {
-					pushNode((HTMLTag) defParent.clone());
-				}
-			}
 		} else {
 			while (stackSize() > 0) {
 				popNode();
@@ -1803,23 +1909,17 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 		}
 	}
 
-	@Override
 	public String getNamespaceName() {
 		return fNamespaceName;
 	}
 
-	@Override
 	public void setNamespaceName(String namespaceLowercase) {
 		if (namespaceLowercase == null) {
 			fNamespaceName = "";
 			return;
 		}
-		// TODO: we should only allow valid namespaces and probably set pagename and
-		// namespace in one go
-		INamespaceValue nsVal = fNamespace.getNamespace(namespaceLowercase);
-		if (nsVal != null) {
-			fNamespaceName = nsVal.getPrimaryText();
-		} else {
+		fNamespaceName = fNamespace.getNamespaceByLowercase(namespaceLowercase);
+		if (fNamespaceName == null) {
 			fNamespaceName = namespaceLowercase;
 		}
 	}
@@ -1827,7 +1927,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String getImageBaseURL() {
 		return "/wiki/${image}";
 	}
@@ -1835,7 +1934,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String getWikiBaseURL() {
 		return "/wiki/${title}";
 	}
@@ -1843,7 +1941,6 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String getWikiBaseEditURL() {
 		if (fLocale != null) {
 			String lang = fLocale.getLanguage();
@@ -1851,13 +1948,4 @@ public abstract class AbstractWikiModel implements IWikiModel, IContext {
 		}
 		return "http://en.wikipedia.org/w/index.php?title=${title}";
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String[] splitNsTitle(String fullTitle) {
-		return fNamespace.splitNsTitle(fullTitle, true, ' ', true);
-	}
-
 }

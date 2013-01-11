@@ -48,73 +48,69 @@ public class Titleparts extends AbstractTemplateFunction {
 
 				}
 			}
-			return getTitleparts(pagename, numberOfSegments, firstSegment);
+			int indx = -1;
+			if (firstSegment > 0) {
+				indx = -1;
+				while (firstSegment > 1) {
+					indx = pagename.indexOf('/', ++indx);
+					if (indx < 0) {
+						return "";
+					}
+					firstSegment--;
+				}
+				if (indx > 0) {
+					pagename = pagename.substring(indx + 1);
+				}
+			} else {
+				// Negative values for first segment translates to
+				// "add this value to the total number of segments", loosely equivalent
+				// to "count from the right":
+				indx = pagename.length();
+				while (firstSegment < 0) {
+					indx = pagename.lastIndexOf('/', --indx);
+					if (indx < 0) {
+						return "";
+					}
+					firstSegment++;
+				}
+				if (indx >= 0) {
+					pagename = pagename.substring(indx + 1);
+				}
+			}
+			if (numberOfSegments >= 0) {
+				indx = -1;
+				while (numberOfSegments > 0) {
+					indx = pagename.indexOf('/', ++indx);
+					if (--numberOfSegments == 0) {
+						if (indx >= 0) {
+							return pagename.substring(0, indx);
+						}
+						return pagename;
+					}
+					if (indx < 0) {
+						return pagename;
+					}
+				}
+			} else {
+				indx = pagename.length();
+				while (numberOfSegments < 0) {
+					indx = pagename.lastIndexOf('/', --indx);
+					if (++numberOfSegments == 0) {
+						if (indx >= 0) {
+							break;
+						}
+						return "";
+					}
+					if (indx < 0) {
+						return "";
+					}
+				}
+				if (indx >= 0) {
+					pagename = pagename.substring(0, indx);
+				}
+			}
+			return pagename;
 		}
 		return null;
-	}
-
-	public static String getTitleparts(String pagename, int numberOfSegments, int firstSegment) {
-		int indx = -1;
-		if (firstSegment > 0) {
-			indx = -1;
-			while (firstSegment > 1) {
-				indx = pagename.indexOf('/', ++indx);
-				if (indx < 0) {
-					return "";
-				}
-				firstSegment--;
-			}
-			if (indx > 0) {
-				pagename = pagename.substring(indx + 1);
-			}
-		} else {
-			// Negative values for first segment translates to
-			// "add this value to the total number of segments", loosely equivalent
-			// to "count from the right":
-			indx = pagename.length();
-			while (firstSegment < 0) {
-				indx = pagename.lastIndexOf('/', --indx);
-				if (indx < 0) {
-					return pagename;
-				}
-				firstSegment++;
-			}
-			if (indx >= 0) {
-				pagename = pagename.substring(indx + 1);
-			}
-		}
-		if (numberOfSegments >= 0) {
-			indx = -1;
-			while (numberOfSegments > 0) {
-				indx = pagename.indexOf('/', ++indx);
-				if (--numberOfSegments == 0) {
-					if (indx >= 0) {
-						return pagename.substring(0, indx);
-					}
-					return pagename;
-				}
-				if (indx < 0) {
-					return pagename;
-				}
-			}
-		} else {
-			indx = pagename.length();
-			while (numberOfSegments < 0) {
-				indx = pagename.lastIndexOf('/', --indx);
-				if (++numberOfSegments == 0) {
-					if (indx >= 0) {
-						break;
-					}
-					return "";
-				}
-				if (indx < 0) {
-					return "";
-				}
-			}
-			if (indx >= 0) {
-				pagename = pagename.substring(0, indx);
-			}
-		}
-		return pagename;
 	}
 }

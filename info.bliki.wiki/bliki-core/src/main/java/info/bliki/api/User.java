@@ -36,6 +36,26 @@ public class User {
 	Connector connector;
 
 	/**
+	 * A default "blank" user, not really useful. Will be removed in later
+	 * releases.
+	 * 
+	 * @deprecated
+	 */
+	@Deprecated
+	public User() {
+		super();
+		this.result = "";
+		this.userid = "";
+		this.username = "";
+		this.normalizedUsername = "";
+		this.token = "";
+		this.password = "";
+		this.actionUrl = "";
+		this.domain = "";
+		this.connector = new Connector();
+	}
+
+	/**
 	 * Create a User for a Mediawiki wiki
 	 * 
 	 * @param lgname

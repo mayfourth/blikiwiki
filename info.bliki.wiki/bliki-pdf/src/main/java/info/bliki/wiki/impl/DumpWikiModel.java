@@ -1,20 +1,16 @@
 package info.bliki.wiki.impl;
 
-import info.bliki.Messages;
 import info.bliki.api.creator.ImageData;
 import info.bliki.api.creator.TopicData;
 import info.bliki.api.creator.WikiDB;
 import info.bliki.htmlcleaner.TagNode;
 import info.bliki.wiki.dump.Siteinfo;
-import info.bliki.wiki.filter.AbstractParser;
 import info.bliki.wiki.filter.Encoder;
 import info.bliki.wiki.filter.WikipediaParser;
-import info.bliki.wiki.filter.AbstractParser.ParsedPageName;
 import info.bliki.wiki.model.Configuration;
 import info.bliki.wiki.model.ImageFormat;
 import info.bliki.wiki.model.WikiModel;
 import info.bliki.wiki.namespaces.INamespace;
-import info.bliki.wiki.namespaces.INamespace.NamespaceCode;
 import info.bliki.wiki.tags.WPATag;
 
 import java.io.File;
@@ -72,10 +68,10 @@ public class DumpWikiModel extends WikiModel {
 	 */
 	public DumpWikiModel(WikiDB wikiDB, Siteinfo siteinfo, Locale locale, String imageBaseURL, String linkBaseURL,
 			String imageDirectoryName) {
-		super(Configuration.DEFAULT_CONFIGURATION, locale, Messages.getResourceBundle(locale), siteinfo.getNamespace(), imageBaseURL, linkBaseURL);
+		super(Configuration.DEFAULT_CONFIGURATION, locale, imageBaseURL, linkBaseURL);
 		fWikiDB = wikiDB;
 		fSiteinfo = siteinfo;
-		fTemplateNamespace = fSiteinfo.getNamespace(INamespace.NamespaceCode.TEMPLATE_NAMESPACE_KEY.code);
+		fTemplateNamespace = fSiteinfo.getNamespace(INamespace.TEMPLATE_NAMESPACE_KEY);
 		if (imageDirectoryName != null) {
 			if (imageDirectoryName.charAt(imageDirectoryName.length() - 1) == '/') {
 				fImageDirectoryName = imageDirectoryName;
@@ -96,8 +92,10 @@ public class DumpWikiModel extends WikiModel {
 	 * implementation uses a Derby database to cache downloaded wiki template
 	 * texts.
 	 * 
-	 * @param parsedPagename
-	 *          the parsed template name
+	 * @param namespace
+	 *          the namespace of this article
+	 * @param templateName
+	 *          the name of the template
 	 * @param templateParameters
 	 *          if the namespace is the <b>Template</b> namespace, the current
 	 *          template parameters are stored as <code>String</code>s in this map
@@ -107,14 +105,14 @@ public class DumpWikiModel extends WikiModel {
 	 * @see info.bliki.api.User#queryContent(String[])
 	 */
 	@Override
-	public String getRawWikiContent(ParsedPageName parsedPagename, Map<String, String> templateParameters) {
-		String result = super.getRawWikiContent(parsedPagename, templateParameters);
+	public String getRawWikiContent(String namespace, String articleName, Map<String, String> templateParameters) {
+		String result = super.getRawWikiContent(namespace, articleName, templateParameters);
 		if (result != null) {
 			// found magic word template
 			return result;
 		}
-		if (parsedPagename.namespace.isType(NamespaceCode.TEMPLATE_NAMESPACE_KEY)) {
-			String name = parsedPagename.pagename;
+		if (namespace.equals(fTemplateNamespace)) {
+			String name = articleName;
 			if (fSiteinfo.getCharacterCase().equals("first-letter")) {
 				// first character as uppercase
 				name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
@@ -147,14 +145,23 @@ public class DumpWikiModel extends WikiModel {
 		}
 		String redirectedLink = WikipediaParser.parseRedirect(rawWikitext, this);
 		if (redirectedLink != null) {
-			ParsedPageName redirParsedPage = AbstractParser.parsePageName(this, redirectedLink, fNamespace.getTemplate(), true, true);
+			String redirNamespace = "";
+			String redirArticle = redirectedLink;
+			int index = redirectedLink.indexOf(":");
+			if (index > 0) {
+				redirNamespace = redirectedLink.substring(0, index);
+				if (isNamespace(redirNamespace)) {
+					redirArticle = redirectedLink.substring(index + 1);
+				} else {
+					redirNamespace = "";
+				}
+			}
 			try {
 				int level = incrementRecursionLevel();
-				// TODO: what to do if parsing the title failed due to invalid syntax?
-				if (level > Configuration.PARSER_RECURSION_LIMIT || !redirParsedPage.valid) {
-					return "Error - getting content of redirected link: " + redirParsedPage.namespace + ":" + redirParsedPage.pagename;
+				if (level > Configuration.PARSER_RECURSION_LIMIT) {
+					return "Error - getting content of redirected link: " + redirNamespace + ":" + redirArticle;
 				}
-				return getRawWikiContent(redirParsedPage, templateParameters);
+				return getRawWikiContent(redirNamespace, redirArticle, templateParameters);
 			} finally {
 				decrementRecursionLevel();
 			}
@@ -228,6 +235,81 @@ public class DumpWikiModel extends WikiModel {
 			}
 			appendInternalImageLink(imageHref, imageSrc, imageFormat);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see info.bliki.wiki.model.AbstractWikiModel#getCategoryNamespace()
+	 */
+	@Override
+	public String getCategoryNamespace() {
+		return fSiteinfo.getNamespace(INamespace.CATEGORY_NAMESPACE_KEY);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see info.bliki.wiki.model.AbstractWikiModel#getImageNamespace()
+	 */
+	@Override
+	public String getImageNamespace() {
+		return fSiteinfo.getNamespace(INamespace.FILE_NAMESPACE_KEY);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see info.bliki.wiki.model.AbstractWikiModel#getTemplateNamespace()
+	 */
+	@Override
+	public String getTemplateNamespace() {
+		return fSiteinfo.getNamespace(INamespace.TEMPLATE_NAMESPACE_KEY);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * info.bliki.wiki.model.AbstractWikiModel#isCategoryNamespace(java.lang.String
+	 * )
+	 */
+	@Override
+	public boolean isCategoryNamespace(String namespace) {
+		return INamespace.CATEGORY_NAMESPACE_KEY.equals(fSiteinfo.getIntegerNamespace(namespace));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * info.bliki.wiki.model.AbstractWikiModel#isImageNamespace(java.lang.String)
+	 */
+	@Override
+	public boolean isImageNamespace(String namespace) {
+		return INamespace.FILE_NAMESPACE_KEY.equals(fSiteinfo.getIntegerNamespace(namespace));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see info.bliki.wiki.model.AbstractWikiModel#isNamespace(java.lang.String)
+	 */
+	@Override
+	public boolean isNamespace(String namespace) {
+		return fSiteinfo.getIntegerNamespace(namespace) != null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * info.bliki.wiki.model.AbstractWikiModel#isTemplateNamespace(java.lang.String
+	 * )
+	 */
+	@Override
+	public boolean isTemplateNamespace(String namespace) {
+		return INamespace.TEMPLATE_NAMESPACE_KEY.equals(fSiteinfo.getIntegerNamespace(namespace));
 	}
 
 }

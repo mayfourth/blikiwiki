@@ -15,7 +15,9 @@ public class HelloWikiLinkListener extends DefaultEventListener {
 
 	}
 
-	@Override
+	public void onHeader(char[] src, int rawStart, int rawEnd, int level) {
+	}
+
 	public void onWikiLink(char[] src, int rawStart, int rawEnd, String suffix) {
 		collectorBuffer.append(src, rawStart, rawEnd - rawStart);
 		collectorBuffer.append("\n");

@@ -5,12 +5,7 @@ import java.util.ArrayList;
 /**
  * Internal alias for an ArrayList.
  */
- final public class AttributeList extends ArrayList<Object> {
-	/**
-	 * Auto-generated serial version UID.
-	 */
-	private static final long serialVersionUID = 5842220402564899140L;
-
+ final public class AttributeList extends ArrayList {
 	public AttributeList(int size) {
 		super(size);
 	}

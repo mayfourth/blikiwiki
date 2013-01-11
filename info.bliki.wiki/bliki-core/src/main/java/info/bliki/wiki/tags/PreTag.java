@@ -21,18 +21,10 @@ public class PreTag extends HTMLBlockTag implements INoBodyParsingTag {// implem
 	}
 
 	@Override
-	public Object clone() {
-		PreTag pt = new PreTag( );
-		return pt;
-	}
-	
-	@Override
 	public void renderHTML(ITextConverter converter, Appendable writer, IWikiModel model) throws IOException {
 		String content = getBodyString();
 		if (content != null && content.length() > 0) {
-			writer.append("\n<pre");
-			appendAttributes(writer, getAttributes());
-			writer.append('>');
+			writer.append("\n<pre>");
 			content = Configuration.NOWIKI_OPEN_PATTERN.matcher(content).replaceAll("");
 			content = Configuration.NOWIKI_CLOSE_PATTERN.matcher(content).replaceAll("");
 			NowikiTag.copyPre(content, writer, true);

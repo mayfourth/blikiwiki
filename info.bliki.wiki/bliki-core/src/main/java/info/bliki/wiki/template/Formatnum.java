@@ -3,7 +3,6 @@ package info.bliki.wiki.template;
 import info.bliki.wiki.model.Configuration;
 import info.bliki.wiki.model.IWikiModel;
 
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
 
@@ -37,19 +36,7 @@ public class Formatnum extends AbstractTemplateFunction {
 						}
 					} else {
 						Double dbl = new Double(result);
-						// decimal number that will be rounded down by NumberFormat#format()?
-						if (result.endsWith(".")) {
-							DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(model.getLocale());
-							result = nf.format(dbl) + df.getDecimalFormatSymbols().getDecimalSeparator();
-						} else if (dbl == dbl.intValue()) {
-							int idx = result.indexOf('.');
-							if (idx != -1) {
-								nf.setMinimumFractionDigits(result.length() - 1 - idx);
-							}
-							result = nf.format(dbl);
-						} else {
-							result = nf.format(dbl);
-						}
+						result = nf.format(dbl);
 					}
 				} catch (Exception ex) {
 					if (Configuration.DEBUG) {

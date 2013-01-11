@@ -60,7 +60,7 @@ public class WPSemanticLinkTest extends FilterTestSupport {
 
 		assertEquals(
 				"\n"
-						+ "<p>Make <a class=\"interwiki\" href=\"http://www.bliki.info/wiki/Link\" title=\"Link\">alternate text</a> appear in place of the link.</p>",
+						+ "<p>Make <a class=\"interwiki\" href=\"http://www.bliki.info/wiki/Link\" title=\"link\">alternate text</a> appear in place of the link.</p>",
 				wikiModel.render("Make [[example relation::link|alternate text]] appear in place of the link.", false));
 		List<SemanticRelation> list = wikiModel.getSemanticRelations();
 		SemanticRelation rel = list.get(0);

@@ -1,6 +1,5 @@
 package info.bliki.wiki.model;
 
-import info.bliki.Messages;
 import info.bliki.htmlcleaner.ContentToken;
 import info.bliki.htmlcleaner.TagToken;
 import info.bliki.wiki.filter.Encoder;
@@ -8,7 +7,6 @@ import info.bliki.wiki.filter.HTMLConverter;
 import info.bliki.wiki.filter.ITextConverter;
 import info.bliki.wiki.filter.WikipediaParser;
 import info.bliki.wiki.namespaces.INamespace;
-import info.bliki.wiki.tags.HTMLTag;
 import info.bliki.wiki.tags.PTag;
 import info.bliki.wiki.tags.WPATag;
 
@@ -35,8 +33,6 @@ public class WikiModel extends AbstractWikiModel {
 	protected Set<String> links = null;
 
 	protected Set<String> templates = null;
-
-	protected Set<String> includes = null;
 
 	protected List<SemanticRelation> semanticRelations = null;
 
@@ -73,9 +69,9 @@ public class WikiModel extends AbstractWikiModel {
 		fExternalWikiBaseURL = linkBaseURL;
 	}
 
-	public WikiModel(Configuration configuration, Locale locale, ResourceBundle resourceBundle, INamespace namespace, String imageBaseURL,
+	public WikiModel(Configuration configuration, ResourceBundle resourceBundle, INamespace namespace, String imageBaseURL,
 			String linkBaseURL) {
-		super(configuration, locale, resourceBundle, namespace);
+		super(configuration, resourceBundle, namespace);
 		fExternalImageBaseURL = imageBaseURL;
 		fExternalWikiBaseURL = linkBaseURL;
 	}
@@ -132,60 +128,18 @@ public class WikiModel extends AbstractWikiModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addInclude(String pageName) {
-		includes.add(pageName);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void appendInternalLink(String topic, String hashSection, String topicDescription, String cssClass, boolean parseRecursive) {
-		appendInternalLink(topic, hashSection, topicDescription, cssClass, parseRecursive, true);
-	}
-
-	protected void appendInternalLink(String topic, String hashSection, String topicDescription,
-			String cssClass, boolean parseRecursive, boolean topicExists) {
 		String hrefLink;
 		String description = topicDescription;
 		WPATag aTagNode = new WPATag();
 		if (topic.length() > 0) {
-			String title = Encoder.normaliseTitle(topic, true, ' ', true);
-			if (hashSection == null) {
-				String pageName = Encoder.normaliseTitle(fPageTitle, true, ' ', true);
-				// self link?
-				if (title.equals(pageName)) {
-					HTMLTag selfLink = new HTMLTag("strong");
-					selfLink.addAttribute("class", "selflink", false);
-					pushNode(selfLink);
-					selfLink.addChild(new ContentToken(description));
-					popNode();
-					return;
-				}
-			}
-			
+			aTagNode.addAttribute("title", topic, true);
 			String encodedtopic = encodeTitleToUrl(topic, true);
 			if (replaceColon()) {
 				encodedtopic = encodedtopic.replace(':', '/');
 			}
 			hrefLink = getWikiBaseURL().replace("${title}", encodedtopic);
-			if (!topicExists) {
-				if (cssClass == null) {
-					cssClass = "new";
-				}
-				if (hrefLink.indexOf('?') != -1) {
-					hrefLink += "&";
-				} else {
-					hrefLink += "?";
-				}
-				hrefLink += "action=edit&redlink=1";
-				String redlinkString = Messages.getString(getResourceBundle(),
-						Messages.WIKI_TAGS_RED_LINK, "${title} (page does not exist)");
-				title = redlinkString.replace("${title}", title);
-			}
-			aTagNode.addAttribute("title", title, true);
 		} else {
-			// assume, the own topic exists
 			if (hashSection != null) {
 				hrefLink = "";
 				if (description.length() == 0) {
@@ -197,8 +151,8 @@ public class WikiModel extends AbstractWikiModel {
 		}
 
 		String href = hrefLink;
-		if (topicExists && hashSection != null) {
-			href = href + '#' + encodeTitleDotUrl(hashSection, false);
+		if (hashSection != null) {
+			href = href + '#' + encodeTitleDotUrl(hashSection, true);
 		}
 		aTagNode.addAttribute("href", href, true);
 		if (cssClass != null) {
@@ -229,7 +183,6 @@ public class WikiModel extends AbstractWikiModel {
 	 * 
 	 * @return the set of category strings
 	 */
-	@Override
 	public Set<String> getLinks() {
 		return links;
 	}
@@ -251,21 +204,10 @@ public class WikiModel extends AbstractWikiModel {
 	}
 
 	/**
-	 * Gets the names of all included pages in the template namespace.
-	 * 
-	 * @return page names without the template namespace prefix
+	 * {@inheritDoc}
 	 */
 	public Set<String> getTemplates() {
 		return templates;
-	}
-
-	/**
-	 * Gets the names of all included pages outside the template namespace.
-	 * 
-	 * @return page names including their namespace prefix
-	 */
-	public Set<String> getIncludes() {
-		return includes;
 	}
 
 	/**
@@ -296,7 +238,6 @@ public class WikiModel extends AbstractWikiModel {
 	 *          the raw image link text without the surrounding
 	 *          <code>[[...]]</code>
 	 */
-	@Override
 	public void parseInternalImageLink(String imageNamespace, String rawImageLink) {
 		String imageSrc = getImageBaseURL();
 		if (imageSrc != null) {
@@ -365,7 +306,6 @@ public class WikiModel extends AbstractWikiModel {
 		categories = new HashMap<String, String>();
 		links = new HashSet<String>();
 		templates = new HashSet<String>();
-		includes = new HashSet<String>();
 		semanticRelations = null;
 		semanticAttributes = null;
 	}
@@ -373,7 +313,6 @@ public class WikiModel extends AbstractWikiModel {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public INamespace getNamespace() {
 		return fNamespace;
 	}
@@ -446,6 +385,8 @@ public class WikiModel extends AbstractWikiModel {
 	 * 
 	 * @param rawWikiText
 	 *          a raw wiki text
+	 * @param resultBuffer
+	 *          the buffer to which to append the resulting HTML code.
 	 * @return the resulting HTML text; nay returns <code>null</code>, if an
 	 *         <code>IOException</code> occured.
 	 */
@@ -460,9 +401,19 @@ public class WikiModel extends AbstractWikiModel {
 	}
 
 	/**
+	 * Set the model's locale to a new value. You can use this function in JUnit
+	 * tests, but otherwise it's preferred to set the Locale in the nodels
+	 * constructor and nether changeing it.
+	 * 
+	 * @param locale
+	 */
+	public void setLocale(Locale locale) {
+		fLocale = locale;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String getImageBaseURL() {
 		return fExternalImageBaseURL;
 	}
@@ -470,7 +421,6 @@ public class WikiModel extends AbstractWikiModel {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String getWikiBaseURL() {
 		return fExternalWikiBaseURL;
 	}

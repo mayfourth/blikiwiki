@@ -1,1 +1,0 @@
-@java -Duser.language=en -Duser.region=US -cp "%~dp0\src;%~dp0\bin;C:/IDE/gwt/gwt-windows-1.5.3/gwt-user.jar;C:/IDE/gwt/gwt-windows-1.5.3/gwt-dev-windows.jar" com.google.gwt.dev.GWTShell -out "%~dp0\www" %* info.bliki.wiki.Wiki/Wiki.html

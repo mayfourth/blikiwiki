@@ -17,23 +17,19 @@ public abstract class AbstractHTMLTag implements HTMLTag {
 		this.fconvertPlainText = noNewLine;
 	}
 
-	@Override
 	public void close(TagNode node, StringBuilder resultBuffer) {
 		// do nothing by default
 	}
 
-	@Override
 	public void open(TagNode node, StringBuilder resultBuffer) {
 		// do nothing by default
 	}
 
-	@Override
 	public void emptyContent(AbstractHTMLToWiki html2WikiConverter, TagNode node,
 	    StringBuilder resultBuffer, boolean showWithoutTag) {
 		// do nothing by default
 	}
 
-	@Override
 	public void content(AbstractHTMLToWiki w, TagNode node,
 	    StringBuilder resultBuffer, boolean showWithoutTag) {
 		List<Object> children = node.getChildren();

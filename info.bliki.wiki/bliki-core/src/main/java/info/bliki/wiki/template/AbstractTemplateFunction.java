@@ -1,5 +1,6 @@
 package info.bliki.wiki.template;
 
+import info.bliki.htmlcleaner.Utils;
 import info.bliki.wiki.filter.TemplateParser;
 import info.bliki.wiki.model.IWikiModel;
 
@@ -16,7 +17,6 @@ public abstract class AbstractTemplateFunction implements ITemplateFunction {
 
 	}
 
-	@Override
 	public String getFunctionDoc() {
 		return null;
 	}
@@ -24,7 +24,6 @@ public abstract class AbstractTemplateFunction implements ITemplateFunction {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public abstract String parseFunction(List<String> parts, IWikiModel model, char[] src, int beginIndex, int endIndex,
 			boolean isSubst) throws IOException;
 
@@ -64,4 +63,19 @@ public abstract class AbstractTemplateFunction implements ITemplateFunction {
 		return parse(content, model).trim();
 	}
 
+	/**
+	 * Parse the given content string with the template parser and
+	 * <code>Utils#trimNewlineLeft()</code> the resulting string.
+	 * 
+	 * @param content
+	 *          the raw content string
+	 * @param model
+	 *          the wiki model
+	 * @return
+	 * 
+	 * @deprecated
+	 */
+	public static String parseTrimNewlineLeft(String content, IWikiModel model) {
+		return Utils.trimNewlineLeft(parse(content, model));
+	}
 }

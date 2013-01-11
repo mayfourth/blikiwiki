@@ -3,11 +3,8 @@ package info.bliki.wiki.model;
 import info.bliki.htmlcleaner.BaseToken;
 import info.bliki.htmlcleaner.TagToken;
 import info.bliki.wiki.filter.AbstractParser;
-import info.bliki.wiki.filter.AbstractParser.ParsedPageName;
-import info.bliki.wiki.filter.Encoder;
 import info.bliki.wiki.filter.ITextConverter;
 import info.bliki.wiki.namespaces.INamespace;
-import info.bliki.wiki.namespaces.INamespace.INamespaceValue;
 import info.bliki.wiki.tags.util.TagStack;
 import info.bliki.wiki.template.ITemplateFunction;
 
@@ -79,25 +76,9 @@ public interface IWikiModel extends IConfiguration {
 	 * output metadata.
 	 * 
 	 * @param template
-	 *          The name of the template that is being included (excluding the
-	 *          template namespace).
+	 *          The name of the template that is being included.
 	 */
 	public void addTemplate(String template);
-
-	/**
-	 * When a document contains a token indicating that the document includes an
-	 * other Wiki page, i.e. transclusion, this method should be called to add
-	 * that page to the output metadata.
-	 * 
-	 * This excludes transcluded template pages.
-	 * 
-	 * @param pageName
-	 *          The name of the page that is being included (including its
-	 *          namespace).
-	 * 
-	 * @see #addTemplate(String)
-	 */
-	public void addInclude(String pageName);
 
 	/**
 	 * Add a reference (i.e. footnote) to the internal list
@@ -133,6 +114,26 @@ public interface IWikiModel extends IConfiguration {
 	 * in <a href="http://en.wikipedia.org/wiki/Help:Link#External_links">Help
 	 * Links</a>
 	 * 
+	 * @param link
+	 *          the external link with <code>http://, https:// or ftp://</code>
+	 *          prefix
+	 * @param linkName
+	 *          the link name which is separated from the URL by a space
+	 * @param withoutSquareBrackets
+	 *          if <code>true</code> a link with no square brackets around the
+	 *          link was parsed
+	 * @deprecated use
+	 *             {@link IWikiModel#appendExternalLink(String, String, String, boolean)}
+	 *             instead.
+	 */
+	@Deprecated
+	public void appendExternalLink(String link, String linkName, boolean withoutSquareBrackets);
+
+	/**
+	 * Append an external link (starting with http, https, ftp,...) as described
+	 * in <a href="http://en.wikipedia.org/wiki/Help:Link#External_links">Help
+	 * Links</a>
+	 * 
 	 * @param uriSchemeName
 	 *          the top level URI (Uniform Resource Identifier) scheme name
 	 *          (without the following colon character ":"). Example "ftp",
@@ -148,6 +149,25 @@ public interface IWikiModel extends IConfiguration {
 	 *          link was parsed
 	 */
 	public void appendExternalLink(String uriSchemeName, String link, String linkName, boolean withoutSquareBrackets);
+
+	/**
+	 * Add a single wiki head (i.e. ==...==, ===...===, ====...====,...) to the
+	 * table of content
+	 * 
+	 * @param rawHead
+	 *          the unparsed header string
+	 * @param headLevel
+	 *          level of header (i.e. h1, h2, h3, h4, 5h,..)
+	 * @param noToc
+	 *          don't show the &quot;table of content&quot;
+	 * @param headCounter
+	 *          the total number of headers parsed
+	 * @return the &quot;table of content&quot; tag
+	 * 
+	 * @deprecated
+	 */
+	@Deprecated
+	public ITableOfContent appendHead(String rawHead, int headLevel, boolean noToC, int headCounter);
 
 	/**
 	 * Add a single wiki head (i.e. ==...==, ===...===, ====...====,...) to the
@@ -385,6 +405,37 @@ public interface IWikiModel extends IConfiguration {
 	public String encodeTitleToUrl(String wikiTitle, boolean firstCharacterAsUpperCase);
 
 	/**
+	 * Get the secondary namespace (i.e. the namespace for a non-englich locale)
+	 * for categories in this wiki
+	 * 
+	 * @return the secondary category namespace
+	 */
+	public String get2ndCategoryNamespace();
+
+	/**
+	 * Get the secondary namespace (i.e. the namespace for a non-englich locale)
+	 * for images in this wiki
+	 * 
+	 * @return the secondary image namespace
+	 */
+	public String get2ndImageNamespace();
+
+	/**
+	 * Get the secondary namespace (i.e. the namespace for a non-englich locale)
+	 * for templates in this wiki
+	 * 
+	 * @return the secondary template namespace
+	 */
+	public String get2ndTemplateNamespace();
+
+	/**
+	 * Get the primary namespace for categories in this wiki
+	 * 
+	 * @return the primary category namespace
+	 */
+	public String getCategoryNamespace();
+
+	/**
 	 * Get the current time stamp. This is the value for the magic word
 	 * &quot;CURRENTTIMESTAMP&quot;.
 	 * 
@@ -405,6 +456,13 @@ public interface IWikiModel extends IConfiguration {
 	 * @see #getWikiBaseEditURL()
 	 */
 	public String getImageBaseURL();
+
+	/**
+	 * Get the primary namespace for images in this wiki
+	 * 
+	 * @return the primary image namespace
+	 */
+	public String getImageNamespace();
 
 	/**
 	 * Get the set of Wikipedia link names
@@ -461,16 +519,17 @@ public interface IWikiModel extends IConfiguration {
 	/**
 	 * Get the raw wiki text for the given namespace and article name
 	 * 
+	 * @param namespace
+	 *          the namespace of this article
 	 * @param templateName
-	 *          the parsed template name
+	 *          the name of the template
 	 * @param templateParameters
 	 *          if the namespace is the <b>Template</b> namespace, the current
 	 *          template parameters are stored as <code>String</code>s in this map
 	 * 
 	 * @return <code>null</code> if no content was found
-	 * @see AbstractParser#parsePageName(IWikiModel, String, INamespaceValue, boolean)
 	 */
-	public String getRawWikiContent(ParsedPageName templateName, Map<String, String> templateParameters);
+	public String getRawWikiContent(String namespace, String templateName, Map<String, String> templateParameters);
 
 	/**
 	 * Get the current recursion level of the parser. The recursion level is used
@@ -553,6 +612,13 @@ public interface IWikiModel extends IConfiguration {
 	public ITemplateFunction getTemplateFunction(String name);
 
 	/**
+	 * Get the primary namespace for templates in this wiki model
+	 * 
+	 * @return the primary namespace for templates
+	 */
+	public String getTemplateNamespace();
+
+	/**
 	 * Return a URL string which contains, a &quot;${title}&quot; variable which
 	 * will be replaced by the topic title, to create links edit pages of wiki
 	 * topics.
@@ -622,11 +688,27 @@ public interface IWikiModel extends IConfiguration {
 	public boolean isCamelCaseEnabled();
 
 	/**
+	 * Check if the given namespace is a category namespace
+	 * 
+	 * @param namespace
+	 * @return <code>true</code> if the namespace is a category namespace.
+	 */
+	public boolean isCategoryNamespace(String namespace);
+
+	/**
 	 * The current model is used to render a wikipage in editor mode
 	 * 
 	 * @return <code>true</code> if your model is used in an editor mode
 	 */
 	public boolean isEditorMode();
+
+	/**
+	 * Check if the given namespace is an image namespace
+	 * 
+	 * @param namespace
+	 * @return <code>true</code> if the namespace is a image namespace.
+	 */
+	public boolean isImageNamespace(String namespace);
 
 	/**
 	 * Check if the given namespace is an interwiki link prefix.
@@ -672,6 +754,14 @@ public interface IWikiModel extends IConfiguration {
 	 *         enabled
 	 */
 	public boolean isSemanticWebActive();
+
+	/**
+	 * Check if the given namespace is a template namespace
+	 * 
+	 * @param namespace
+	 * @return <code>true</code> if the namespace is a template namespace.
+	 */
+	public boolean isTemplateNamespace(String namespace);
 
 	/**
 	 * Determine if the currently parsed wiki text is a template.
@@ -908,14 +998,14 @@ public interface IWikiModel extends IConfiguration {
 	/**
 	 * Set the "lower-case" namespace name of the article rendered with this
 	 * model. This name will be converted with the
-	 * Namespace#getNamespace() method to a string in the current
+	 * Namespace#getNamespaceByLowercase() method to a string in the current
 	 * Locale.
 	 * 
 	 * @param namespaceLowercase
 	 *          the lowercase key for the namespace.
 	 * @return the namespace for this model
 	 * @see java.util.Locale
-	 * @see info.bliki.wiki.namespaces.Namespace#getNamespace(String)
+	 * @see info.bliki.wiki.namespaces.Namespace#getNamespaceByLowercase(String)
 	 */
 	public void setNamespaceName(String namespaceLowercase);
 
@@ -976,31 +1066,4 @@ public interface IWikiModel extends IConfiguration {
 	 * 
 	 */
 	public void tearDown();
-
-	/**
-	 * Gets the magic word object for the given string.
-	 * 
-	 * @param name
-	 *            the (potential) magic word
-	 * 
-	 * @return a magic word object (e.g.
-	 *         {@link info.bliki.wiki.filter.MagicWord.MagicWordE} in case
-	 *         {@link info.bliki.wiki.filter.MagicWord} is used) or
-	 *         <tt>null</tt> if this is no valid magic word
-	 */
-	public abstract Object getMagicWord(String name);
-
-	/**
-	 * Splits the given full title into its namespace and page title components
-	 * and normalises both components using
-	 * {@link Encoder#normaliseTitle(String, boolean, char)} keeping
-	 * underscores.
-	 * 
-	 * @param fullTitle
-	 *            the (full) title including a namespace (if present)
-	 * 
-	 * @return a 2-element array with the namespace (index 0) and the page title
-	 *         (index 1)
-	 */
-	public abstract String[] splitNsTitle(String fullTitle);
 }

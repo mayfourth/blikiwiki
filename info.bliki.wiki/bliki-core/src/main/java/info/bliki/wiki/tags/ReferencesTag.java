@@ -69,7 +69,7 @@ public class ReferencesTag extends HTMLTag {
 				writer.append(ref.getRefString());
 				writer.append("</li>");
 			}
-			writer.append("\n</ol>");
+			writer.append("</ol>");
 		}
 	}
 

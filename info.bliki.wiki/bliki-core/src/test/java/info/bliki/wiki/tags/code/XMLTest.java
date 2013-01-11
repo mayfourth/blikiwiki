@@ -68,7 +68,7 @@ public class XMLTest extends FilterTestSupport {
 				"   <span style=\"color:#3F7F5F; \">&#60;!-- das ist der kommentar --&#62;</span>\n" + 
 				"<span style=\"color:#7F0055; font-weight: bold; \">&#60;/ui:remove&#62;</span>\n" + 
 				"</pre>\n" + 
-				"<pre>" + 
+				"<pre>\n" + 
 				"test\n" + 
 				"</pre>", result);
 	}

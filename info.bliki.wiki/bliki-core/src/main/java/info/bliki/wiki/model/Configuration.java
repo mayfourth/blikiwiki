@@ -40,7 +40,6 @@ import info.bliki.wiki.template.LC;
 import info.bliki.wiki.template.LCFirst;
 import info.bliki.wiki.template.Localurl;
 import info.bliki.wiki.template.NS;
-import info.bliki.wiki.template.NSE;
 import info.bliki.wiki.template.Padleft;
 import info.bliki.wiki.template.Padright;
 import info.bliki.wiki.template.Plural;
@@ -69,11 +68,6 @@ import java.util.regex.Pattern;
  * 
  */
 public class Configuration implements IConfiguration {
-
-	/**
-	 * Get the current <code>Bliki.info Engine</code> version
-	 */
-	public final static String BLIKI_VERSION = "3.1.01";
 
 	/**
 	 * Print additional debug information to System.out
@@ -115,8 +109,6 @@ public class Configuration implements IConfiguration {
 	final public static String SPECIAL_BLOCK_TAGS = "|applet|snippet|blockquote|body|button|center|dd|del|div|fieldset|form|iframe|ins|li|map|noframes|noscript|object|td|th|";
 
 	final static HTMLTag HTML_A_OPEN = new ATag();
-
-	final public static HTMLTag HTML_ABBR_OPEN = new HTMLTag("abbr");
 
 	final public static HTMLTag HTML_EM_OPEN = new HTMLTag("em");
 
@@ -168,7 +160,7 @@ public class Configuration implements IConfiguration {
 
 	final public static HTMLTag HTML_OL_OPEN = new HTMLBlockTag("ol", SPECIAL_BLOCK_TAGS);
 
-	final public static HTMLTag HTML_LI_OPEN = new HTMLBlockTag("li", "|dir|menu|ol|ul|", HTML_UL_OPEN);
+	final public static HTMLTag HTML_LI_OPEN = new HTMLBlockTag("li", "|dir|menu|ol|ul|");
 
 	final public static HTMLTag HTML_FONT_OPEN = new HTMLTag("font");
 
@@ -254,7 +246,6 @@ public class Configuration implements IConfiguration {
 		TEMPLATE_FUNCTION_MAP.put("formatnum", Formatnum.CONST);
 		TEMPLATE_FUNCTION_MAP.put("fullurl", Fullurl.CONST);
 		TEMPLATE_FUNCTION_MAP.put("ns", NS.CONST);
-		TEMPLATE_FUNCTION_MAP.put("nse", NSE.CONST);
 		TEMPLATE_FUNCTION_MAP.put("urlencode", URLEncode.CONST);
 		TEMPLATE_FUNCTION_MAP.put("lc", LC.CONST);
 		TEMPLATE_FUNCTION_MAP.put("uc", UC.CONST);
@@ -346,7 +337,6 @@ public class Configuration implements IConfiguration {
 		TAG_TOKEN_MAP.put("div", HTML_DIV_OPEN);
 		TAG_TOKEN_MAP.put("span", HTML_SPAN_OPEN);
 
-		TAG_TOKEN_MAP.put("abbr", HTML_ABBR_OPEN);
 		TAG_TOKEN_MAP.put("cite", HTML_CITE_OPEN);
 	}
 
@@ -378,21 +368,12 @@ public class Configuration implements IConfiguration {
 	/**
 	 * Limits the Scanner buffer.
 	 */
-	public final static int TEMPLATE_BUFFER_LIMIT = 524288;
+	public final static int TEMPLATE_BUFFER_LIMIT = 65536;
 
 	/**
 	 * Limits the template parameter value length
 	 */
-	public final static int TEMPLATE_VALUE_LIMIT = 262144;
-
-	/**
-	 * Tries to avoid page breaks inside tables, e.g. for printouts
-	 * (disable to get more MediaWiki-compliant HTML code).
-	 * 
-	 * Note: Only supported by Opera, according to
-	 * http://www.w3schools.com/cssref/pr_print_pagebi.asp
-	 */
-	public static boolean AVOID_PAGE_BREAK_IN_TABLE = true;
+	public final static int TEMPLATE_VALUE_LIMIT = 8192;
 
 	/**
 	 * Limits the recursive call of the AbstractParser parser to a depth of
@@ -403,12 +384,10 @@ public class Configuration implements IConfiguration {
 	public Configuration() {
 	}
 
-	@Override
 	public Map<String, String> getInterwikiMap() {
 		return INTERWIKI_MAP;
 	}
 
-	@Override
 	public String addInterwikiLink(String key, String value) {
 		return INTERWIKI_MAP.put(key, value);
 	}
@@ -419,7 +398,6 @@ public class Configuration implements IConfiguration {
 	 * See <a href="http://en.wikipedia.org/wiki/URI_scheme">URI scheme</a>
 	 * 
 	 */
-	@Override
 	public Set<String> getUriSchemeSet() {
 		return URI_SCHEME_MAP;
 	}
@@ -447,12 +425,10 @@ public class Configuration implements IConfiguration {
 		return URI_SCHEME_MAP.contains(uriKey);
 	}
 
-	@Override
 	public Map<String, ITemplateFunction> getTemplateMap() {
 		return TEMPLATE_FUNCTION_MAP;
 	}
 
-	@Override
 	public ITemplateFunction addTemplateFunction(String key, ITemplateFunction value) {
 		return TEMPLATE_FUNCTION_MAP.put(key, value);
 	}
@@ -460,7 +436,6 @@ public class Configuration implements IConfiguration {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public Map<String, String> getTemplateCallsCache() {
 		return TEMPLATE_CALLS_CACHE;
 	}
@@ -468,27 +443,22 @@ public class Configuration implements IConfiguration {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void setTemplateCallsCache(Map<String, String> map) {
 		TEMPLATE_CALLS_CACHE = map;
 	}
 
-	@Override
 	public Map<String, SourceCodeFormatter> getCodeFormatterMap() {
 		return CODE_FORMATTER_MAP;
 	}
 
-	@Override
 	public SourceCodeFormatter addCodeFormatter(String key, SourceCodeFormatter value) {
 		return CODE_FORMATTER_MAP.put(key, value);
 	}
 
-	@Override
 	public Map<String, TagToken> getTokenMap() {
 		return TAG_TOKEN_MAP;
 	}
 
-	@Override
 	public TagToken addTokenTag(String key, TagToken value) {
 		return TAG_TOKEN_MAP.put(key, value);
 	}

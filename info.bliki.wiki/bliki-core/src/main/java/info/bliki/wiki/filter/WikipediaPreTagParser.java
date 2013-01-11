@@ -221,6 +221,23 @@ public class WikipediaPreTagParser extends AbstractParser {
 		return TokenEOF;
 	}
 
+	private boolean parseHTMLCommentTags() {
+		int htmlStartPosition = fCurrentPosition;
+		String htmlCommentString = fStringSource.substring(fCurrentPosition - 1, fCurrentPosition + 3);
+
+		if (htmlCommentString.equals("<!--")) {
+			fCurrentPosition += 3;
+			if (readUntil("-->")) {
+				String htmlCommentContent = fStringSource.substring(htmlStartPosition + 3, fCurrentPosition - 3);
+				if (htmlCommentContent != null) {
+					createContentToken(fCurrentPosition - htmlStartPosition + 1);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Parse a wiki section starting with a '[' character
 	 * 
@@ -489,15 +506,13 @@ public class WikipediaPreTagParser extends AbstractParser {
 		TagStack globalWikiModelStack = wikiModel.swapStack(localStack);
 		try {
 			// fix for infinite recursion
-			// if (wikiModel.incrementParserRecursionLevel() >
-			// Configuration.PARSER_RECURSION_LIMIT) {
-			// TagNode error = new TagNode("span");
-			// error.addAttribute("class", "error", true);
-			// error.addChild(new
-			// ContentToken("Error - total recursion count limit exceeded parsing wiki tags."));
-			// localStack.append(error);
-			// return localStack;
-			// }
+//			if (wikiModel.incrementParserRecursionLevel() > Configuration.PARSER_RECURSION_LIMIT) {
+//				TagNode error = new TagNode("span");
+//				error.addAttribute("class", "error", true);
+//				error.addChild(new ContentToken("Error - total recursion count limit exceeded parsing wiki tags."));
+//				localStack.append(error);
+//				return localStack;
+//			}
 
 			int level = wikiModel.incrementRecursionLevel();
 

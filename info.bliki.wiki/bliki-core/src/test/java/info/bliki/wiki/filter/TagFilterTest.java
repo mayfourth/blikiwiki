@@ -24,6 +24,6 @@ public class TagFilterTest extends FilterTestSupport {
   
   public void testWrongTag3() {
     assertEquals("\n" + 
-    		"<pre>madfk&lt;/prefj </pre>hg", wikiModel.render("<pre>madfk</prefj </pRE>hg", false));
+    		"<pre>madfk&#60;/prefj </pre>hg", wikiModel.render("<pre>madfk</prefj </pRE>hg", false));
   }
 }

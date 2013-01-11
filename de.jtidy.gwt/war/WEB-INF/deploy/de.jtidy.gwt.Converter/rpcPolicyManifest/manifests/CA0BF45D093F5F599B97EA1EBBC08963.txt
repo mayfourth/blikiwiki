@@ -1,2 +1,0 @@
-serviceClass: de.jtidy.gwt.client.html2wiki.ConverterService
-path: 9B8330D47A972C5A12AFB2CCAB0D95F1.gwt.rpc

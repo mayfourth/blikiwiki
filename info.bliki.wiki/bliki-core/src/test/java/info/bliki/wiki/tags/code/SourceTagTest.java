@@ -22,7 +22,7 @@ public class SourceTagTest extends FilterTestSupport {
 	public void testUnknownSourceTag002() {
 		String result = wikiModel.render("start <source lang=unknown>first line\n second line\n <html> third line\n</source> end", false);
 
-		assertEquals("\n" + "<p>start </p><pre class=\"unknown\">first line\n" + " second line\n" + " &lt;html&gt; third line\n"
+		assertEquals("\n" + "<p>start </p><pre class=\"unknown\">first line\n" + " second line\n" + " &#60;html&#62; third line\n"
 				+ "</pre> end", result);
 	}
 
@@ -36,7 +36,7 @@ public class SourceTagTest extends FilterTestSupport {
 		String expect = "\n"
 				+ "<p><b>Example</b>\n"
 				+ "</p><pre class=\"unknown\">\n"
-				+ "&lt;form&gt;&lt;input type=&#34;button&#34; onclick=&#34;alert(&#39;Are you sure you want to do this?&#39;)&#34; value=&#34;Alert&#34;&gt;&lt;/form&gt;\n"
+				+ "&#60;form&#62;&#60;input type=&#34;button&#34; onclick=&#34;alert(&#39;Are you sure you want to do this?&#39;)&#34; value=&#34;Alert&#34;&#62;&#60;/form&#62;\n"
 				+ "</pre>";
 		assertEquals("SQL test002", expect, result);
 	}

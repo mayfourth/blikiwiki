@@ -28,12 +28,6 @@ public class SourceTag extends HTMLBlockTag implements INoBodyParsingTag {
 	}
 
 	@Override
-	public Object clone() {
-		SourceTag st = new SourceTag();
-		return st;
-	}
-	
-	@Override
 	public void renderHTML(ITextConverter converter, Appendable writer, IWikiModel model) throws IOException {
 
 		String content = getBodyString();

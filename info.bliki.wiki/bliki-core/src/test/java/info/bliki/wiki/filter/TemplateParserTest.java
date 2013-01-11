@@ -1,8 +1,5 @@
 package info.bliki.wiki.filter;
 
-import info.bliki.wiki.model.WikiModel;
-
-import java.util.HashMap;
 import java.util.Locale;
 
 import junit.framework.Test;
@@ -19,14 +16,6 @@ public class TemplateParserTest extends FilterTestSupport {
 	}
 
 	private final String TEST_STRING_03 = "{{{1|{{PAGENAME}}}}}";
-
-	public void testWeather07() {
-		assertEquals("20\n", wikiModel.parseTemplates("{{WeatherBox03}}\n"));
-	}
-
-	public void testWeather06() {
-		assertEquals("10\n", wikiModel.parseTemplates("{{WeatherBox03|show1=1}}\n"));
-	}
 
 	/**
 	 * Issue 86
@@ -61,7 +50,7 @@ public class TemplateParserTest extends FilterTestSupport {
 				+ ";The verbatim active code within reads:\n"
 				+ " abc'''&lt;onlyinclude>'''def'''&lt;/onlyinclude>'''ghi'''&lt;includeonly>'''jkl'''&lt;/includeonly>'''\n" + "\n"
 				+ "If transposed, the only part included will be the string literal <code>def</code>. \n" + "\n" + "==Example==\n"
-				+ "Including [[:Help:Template/onlyinclude demo]] yields only:\n" + " [[:Help:Template/onlyinclude demo]]\n" + "\n" + "\n"
+				+ "Including [[:Help:Template/onlyinclude demo]] yields only:\n" + " {{:Help:Template/onlyinclude demo}}\n" + "\n" + "\n"
 				+ "\n" + "[[Category:Handbook templates]]\n" + "[[Category:Template documentation|PAGENAME]]\n" + "\n" + "", wikiModel
 				.parseTemplates(WikiTestModel.ONLYINCLUDE_DEMO));
 	}
@@ -79,24 +68,23 @@ public class TemplateParserTest extends FilterTestSupport {
 	public void testOnlyicludeDemo003() {
 		assertEquals(
 				"\n"
-						+ "<p>abcdefghi</p><hr />\n"
+						+ "<p>abcdefghi</p><hr/>\n"
 						+ "\n"
 						+ "<dl>\n"
-						+ "<dt>Only active template content is above.</dt>\n</dl>\n"
+						+ "<dt>Only active template content is above.</dt></dl>\n"
 						+ "\n"
 						+ "\n"
 						+ "<dl>\n"
 						+ "<dt>The verbatim active code within reads</dt>\n"
-						+ "<dd></dd>\n</dl>:\n"
-						+ "<pre>"
+						+ "<dd></dd></dl>:\n"
+						+ "<pre>\n"
 						+ "abc<b>&#60;onlyinclude&#62;</b>def<b>&#60;/onlyinclude&#62;</b>ghi<b>&#60;includeonly&#62;</b>jkl<b>&#60;/includeonly&#62;</b>\n"
 						+ "</pre>\n"
 						+ "<p>If transposed, the only part included will be the string literal <code>def</code>. </p>\n"
 						+ "<h2><span class=\"mw-headline\" id=\"Example\">Example</span></h2>\n"
 						+ "<p>Including <a href=\"http://www.bliki.info/wiki/Help:Template/onlyinclude_demo\" title=\"Help:Template/onlyinclude demo\">Help:Template/onlyinclude demo</a> yields only:</p>\n"
-						+ "<pre>"
-						+ "<a href=\"http://www.bliki.info/wiki/Help:Template/onlyinclude_demo\" title=\"Help:Template/onlyinclude demo\">Help:Template/onlyinclude demo</a>\n"
-						+ "</pre>\n" + "\n" + "\n" + "<p>\n" + "</p>\n" + "", wikiModel.render(WikiTestModel.ONLYINCLUDE_DEMO, true));
+						+ "<pre>\n" + "{{:Help:Template/onlyinclude demo}}\n" + "</pre>\n" + "\n" + "\n" + "<p>\n" + "</p>\n" + "", wikiModel
+						.render(WikiTestModel.ONLYINCLUDE_DEMO, true));
 	}
 
 	/**
@@ -331,7 +319,7 @@ public class TemplateParserTest extends FilterTestSupport {
 
 	public void testIf00() {
 		assertEquals(
-				"start[[:Template:es-verb form of/indicative]]end",
+				"start{{es-verb form of/indicative}}end",
 				wikiModel
 						.parseTemplates("start{{{{ #if:  | l | u }}cfirst:  {{ es-verb form of/{{ #switch: indicative  | ind | indicative = indicative  | subj | subjunctive = subjunctive  | imp | imperative = imperative  | cond | conditional = conditional  | par | part | participle | past participle  | past-participle = participle  | adv | adverbial | ger | gerund | gerundive  | gerundio | present participle  | present-participle = adverbial  | error  }}  | tense =  {{ #switch: present  | pres | present = present  | imp | imperfect = imperfect  | pret | preterit | preterite = preterite  | fut | future = future  | cond | conditional = conditional  }}  | number =  {{ #switch: singular  | s | sg | sing | singular = singular  | p | pl | plural = plural  }}  | person =  {{ #switch: 1  | 1 | first | first person | first-person = first  | 2 | second|second person | second-person = second  | 3 | third | third person | third-person = third  | 0 | - | imp | impersonal = impersonal  }}  | formal =  {{ #switch: {{{formal}}}  | y | yes = yes  | n | no = no  }}  | gender =  {{ #switch:   | m | masc | masculine = masculine  | f | fem | feminine = feminine  }}  | sense =  {{ #switch: {{{sense}}}  | + | aff | affirmative = affirmative  | - | neg | negative = negative  }}  | sera = {{ #switch: {{{sera}}} | se = se | ra = ra }}  | ending =  {{ #switch: ar  | ar | -ar = -ar  | er | -er = -er  | ir | -ir = -ir  }}  | participle =   | voseo = {{ #if:  | yes | no }}  }}}}end"));
 	}
@@ -410,12 +398,12 @@ public class TemplateParserTest extends FilterTestSupport {
 	}
 
 	public void testAnarchismSidebar() {
-		assertEquals("[[:Template:Sidebar]]", wikiModel.parseTemplates("{{Anarchism sidebar}}", false));
+		assertEquals("{{Sidebar}}", wikiModel.parseTemplates("{{Anarchism sidebar}}", false));
 	}
 
 	public void testNonExistentTemplate() {
-		assertEquals("==Other areas of Wikipedia==\n" + "[[:Template:WikipediaOther]]", wikiModel.parseTemplates(
-				"==Other areas of Wikipedia==\n" + "{{WikipediaOther}}<!--Template:WikipediaOther-->", false));
+		assertEquals("==Other areas of Wikipedia==\n" + "{{WikipediaOther}}", wikiModel.parseTemplates("==Other areas of Wikipedia==\n"
+				+ "{{WikipediaOther}}<!--Template:WikipediaOther-->", false));
 	}
 
 	public void testTemplateCall1() {
@@ -437,7 +425,7 @@ public class TemplateParserTest extends FilterTestSupport {
 
 	public void testTemplateCall4() {
 		// see method WikiTestModel#getRawWikiContent()
-		assertEquals("[[:Template:[[Template:example|example]]]]", wikiModel.parseTemplates("{{tl|example}}", false));
+		assertEquals("{{[[Template:example|example]]}}", wikiModel.parseTemplates("{{tl|example}}", false));
 	}
 
 	public void testTemplateCall5() {
@@ -493,7 +481,8 @@ public class TemplateParserTest extends FilterTestSupport {
 	}
 
 	public void testEndlessRecursion() {
-		assertEquals("<span class=\"error\">Template loop detected: <strong class=\"selflink\">Template:recursion</strong></span>", wikiModel.parseTemplates("{{recursion}}", false));
+		assertEquals("{{Error - template recursion limit exceeded parsing templates.}}", wikiModel.parseTemplates("{{recursion}}",
+				false));
 	}
 
 	private final String TEST_STRING_01 = "[[Category:Interwiki templates|wikipedia]]\n" + "[[zh:Template:Wikipedia]]\n"
@@ -583,7 +572,7 @@ public class TemplateParserTest extends FilterTestSupport {
 	}
 
 	public void testSwitch008() {
-		assertEquals("[[:Template:Templ1/ind&]]", wikiModel.parseTemplates("{{Templ1/{{ #switch: imperative  | ind | ind&}}}}", false));
+		assertEquals("{{Templ1/ind&}}", wikiModel.parseTemplates("{{Templ1/{{ #switch: imperative  | ind | ind&}}}}", false));
 	}
 
 	/**
@@ -678,54 +667,26 @@ public class TemplateParserTest extends FilterTestSupport {
 	public void testFormatnum001() {
 		// default locale is ENGLISH
 		assertEquals("1,401", wikiModel.parseTemplates("{{formatnum:1401}}", false));
+
 		assertEquals("987,654,321.654", wikiModel.parseTemplates("{{formatnum:987654321.654321}}", false));
 		assertEquals("987,654,321.654", wikiModel.parseTemplates("{{FORMATNUM:987654321.654321}}", false));
-		
-		WikiModel germanWikiModel = newWikiTestModel(Locale.GERMAN);
-		assertEquals("1.401", germanWikiModel.parseTemplates("{{formatnum:1401}}", false));
-		assertEquals("987.654.321,654", germanWikiModel.parseTemplates("{{formatnum:987654321.654321}}", false));
-		
-		WikiModel italianWikiModel = newWikiTestModel(Locale.ITALIAN);
-		assertEquals("1.401", italianWikiModel.parseTemplates("{{formatnum:1401}}", false));
-		assertEquals("987.654.321", italianWikiModel.parseTemplates("{{formatnum:987654321}}", false));
+		wikiModel.setLocale(Locale.GERMAN);
+		assertEquals("1.401", wikiModel.parseTemplates("{{formatnum:1401}}", false));
+		assertEquals("987.654.321,654", wikiModel.parseTemplates("{{formatnum:987654321.654321}}", false));
+		wikiModel.setLocale(Locale.ITALIAN);
+		assertEquals("1.401", wikiModel.parseTemplates("{{formatnum:1401}}", false));
+		assertEquals("987.654.321", wikiModel.parseTemplates("{{formatnum:987654321}}", false));
+		// reset to english locale
+		wikiModel.setLocale(Locale.ENGLISH);
 	}
 
 	public void testFormatnum002() {
 		// default locale is ENGLISH
 		assertEquals("9.87654321654321E8", wikiModel.parseTemplates("{{formatnum:987,654,321.654321|R}}", false));
 
-		WikiModel germanWikiModel = newWikiTestModel(Locale.GERMAN);
-		assertEquals("9.87654321654321E8", germanWikiModel.parseTemplates("{{formatnum:987.654.321,654321|R}}", false));
-	}
-
-	public void testFormatnum003() {
-		// default locale is ENGLISH
-		assertEquals("90", wikiModel.parseTemplates("{{formatnum:90}}"));
-		WikiModel germanWikiModel = newWikiTestModel(Locale.GERMAN);
-		assertEquals("90", germanWikiModel.parseTemplates("{{formatnum:90}}"));
-	}
-
-	public void testFormatnum004() {
-		// default locale is ENGLISH
-		assertEquals("90.", wikiModel.parseTemplates("{{formatnum:90.}}"));
-		WikiModel germanWikiModel = newWikiTestModel(Locale.GERMAN);
-		assertEquals("90,", germanWikiModel.parseTemplates("{{formatnum:90.}}"));
-	}
-
-	public void testFormatnum005() {
-		// default locale is ENGLISH
-		assertEquals("90.0", wikiModel.parseTemplates("{{formatnum:90.0}}"));
-		WikiModel germanWikiModel = newWikiTestModel(Locale.GERMAN);
-		assertEquals("90,0", germanWikiModel.parseTemplates("{{formatnum:90.0}}"));
-	}
-	
-	public void testFormatnum006() {
-		// default locale is ENGLISH
-		assertEquals("90.000", wikiModel.parseTemplates("{{formatnum:90.000}}"));
-		assertEquals("90.000000000000000000000000000000000000", wikiModel.parseTemplates("{{formatnum:90.000000000000000000000000000000000000}}"));
-		WikiModel germanWikiModel = newWikiTestModel(Locale.GERMAN);
-		assertEquals("90,000", germanWikiModel.parseTemplates("{{formatnum:90.000}}"));
-		assertEquals("90,000000000000000000000000000000000000", germanWikiModel.parseTemplates("{{formatnum:90.000000000000000000000000000000000000}}"));
+		wikiModel.setLocale(Locale.GERMAN);
+		// reset to english locale
+		wikiModel.setLocale(Locale.ENGLISH);
 	}
 
 	public void testPlural001() {
@@ -795,353 +756,18 @@ public class TemplateParserTest extends FilterTestSupport {
 	}
 
 	public void testNS001() {
-		// TODO: these namespaces should actually have spaces
 		assertEquals("User_talk", wikiModel.parseTemplates("{{ns:3}}", false));
 		assertEquals("Help_talk", wikiModel.parseTemplates("{{ns:{{ns:12}}_talk}}", false));
 		assertEquals("MediaWiki_talk", wikiModel.parseTemplates("{{ns:{{ns:8}}_talk}}", false));
 		assertEquals("MediaWiki_talk", wikiModel.parseTemplates("{{ns:{{ns:8}} talk}}", false));
 		assertEquals("MediaWiki_talk", wikiModel.parseTemplates("{{ns:{{ns:8}} talk  }}", false));
 		assertEquals("[[:Template:Ns:MediaWikitalk]]", wikiModel.parseTemplates("{{ns:{{ns:8}}talk}}", false));
-		assertEquals("Portal", wikiModel.parseTemplates("{{ns:100}}", false));
-		assertEquals("Portal_talk", wikiModel.parseTemplates("{{ns:{{ns:100}}_talk}}", false));
-	}
-
-	public void testNSE001() {
-		assertEquals("User_talk", wikiModel.parseTemplates("{{nse:3}}", false));
-		assertEquals("Help_talk", wikiModel.parseTemplates("{{nse:{{nse:12}}_talk}}", false));
-		assertEquals("MediaWiki_talk", wikiModel.parseTemplates("{{nse:{{nse:8}}_talk}}", false));
-		assertEquals("MediaWiki_talk", wikiModel.parseTemplates("{{nse:{{nse:8}} talk}}", false));
-		assertEquals("MediaWiki_talk", wikiModel.parseTemplates("{{nse:{{nse:8}} talk  }}", false));
-		assertEquals("[[:Template:Ns:MediaWikitalk]]", wikiModel.parseTemplates("{{nse:{{nse:8}}talk}}", false));
-		assertEquals("Portal", wikiModel.parseTemplates("{{ns:100}}", false));
-		assertEquals("Portal_talk", wikiModel.parseTemplates("{{ns:{{ns:100}}_talk}}", false));
 	}
 
 	public void testNAMESPACE001() {
 		assertEquals("", wikiModel.parseTemplates("{{NAMESPACE}}", false));
 		assertEquals("Template", wikiModel.parseTemplates("{{NAMESPACE:Template:Main Page}}", false));
 		assertEquals("", wikiModel.parseTemplates("{{NAMESPACE:Bad:Main Page}}", false));
-	}
-
-	public void testNAMESPACE002() {
-		assertEquals("", wikiModel.parseTemplates("{{NAMESPACE}}", false));
-		assertEquals("File", wikiModel.parseTemplates("{{NAMESPACE:Image:Main Page}}", false));
-	}
-
-	public void testNAMESPACE003() {
-		wikiModel.setNamespaceName("category");
-		assertEquals("Category", wikiModel.parseTemplates("{{NAMESPACE}}", false));
-		assertEquals("File", wikiModel.parseTemplates("{{NAMESPACE:Image:Main Page}}", false));
-	}
-
-	public void testNAMESPACE004() {
-		wikiModel.setPageName("Sandbox");
-		wikiModel.setNamespaceName("meta");
-		assertEquals("Meta", wikiModel.parseTemplates("{{NAMESPACE}}", false));
-		assertEquals("", wikiModel.parseTemplates("{{NAMESPACE:}}", false));
-	}
-
-	public void testNAMESPACE005() {
-		wikiModel.setPageName("Sandbox");
-		wikiModel.setNamespaceName("meta_talk");
-		assertEquals("Meta_talk", wikiModel.parseTemplates("{{NAMESPACEE}}", false));
-		// TODO: namespace should actually have a space:
-		assertEquals("Meta_talk", wikiModel.parseTemplates("{{NAMESPACE}}", false));
-	}
-
-	public void testNAMESPACE006() {
-		assertEquals("File", wikiModel.parseTemplates("{{NAMESPACE:Image:test.jpg}}", false));
-		assertEquals("File", wikiModel.parseTemplates("{{NAMESPACEE:Image:test.jpg}}", false));
-	}
-
-	public void testTALKSPACE001() {
-		assertEquals("Talk", wikiModel.parseTemplates("{{TALKSPACE}}", false));
-		assertEquals("Template_talk", wikiModel.parseTemplates("{{TALKSPACE:Template:Main Page}}", false));
-		assertEquals("Talk", wikiModel.parseTemplates("{{TALKSPACE:Bad:Main Page}}", false));
-	}
-
-	public void testTALKSPACE002() {
-		assertEquals("Talk", wikiModel.parseTemplates("{{TALKSPACE}}", false));
-		assertEquals("File_talk", wikiModel.parseTemplates("{{TALKSPACE:Image:Main Page}}", false));
-	}
-
-	public void testTALKSPACE003() {
-		wikiModel.setNamespaceName("category");
-		assertEquals("Category_talk", wikiModel.parseTemplates("{{TALKSPACE}}", false));
-		assertEquals("File_talk", wikiModel.parseTemplates("{{TALKSPACE:Image:Main Page}}", false));
-	}
-
-	public void testTALKSPACE004() {
-		wikiModel.setPageName("Sandbox");
-		wikiModel.setNamespaceName("meta");
-		assertEquals("Meta_talk", wikiModel.parseTemplates("{{TALKSPACE}}", false));
-		assertEquals("", wikiModel.parseTemplates("{{TALKSPACE:}}", false));
-	}
-
-	public void testTALKSPACE005() {
-		wikiModel.setPageName("Sandbox");
-		wikiModel.setNamespaceName("meta_talk");
-		assertEquals("Meta_talk", wikiModel.parseTemplates("{{TALKSPACEE}}", false));
-		// TODO: talkspace should actually have a space:
-		assertEquals("Meta_talk", wikiModel.parseTemplates("{{TALKSPACE}}", false));
-	}
-
-	public void testTALKSPACE006() {
-		wikiModel.setNamespaceName("portal");
-		assertEquals("Portal_talk", wikiModel.parseTemplates("{{TALKSPACE}}", false));
-	}
-
-	public void testTALKSPACE007() {
-		wikiModel.setNamespaceName("");
-		assertEquals("Talk", wikiModel.parseTemplates("{{TALKSPACE}}", false));
-		assertEquals("Portal_talk", wikiModel.parseTemplates("{{TALKSPACE:Portal:Main Page}}", false));
-	}
-
-	public void testSUBJECTSPACE001() {
-		assertEquals("", wikiModel.parseTemplates("{{SUBJECTSPACE}}", false));
-		assertEquals("Template", wikiModel.parseTemplates("{{SUBJECTSPACE:Template:Main Page}}", false));
-		assertEquals("", wikiModel.parseTemplates("{{SUBJECTSPACE:Bad:Main Page}}", false));
-	}
-
-	public void testSUBJECTSPACE002() {
-		assertEquals("", wikiModel.parseTemplates("{{SUBJECTSPACE}}", false));
-		assertEquals("File", wikiModel.parseTemplates("{{SUBJECTSPACE:Image:Main Page}}", false));
-	}
-
-	public void testSUBJECTSPACE003() {
-		wikiModel.setNamespaceName("category");
-		assertEquals("Category", wikiModel.parseTemplates("{{SUBJECTSPACE}}", false));
-		assertEquals("File", wikiModel.parseTemplates("{{SUBJECTSPACE:Image:Main Page}}", false));
-	}
-
-	public void testSUBJECTSPACE004() {
-		wikiModel.setPageName("Sandbox");
-		wikiModel.setNamespaceName("meta");
-		assertEquals("Meta", wikiModel.parseTemplates("{{SUBJECTSPACE}}", false));
-		assertEquals("", wikiModel.parseTemplates("{{SUBJECTSPACE:}}", false));
-	}
-
-	public void testSUBJECTSPACE005() {
-		wikiModel.setPageName("Sandbox");
-		wikiModel.setNamespaceName("meta_talk");
-		assertEquals("Meta", wikiModel.parseTemplates("{{SUBJECTSPACEE}}", false));
-		assertEquals("Meta", wikiModel.parseTemplates("{{SUBJECTSPACE}}", false));
-	}
-
-	public void testPAGENAME001() {
-		wikiModel.setPageName("MyPage");
-		assertEquals("MyPage", wikiModel.parseTemplates("{{PAGENAME}}", false));
-		assertEquals("", wikiModel.parseTemplates("{{PAGENAME:}}", false));
-		assertEquals("Main Page", wikiModel.parseTemplates("{{PAGENAME:Main Page}}", false));
-		assertEquals("Main Page", wikiModel.parseTemplates("{{PAGENAME:Main_Page}}", false));
-		assertEquals("Main page", wikiModel.parseTemplates("{{PAGENAME:Main page}}", false));
-		assertEquals("Main Page", wikiModel.parseTemplates("{{PAGENAME:main Page}}", false));
-		assertEquals("Main page", wikiModel.parseTemplates("{{PAGENAME:main page}}", false));
-		assertEquals("Main Page", wikiModel.parseTemplates("{{PAGENAME:Template:Main Page}}", false));
-		assertEquals("Bad:Main Page", wikiModel.parseTemplates("{{PAGENAME:Bad:Main Page}}", false));
-		assertEquals("Test.jpg", wikiModel.parseTemplates("{{PAGENAME:Image:test.jpg}}", false));
-	}
-
-	public void testPAGENAMEE001() {
-		wikiModel.setPageName("MyPage");
-		assertEquals("MyPage", wikiModel.parseTemplates("{{PAGENAMEE}}", false));
-		assertEquals("", wikiModel.parseTemplates("{{PAGENAMEE:}}", false));
-		assertEquals("Main_Page", wikiModel.parseTemplates("{{PAGENAMEE:Main Page}}", false));
-		assertEquals("Main_Page", wikiModel.parseTemplates("{{PAGENAMEE:Main_Page}}", false));
-		assertEquals("Main_page", wikiModel.parseTemplates("{{PAGENAMEE:Main page}}", false));
-		assertEquals("Main_Page", wikiModel.parseTemplates("{{PAGENAMEE:main Page}}", false));
-		assertEquals("Main_page", wikiModel.parseTemplates("{{PAGENAMEE:main page}}", false));
-		assertEquals("Main_Page", wikiModel.parseTemplates("{{PAGENAMEE:Template:Main Page}}", false));
-		assertEquals("Bad:Main_Page", wikiModel.parseTemplates("{{PAGENAMEE:Bad:Main Page}}", false));
-		assertEquals("Test.jpg", wikiModel.parseTemplates("{{PAGENAMEE:Image:test.jpg}}", false));
-	}
-
-	public void testFULLPAGENAME001() {
-		wikiModel.setPageName("MyPage");
-		assertEquals("MyPage", wikiModel.parseTemplates("{{FULLPAGENAME}}", false));
-		assertEquals("", wikiModel.parseTemplates("{{FULLPAGENAME:}}", false));
-		assertEquals("Main Page", wikiModel.parseTemplates("{{FULLPAGENAME:Main Page}}", false));
-		assertEquals("Main Page", wikiModel.parseTemplates("{{FULLPAGENAME:Main_Page}}", false));
-		assertEquals("Template:Main Page", wikiModel.parseTemplates("{{FULLPAGENAME:Template:Main Page}}", false));
-		assertEquals("Bad:Main Page", wikiModel.parseTemplates("{{FULLPAGENAME:Bad:Main Page}}", false));
-		assertEquals("File:Test.jpg", wikiModel.parseTemplates("{{FULLPAGENAME:Image:test.jpg}}", false));
-	}
-
-	public void testFULLPAGENAMEE001() {
-		wikiModel.setPageName("MyPage");
-		assertEquals("MyPage", wikiModel.parseTemplates("{{FULLPAGENAMEE}}", false));
-		assertEquals("", wikiModel.parseTemplates("{{FULLPAGENAMEE:}}", false));
-		assertEquals("Main_Page", wikiModel.parseTemplates("{{FULLPAGENAMEE:Main Page}}", false));
-		assertEquals("Main_Page", wikiModel.parseTemplates("{{FULLPAGENAMEE:Main_Page}}", false));
-		assertEquals("Template:Main_Page", wikiModel.parseTemplates("{{FULLPAGENAMEE:Template:Main Page}}", false));
-		assertEquals("Bad:Main_Page", wikiModel.parseTemplates("{{FULLPAGENAMEE:Bad:Main Page}}", false));
-		assertEquals("File:Test.jpg", wikiModel.parseTemplates("{{FULLPAGENAMEE:Image:test.jpg}}", false));
-	}
-
-	public void testTALKPAGENAME001() {
-		wikiModel.setPageName("MyPage");
-		wikiModel.setNamespaceName("");
-		assertEquals("Talk:MyPage", wikiModel.parseTemplates("{{TALKPAGENAME}}", false));
-		assertEquals("", wikiModel.parseTemplates("{{TALKPAGENAME:}}", false));
-		assertEquals("Talk:Main Page", wikiModel.parseTemplates("{{TALKPAGENAME:Main Page}}", false));
-		assertEquals("Template_talk:Main Page", wikiModel.parseTemplates("{{TALKPAGENAME:Template:Main Page}}", false)); // TODO: talk namespace should contain a space
-		assertEquals("Talk:Bad:Main Page", wikiModel.parseTemplates("{{TALKPAGENAME:Bad:Main Page}}", false));
-		assertEquals("Template_talk:Sandbox", wikiModel.parseTemplates("{{TALKPAGENAME:Template:Sandbox}}", false)); // TODO: talk namespace should contain a space
-		assertEquals("Template_talk:Sandbox", wikiModel.parseTemplates("{{TALKPAGENAME:Template_talk:Sandbox}}", false)); // TODO: talk namespace should contain a space
-		assertEquals("Template_talk:Sandbox", wikiModel.parseTemplates("{{TALKPAGENAME:Template talk:Sandbox}}", false)); // TODO: talk namespace should contain a space
-	}
-
-	public void testTALKPAGENAMEE001() {
-		wikiModel.setPageName("MyPage");
-		assertEquals("Talk:MyPage", wikiModel.parseTemplates("{{TALKPAGENAMEE}}", false));
-		assertEquals("", wikiModel.parseTemplates("{{TALKPAGENAMEE:}}", false));
-		assertEquals("Talk:Main_Page", wikiModel.parseTemplates("{{TALKPAGENAMEE:Main Page}}", false));
-		assertEquals("Template_talk:Main_Page", wikiModel.parseTemplates("{{TALKPAGENAMEE:Template:Main Page}}", false));
-		assertEquals("Talk:Bad:Main_Page", wikiModel.parseTemplates("{{TALKPAGENAMEE:Bad:Main Page}}", false));
-		assertEquals("Template_talk:Sandbox", wikiModel.parseTemplates("{{TALKPAGENAMEE:Template:Sandbox}}", false));
-		assertEquals("Template_talk:Sandbox", wikiModel.parseTemplates("{{TALKPAGENAMEE:Template_talk:Sandbox}}", false));
-		assertEquals("Template_talk:Sandbox", wikiModel.parseTemplates("{{TALKPAGENAMEE:Template talk:Sandbox}}", false));
-	}
-
-	public void testSUBJECTPAGENAME001() {
-		wikiModel.setPageName("MyPage");
-		wikiModel.setNamespaceName("");
-		assertEquals("MyPage", wikiModel.parseTemplates("{{SUBJECTPAGENAME}}", false));
-		assertEquals("", wikiModel.parseTemplates("{{SUBJECTPAGENAME:}}", false));
-		assertEquals("Main Page", wikiModel.parseTemplates("{{SUBJECTPAGENAME:Main Page}}", false));
-		assertEquals("Template:Main Page", wikiModel.parseTemplates("{{SUBJECTPAGENAME:Template:Main Page}}", false));
-		assertEquals("Bad:Main Page", wikiModel.parseTemplates("{{SUBJECTPAGENAME:Bad:Main Page}}", false));
-		assertEquals("Template:Sandbox", wikiModel.parseTemplates("{{SUBJECTPAGENAME:Template:Sandbox}}", false));
-		assertEquals("Template:Sandbox", wikiModel.parseTemplates("{{SUBJECTPAGENAME:Template_talk:Sandbox}}", false));
-		assertEquals("Template:Sandbox", wikiModel.parseTemplates("{{SUBJECTPAGENAME:Template talk:Sandbox}}", false));
-	}
-
-	public void testSUBJECTPAGENAMEE001() {
-		wikiModel.setPageName("MyPage");
-		assertEquals("MyPage", wikiModel.parseTemplates("{{SUBJECTPAGENAMEE}}", false));
-		assertEquals("", wikiModel.parseTemplates("{{SUBJECTPAGENAMEE:}}", false));
-		assertEquals("Main_Page", wikiModel.parseTemplates("{{SUBJECTPAGENAMEE:Main Page}}", false));
-		assertEquals("Template:Main_Page", wikiModel.parseTemplates("{{SUBJECTPAGENAMEE:Template:Main Page}}", false));
-		assertEquals("Bad:Main_Page", wikiModel.parseTemplates("{{SUBJECTPAGENAMEE:Bad:Main Page}}", false));
-		assertEquals("Template:Sandbox", wikiModel.parseTemplates("{{SUBJECTPAGENAMEE:Template:Sandbox}}", false));
-		assertEquals("Template:Sandbox", wikiModel.parseTemplates("{{SUBJECTPAGENAMEE:Template_talk:Sandbox}}", false));
-		assertEquals("Template:Sandbox", wikiModel.parseTemplates("{{SUBJECTPAGENAMEE:Template talk:Sandbox}}", false));
-	}
-
-	public void testBASEPAGENAME001() {
-		wikiModel.setPageName("MyPage");
-		wikiModel.setNamespaceName("");
-		assertEquals("MyPage", wikiModel.parseTemplates("{{BASEPAGENAME}}", false));
-	}
-
-	public void testBASEPAGENAME002() {
-		wikiModel.setPageName("MyPage/foo");
-		wikiModel.setNamespaceName("");
-		assertEquals("MyPage", wikiModel.parseTemplates("{{BASEPAGENAME}}", false));
-	}
-
-	public void testBASEPAGENAME003() {
-		wikiModel.setPageName("MyPage/foo/bar");
-		wikiModel.setNamespaceName("");
-		assertEquals("MyPage/foo", wikiModel.parseTemplates("{{BASEPAGENAME}}", false));
-	}
-
-	public void testBASEPAGENAME004() {
-		assertEquals("", wikiModel.parseTemplates("{{BASEPAGENAME:}}", false));
-		assertEquals("Title", wikiModel.parseTemplates("{{BASEPAGENAME:Talk:Title}}", false));
-		assertEquals("Title", wikiModel.parseTemplates("{{BASEPAGENAME:Talk:title}}", false));
-		assertEquals("Title", wikiModel.parseTemplates("{{BASEPAGENAME:Talk:Title/foo}}", false));
-		assertEquals("Title/foo", wikiModel.parseTemplates("{{BASEPAGENAME:Talk:Title/foo/bar}}", false));
-		assertEquals("Title/foo/bar", wikiModel.parseTemplates("{{BASEPAGENAME:Talk:Title/foo/bar/baz}}", false));
-		assertEquals("Title 2/foo/bar", wikiModel.parseTemplates("{{BASEPAGENAME:Talk:Title 2/foo/bar/baz}}", false));
-		assertEquals("Bad:Title 2/foo/bar", wikiModel.parseTemplates("{{BASEPAGENAME:Bad:Title 2/foo/bar/baz}}", false));
-	}
-
-	public void testBASEPAGENAMEE001() {
-		wikiModel.setPageName("MyPage");
-		wikiModel.setNamespaceName("");
-		assertEquals("MyPage", wikiModel.parseTemplates("{{BASEPAGENAMEE}}", false));
-	}
-
-	public void testBASEPAGENAMEE002() {
-		wikiModel.setPageName("MyPage/foo");
-		wikiModel.setNamespaceName("");
-		assertEquals("MyPage", wikiModel.parseTemplates("{{BASEPAGENAMEE}}", false));
-	}
-
-	public void testBASEPAGENAMEE003() {
-		wikiModel.setPageName("MyPage/foo/bar");
-		wikiModel.setNamespaceName("");
-		assertEquals("MyPage/foo", wikiModel.parseTemplates("{{BASEPAGENAMEE}}", false));
-	}
-
-	public void testBASEPAGENAMEE004() {
-		assertEquals("", wikiModel.parseTemplates("{{BASEPAGENAMEE:}}", false));
-		assertEquals("Title", wikiModel.parseTemplates("{{BASEPAGENAMEE:Talk:Title}}", false));
-		assertEquals("Title", wikiModel.parseTemplates("{{BASEPAGENAMEE:Talk:title}}", false));
-		assertEquals("Title", wikiModel.parseTemplates("{{BASEPAGENAMEE:Talk:Title/foo}}", false));
-		assertEquals("Title/foo", wikiModel.parseTemplates("{{BASEPAGENAMEE:Talk:Title/foo/bar}}", false));
-		assertEquals("Title/foo/bar", wikiModel.parseTemplates("{{BASEPAGENAMEE:Talk:Title/foo/bar/baz}}", false));
-		assertEquals("Title_2/foo/bar", wikiModel.parseTemplates("{{BASEPAGENAMEE:Talk:Title 2/foo/bar/baz}}", false));
-		assertEquals("Bad:Title_2/foo/bar", wikiModel.parseTemplates("{{BASEPAGENAMEE:Bad:Title 2/foo/bar/baz}}", false));
-	}
-
-	public void testSUBPAGENAME001() {
-		wikiModel.setPageName("MyPage");
-		wikiModel.setNamespaceName("");
-		assertEquals("MyPage", wikiModel.parseTemplates("{{SUBPAGENAME}}", false));
-	}
-
-	public void testSUBPAGENAME002() {
-		wikiModel.setPageName("MyPage/foo");
-		wikiModel.setNamespaceName("");
-		assertEquals("foo", wikiModel.parseTemplates("{{SUBPAGENAME}}", false));
-	}
-
-	public void testSUBPAGENAME003() {
-		wikiModel.setPageName("MyPage/foo/bar");
-		wikiModel.setNamespaceName("");
-		assertEquals("bar", wikiModel.parseTemplates("{{SUBPAGENAME}}", false));
-	}
-
-	public void testSUBPAGENAME004() {
-		assertEquals("", wikiModel.parseTemplates("{{SUBPAGENAME:}}", false));
-		assertEquals("Title", wikiModel.parseTemplates("{{SUBPAGENAME:Talk:Title}}", false));
-		assertEquals("Title", wikiModel.parseTemplates("{{SUBPAGENAME:Talk:title}}", false));
-		assertEquals("foo", wikiModel.parseTemplates("{{SUBPAGENAME:Talk:Title/foo}}", false));
-		assertEquals("bar", wikiModel.parseTemplates("{{SUBPAGENAME:Talk:Title/foo/bar}}", false));
-		assertEquals("baz", wikiModel.parseTemplates("{{SUBPAGENAME:Talk:Title/foo/bar/baz}}", false));
-		assertEquals("baz 2", wikiModel.parseTemplates("{{SUBPAGENAME:Talk:Title 2/foo/bar/baz 2}}", false));
-		assertEquals("baz 2", wikiModel.parseTemplates("{{SUBPAGENAME:Bad:Title 2/foo/bar/baz 2}}", false));
-	}
-
-	public void testSUBPAGENAMEE001() {
-		wikiModel.setPageName("MyPage");
-		wikiModel.setNamespaceName("");
-		assertEquals("MyPage", wikiModel.parseTemplates("{{SUBPAGENAMEE}}", false));
-	}
-
-	public void testSUBPAGENAMEE002() {
-		wikiModel.setPageName("MyPage/foo");
-		wikiModel.setNamespaceName("");
-		assertEquals("foo", wikiModel.parseTemplates("{{SUBPAGENAMEE}}", false));
-	}
-
-	public void testSUBPAGENAMEE003() {
-		wikiModel.setPageName("MyPage/foo/bar");
-		wikiModel.setNamespaceName("");
-		assertEquals("bar", wikiModel.parseTemplates("{{SUBPAGENAMEE}}", false));
-	}
-
-	public void testSUBPAGENAMEE004() {
-		assertEquals("", wikiModel.parseTemplates("{{SUBPAGENAMEE:}}", false));
-		assertEquals("Title", wikiModel.parseTemplates("{{SUBPAGENAMEE:Talk:Title}}", false));
-		assertEquals("Title", wikiModel.parseTemplates("{{SUBPAGENAMEE:Talk:title}}", false));
-		assertEquals("foo", wikiModel.parseTemplates("{{SUBPAGENAMEE:Talk:Title/foo}}", false));
-		assertEquals("bar", wikiModel.parseTemplates("{{SUBPAGENAMEE:Talk:Title/foo/bar}}", false));
-		assertEquals("baz", wikiModel.parseTemplates("{{SUBPAGENAMEE:Talk:Title/foo/bar/baz}}", false));
-		assertEquals("baz_2", wikiModel.parseTemplates("{{SUBPAGENAMEE:Talk:Title 2/foo/bar/baz 2}}", false));
-		assertEquals("baz_2", wikiModel.parseTemplates("{{SUBPAGENAMEE:Bad:Title 2/foo/bar/baz 2}}", false));
 	}
 
 	public void testURLEncode001() {
@@ -1197,12 +823,12 @@ public class TemplateParserTest extends FilterTestSupport {
 				+ "{{!}} C\n" + "{{!}} D\n" + "{{!}}}\n" + "}}", false));
 	}
 
-//	public void testPipe003() {
-//		assertEquals("{| \n" + "| A \n" + "| B\n" + "|- \n" + "| C\n" + "| D\n" + "|}\n" + "{| \n" + "| A \n" + "| B\n" + "|- \n"
-//				+ "| C\n" + "| D\n" + "|}\n" + "{| \n" + "| A \n" + "| B\n" + "|- \n" + "| C\n" + "| D\n" + "|}\n" + "{| \n" + "| A \n"
-//				+ "| B\n" + "|- \n" + "| C\n" + "| D\n" + "|}\n" + "", wikiModel.parseTemplates("{{2x|{{2x|{{{!}} \n" + "{{!}} A \n"
-//				+ "{{!}} B\n" + "{{!}}- \n" + "{{!}} C\n" + "{{!}} D\n" + "{{!}}}\n" + "}}}}", false));
-//	}
+	public void testPipe003() {
+		assertEquals("{| \n" + "| A \n" + "| B\n" + "|- \n" + "| C\n" + "| D\n" + "|}\n" + "{| \n" + "| A \n" + "| B\n" + "|- \n"
+				+ "| C\n" + "| D\n" + "|}\n" + "{| \n" + "| A \n" + "| B\n" + "|- \n" + "| C\n" + "| D\n" + "|}\n" + "{| \n" + "| A \n"
+				+ "| B\n" + "|- \n" + "| C\n" + "| D\n" + "|}\n" + "", wikiModel.parseTemplates("{{2x|{{2x|{{{!}} \n" + "{{!}} A \n"
+				+ "{{!}} B\n" + "{{!}}- \n" + "{{!}} C\n" + "{{!}} D\n" + "{{!}}}\n" + "}}}}", false));
+	}
 
 	public void testInvalidNoinclude() {
 		assertEquals("test123 start\n" + "test123 end", wikiModel.parseTemplates("test123 start<noinclude>\n" + "test123 end"));
@@ -1260,18 +886,6 @@ public class TemplateParserTest extends FilterTestSupport {
 
 	public void testMagicTALKPAGENAME03() {
 		assertEquals("test [[Help_talk:Sandbox]] test123", wikiModel.parseTemplates("test [[{{TALKPAGENAME:\nHelp:Sandbox}}]] test123"));
-	}
-
-	public void testMagicTALKPAGENAME04() {
-		wikiModel.setPageName("MyPage");
-		wikiModel.setNamespaceName("");
-		assertEquals("test [[Talk:MyPage]] test123", wikiModel.parseTemplates("test [[{{TALKPAGENAME}}]] test123"));
-	}
-
-	public void testMagicTALKPAGENAME05() {
-		wikiModel.setPageName("MyPage");
-		wikiModel.setNamespaceName("category");
-		assertEquals("test [[Category_talk:MyPage]] test123", wikiModel.parseTemplates("test [[{{TALKPAGENAME}}]] test123"));
 	}
 
 	// public void testRef001() {
@@ -1332,38 +946,21 @@ public class TemplateParserTest extends FilterTestSupport {
 		assertEquals("", wikiModel.parseTemplates("{{#titleparts: Talk:Foo/bar/baz/quok | -5 }}", false));
 	}
 
-	public void testTitleparts009() {
+	public void testTitleparts06() {
 		assertEquals("bar/baz", wikiModel.parseTemplates("{{#titleparts: Talk:Foo/bar/baz/quok | 2 | 2 }}", false));
 	}
 
-	public void testTitleparts010() {
+	public void testTitleparts07() {
 		assertEquals("bar/baz/quok", wikiModel.parseTemplates("{{#titleparts: Talk:Foo/bar/baz/quok | | 2 }}", false));
 	}
 
-	public void testTitleparts011() {
+	public void testTitleparts08() {
 		assertEquals("quok", wikiModel.parseTemplates("{{#titleparts: Talk:Foo/bar/baz/quok | | -1 }}", false));
 	}
 
-	public void testTitleparts012() {
+	public void testTitleparts09() {
 		assertEquals("bar/baz", wikiModel.parseTemplates("{{#titleparts: Talk:Foo/bar/baz/quok | -1 | 2 }}", false));
 	}
-
-	public void testTitleparts013() {
-		assertEquals("", wikiModel.parseTemplates("{{#titleparts: Talk:Foo | -1 }}", false));
-	}
-
-	public void testTitleparts014() {
-		assertEquals("Talk:Foo", wikiModel.parseTemplates("{{#titleparts: Talk:Foo | | -1 }}", false));
-	}
-
-	public void testTitleparts015() {
-		assertEquals("bar", wikiModel.parseTemplates("{{#titleparts: Talk:Foo/bar | | -1 }}", false));
-	}
-
-	public void testTitleparts016() {
-		assertEquals("Talk:Foo/bar", wikiModel.parseTemplates("{{#titleparts: Talk:Foo/bar | | -2 }}", false));
-	}
-
 
 	public void testIssue77_001() {
 		assertEquals(
@@ -1410,14 +1007,6 @@ public class TemplateParserTest extends FilterTestSupport {
 						+ "|-\n" + "|\n" + "TEST2\n" + "|}\n" + "|}", wikiModel.parseTemplates("{{Main Page panel|\n"
 						+ "{{Main Page subpanel|column=both|title=Knowledge groups|1=\n" + "TEST1\n" + "}}\n" + "|\n"
 						+ "{{Main Page subpanel|column=both|title=Sister projects|1=\n" + "TEST2\n" + "}}\n" + "}}"));
-	}
-
-	public void testIssue77_003a() {
-		assertEquals("1test2foo|bar\n", wikiModel.parseTemplates("{{1x1y_opt|test|foo{{!}}bar}}\n"));
-	}
-
-	public void testIssue77_003b() {
-		assertEquals("1test2foo|bar\n", wikiModel.parseTemplates("{{1x1y_opt|1=test|2=foo{{!}}bar}}\n"));
 	}
 
 	public void testIssue81_001() {
@@ -1589,188 +1178,9 @@ public class TemplateParserTest extends FilterTestSupport {
 
 	public void testTemplateNavbar() {
 		assertEquals(
-				"<div class=\"noprint plainlinks hlist navbar \" style=\"\"><span style=\"word-spacing:0;\">This box: </span><ul><li class=\"nv-view\">[[Template:Screen Actors Guild Award for Outstanding Performance by a Cast in a Motion Picture (1995–2000)|<span title=\"View this template\" style=\"\">view</span>]]</li><li class=\"nv-talk\">[[Template_talk:Screen Actors Guild Award for Outstanding Performance by a Cast in a Motion Picture (1995–2000)|<span title=\"Discuss this template\" style=\"\">talk</span>]]</li><li class=\"nv-edit\">[http://en.wikipedia.org/w/index.php?title=Template%3AScreen+Actors+Guild+Award+for+Outstanding+Performance+by+a+Cast+in+a+Motion+Picture+%281995%E2%80%932000%29&amp;action=edit <span title=\"Edit this template\" style=\"\">edit</span>]</li></ul></div>\n"
-						+ "",
+				"<div class=\"noprint plainlinks hlist navbar \" style=\"\"><span style=\"word-spacing:0;\">This box: </span><ul><li class=\"nv-view\">[[Template:Screen Actors Guild Award for Outstanding Performance by a Cast in a Motion Picture (1995–2000)|<span title=\"View this template\" style=\"\">view</span>]]</li><li class=\"nv-talk\">[[Template_talk:Screen Actors Guild Award for Outstanding Performance by a Cast in a Motion Picture (1995–2000)|<span title=\"Discuss this template\" style=\"\">talk</span>]]</li><li class=\"nv-edit\">[http://en.wikipedia.org/w/index.php?title=Template%3AScreen+Actors+Guild+Award+for+Outstanding+Performance+by+a+Cast+in+a+Motion+Picture+%281995%E2%80%932000%29&amp;action=edit <span title=\"Edit this template\" style=\"\">edit</span>]</li></ul></div>\n" + 
+				"",
 				wikiModel
 						.parseTemplates("{{Navbar|Screen Actors Guild Award for Outstanding Performance by a Cast in a Motion Picture (1995–2000)}}\n"));
-	}
-
-	public void testWeather01() {
-		assertEquals("1\n", wikiModel.parseTemplates("{{WeatherVal01\n" + "|show=1\n" + "|jan1=10\n" + "}}\n"));
-	}
-
-	public void testWeather02() {
-		assertEquals("10\n", wikiModel.parseTemplates("{{WeatherVal02\n" + "|show=1\n" + "|jan1=10\n" + "}}\n"));
-	}
-
-	public void testWeather03() {
-		assertEquals("10\n", wikiModel.parseTemplates("{{WeatherVal03\n" + "|show=1\n" + "|jan1=10\n" + "}}\n"));
-	}
-
-	public void testWeather04() {
-		assertEquals("10\n", wikiModel.parseTemplates("{{WeatherVal03\r\n" + "|show=1\r\n" + "|jan1=10\r\n" + "}}\n"));
-	}
-
-	public void testWeather05() {
-		assertEquals("10\n" + "", wikiModel.parseTemplates("{{WeatherVal03\n\r" + "|show=1\n\r" + "|jan1=10\n\r" + "}}\n"));
-	}
-
-	public void testTemplateLastTilde01() {
-		assertEquals("[[:Template:TestTemplateName01~]]" + "", wikiModel.parseTemplates("{{TestTemplateName01~}}"));
-	}
-
-	public void testShouldNotBeParsed01() {
-		wikiModel.parseTemplates("{{#switch:TestPage\n|OtherPage={{ShouldNotBeParsed}}\n|#default={{ShouldBeParsed}}\n}}");
-		assertTrue(wikiModel.getTemplates().contains("ShouldBeParsed"));
-		assertTrue(!wikiModel.getTemplates().contains("ShouldNotBeParsed"));
-	}
-
-	public void testShouldNotBeParsed02() {
-		wikiModel
-				.parseTemplates("{{#switch:TestPage\n|TestPage={{ShouldBeParsed}}\n|OtherPage={{ShouldNotBeParsed1}}\n|#default={{ShouldNotBeParsed2}}\n}}");
-		assertTrue(wikiModel.getTemplates().contains("ShouldBeParsed"));
-		assertTrue(!wikiModel.getTemplates().contains("ShouldNotBeParsed1"));
-		assertTrue(!wikiModel.getTemplates().contains("ShouldNotBeParsed2"));
-	}
-
-	public void testShouldNotBeParsed03() {
-		wikiModel
-				.parseTemplates("{{#switch:TestPage\n|OtherPage={{ShouldNotBeParsed1}}\n|TestPage={{ShouldBeParsed}}\n|#default={{ShouldNotBeParsed2}}\n}}");
-		assertTrue(wikiModel.getTemplates().contains("ShouldBeParsed"));
-		assertTrue(!wikiModel.getTemplates().contains("ShouldNotBeParsed1"));
-		assertTrue(!wikiModel.getTemplates().contains("ShouldNotBeParsed2"));
-	}
-
-	public void testShouldNotBeParsed04() {
-		wikiModel
-				.parseTemplates("{{#switch:TestPage\n|#default={{ShouldNotBeParsed2}}\n|OtherPage={{ShouldNotBeParsed1}}\n|TestPage={{ShouldBeParsed}}\n}}");
-		assertTrue(wikiModel.getTemplates().contains("ShouldBeParsed"));
-		assertTrue(!wikiModel.getTemplates().contains("ShouldNotBeParsed1"));
-		assertTrue(!wikiModel.getTemplates().contains("ShouldNotBeParsed2"));
-	}
-
-	public void testShouldNotBeParsed05() {
-		wikiModel.parseTemplates("{{#switch:TestPage\n|TestPage={{ShouldBeParsed}}\n|#default={{ShouldNotBeParsed}}\n}}");
-		assertTrue(wikiModel.getTemplates().contains("ShouldBeParsed"));
-		assertTrue(!wikiModel.getTemplates().contains("ShouldNotBeParsed"));
-	}
-
-	public void testMissingImplicitParameter01() {
-		assertEquals("", wikiModel.parseTemplates("{{1x||2}}"));
-	}
-
-	/**
-	 * Some tests from <a href=
-	 * "https://meta.wikimedia.org/wiki/Help:Newlines_and_spaces#Trimming_on_expansion"
-	 * > Help:Newlines and spaces - Trimming on expansion</a>
-	 */
-	public void testNewlineSpaces01() {
-		assertEquals(" a ", wikiModel.parseTemplates("{{1x| a }}"));
-	}
-
-	/**
-	 * Some tests from <a href=
-	 * "https://meta.wikimedia.org/wiki/Help:Newlines_and_spaces#Trimming_on_expansion"
-	 * > Help:Newlines and spaces - Trimming on expansion</a>
-	 */
-	public void testNewlineSpaces02() {
-		assertEquals("a", wikiModel.parseTemplates("{{1x|1= a }}"));
-	}
-
-	/**
-	 * Some tests from <a href=
-	 * "https://meta.wikimedia.org/wiki/Help:Newlines_and_spaces#Trimming_on_expansion"
-	 * > Help:Newlines and spaces - Trimming on expansion</a>
-	 */
-	public void testNewlineSpaces03() {
-		assertEquals("p\n\nq", wikiModel.parseTemplates("p{{2x|{{nln}}}}q"));
-	}
-
-	/**
-	 * Some tests from <a href=
-	 * "https://meta.wikimedia.org/wiki/Help:Newlines_and_spaces#Trimming_on_expansion"
-	 * > Help:Newlines and spaces - Trimming on expansion</a>
-	 */
-	public void testNewlineSpaces04() {
-		assertEquals("pq", wikiModel.parseTemplates("p{{2x|1={{nln}}}}q"));
-	}
-
-	/**
-	 * Some tests from <a href=
-	 * "https://meta.wikimedia.org/wiki/Help:Newlines_and_spaces#Trimming_on_expansion"
-	 * > Help:Newlines and spaces - Trimming on expansion</a>
-	 */
-	public void testNewlineSpaces05() {
-		assertEquals("pq", wikiModel.parseTemplates("p{{#if:x|{{2x|{{nln}}}}}}q"));
-	}
-
-	/**
-	 * Some tests from <a href=
-	 * "https://meta.wikimedia.org/wiki/Help:Newlines_and_spaces#Trimming_on_expansion"
-	 * > Help:Newlines and spaces - Trimming on expansion</a>
-	 */
-	public void testNewlineSpaces06() {
-		assertEquals("pq", wikiModel.parseTemplates("p{{2x|{{#if:x|{{nln}}}}}}q"));
-	}
-
-	/**
-	 * Some tests from <a href=
-	 * "https://meta.wikimedia.org/wiki/Help:Newlines_and_spaces#Trimming_on_expansion"
-	 * > Help:Newlines and spaces - Trimming on expansion</a>
-	 */
-	public void testNewlineSpaces07() {
-		assertEquals("p  q", wikiModel.parseTemplates("p{{2x|{{spc}}}}q"));
-	}
-
-	/**
-	 * Some tests from <a href=
-	 * "https://meta.wikimedia.org/wiki/Help:Newlines_and_spaces#Trimming_on_expansion"
-	 * > Help:Newlines and spaces - Trimming on expansion</a>
-	 */
-	public void testNewlineSpaces08() {
-		assertEquals("pq", wikiModel.parseTemplates("p{{2x|1={{spc}}}}q"));
-	}
-
-	/**
-	 * Some tests from <a href=
-	 * "https://meta.wikimedia.org/wiki/Help:Newlines_and_spaces#Trimming_on_expansion"
-	 * > Help:Newlines and spaces - Trimming on expansion</a>
-	 */
-	public void testNewlineSpaces09() {
-		assertEquals("pq", wikiModel.parseTemplates("p{{#if:x|{{2x|{{spc}}}}}}q"));
-	}
-
-	/**
-	 * Some tests from <a href=
-	 * "https://meta.wikimedia.org/wiki/Help:Newlines_and_spaces#Trimming_on_expansion"
-	 * > Help:Newlines and spaces - Trimming on expansion</a>
-	 */
-	public void testNewlineSpaces10() {
-		assertEquals("pq", wikiModel.parseTemplates("p{{2x|{{#if:x|{{spc}}}}}}q"));
-	}
-
-	/**
-	 * Some tests from <a href=
-	 * "https://meta.wikimedia.org/wiki/Help:Newlines_and_spaces#Trimming_on_expansion"
-	 * > Help:Newlines and spaces - Trimming on expansion</a>
-	 */
-	public void testNewlineSpaces11() {
-		assertEquals("pqpq", wikiModel.parseTemplates("{{2x\n|\n1 =\npq\n}}"));
-	}
-
-	/**
-	 * Some tests from <a href=
-	 * "https://meta.wikimedia.org/wiki/Help:Newlines_and_spaces#Trimming_on_expansion"
-	 * > Help:Newlines and spaces - Trimming on expansion</a>
-	 */
-	public void testNewlineSpaces12() {
-		assertEquals("rs", wikiModel.parseTemplates("{{#switch:\n2\n|\n1 =\npq\n|\n2 =\nrs\n|\n3 =\ntu\n}}"));
-	}
-
-	public void testCategory001() {
-		assertEquals("", wikiModel.render("[[Category:Main Page]]", false));
-		HashMap<String, String> expectedCategories = new HashMap<String, String>();
-		expectedCategories.put("Main Page", "Category:Main Page");
-		assertEquals(expectedCategories, wikiModel.getCategories());
 	}
 }

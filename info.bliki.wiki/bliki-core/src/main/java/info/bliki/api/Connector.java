@@ -25,14 +25,10 @@ import org.xml.sax.SAXException;
 
 /**
  * Manages the queries for the <a
- * href="http://meta.wikimedia.org/w/api.php">Wikimedia API</a>. See the <a
- * href="http://www.mediawiki.org/wiki/API:Main_page">API Documentation</a>.
- * 
- * The queries set their own user-agent string. See <a
- * href="http://meta.wikimedia.org/wiki/User-Agent_policy">User-Agent policy</a>
+ * href="http://meta.wikimedia.org/w/api.php">Wikimedia API</a>
  */
 public class Connector {
-	final static public String USER_AGENT = "JavaWikipediaAPI/3.0 http://code.google.com/p/gwtwiki/";
+	final static public String USER_AGENT = "plog4u.org/3.0";
 
 	final static public String UTF8_CHARSET = "utf-8";
 
@@ -56,7 +52,7 @@ public class Connector {
 	 * href="http://code.google.com/p/gwtwiki/issues/detail?id=33">Issue #33</a>
 	 * 
 	 * @param method
-	 * @return XML string
+	 * @return
 	 * @throws IOException
 	 */
 	public static String getAsXmlString(HttpMethod method) throws IOException {
@@ -174,7 +170,7 @@ public class Connector {
 					XMLUserParser parser = new XMLUserParser(user, responseBody);
 					parser.parse();
 					if (i == 0 && user.getResult().equals(User.NEED_TOKEN_ID)) {
-						// try again
+						 // try again
 					} else if (user.getResult().equals(User.SUCCESS_ID)) {
 						return user;
 					} else {
@@ -202,7 +198,7 @@ public class Connector {
 	/**
 	 * Get the HttpClient.
 	 * 
-	 * @return http client
+	 * @return
 	 */
 	public HttpClient getClient() {
 		return client;
@@ -211,7 +207,7 @@ public class Connector {
 	/**
 	 * Get the HttpConnection manager.
 	 * 
-	 * @return http connection manager
+	 * @return
 	 */
 	public MultiThreadedHttpConnectionManager getManager() {
 		return manager;
@@ -238,7 +234,7 @@ public class Connector {
 	 *          user login data
 	 * @param listOfTitleStrings
 	 *          a list of title Strings "ArticleA,ArticleB,..."
-	 * @return page list
+	 * @return
 	 */
 	public List<Page> queryCategories(User user, List<String> listOfTitleStrings) {
 		String[] valuePairs = { "prop", "categories" };
@@ -252,7 +248,7 @@ public class Connector {
 	 *          user login data
 	 * @param listOfTitleStrings
 	 *          a list of title Strings "ArticleA,ArticleB,..."
-	 * @return page list
+	 * @return
 	 */
 	public List<Page> queryInfo(User user, List<String> listOfTitleStrings) {
 		String[] valuePairs = { "prop", "info" };
@@ -266,7 +262,7 @@ public class Connector {
 	 *          user login data
 	 * @param listOfTitleStrings
 	 *          a list of title Strings "ArticleA,ArticleB,..."
-	 * @return page list
+	 * @return
 	 */
 	public List<Page> queryLinks(User user, List<String> listOfTitleStrings) {
 		String[] valuePairs = { "prop", "links" };
@@ -283,7 +279,7 @@ public class Connector {
 	 *          user login data
 	 * @param listOfImageStrings
 	 *          a list of title Strings "ArticleA,ArticleB,..."
-	 * @return page list
+	 * @return
 	 */
 	public List<Page> queryImageinfo(User user, List<String> listOfImageStrings) {
 		String[] valuePairs = { "prop", "imageinfo", "iiprop", "url" };
@@ -300,7 +296,7 @@ public class Connector {
 	 * @param imageWidth
 	 *          a URL to an image scaled to this width will be returned. Only the
 	 *          current version of the image can be scaled.
-	 * @return page list
+	 * @return
 	 */
 	public List<Page> queryImageinfo(User user, List<String> listOfImageStrings, int imageWidth) {
 		String[] valuePairs = { "prop", "imageinfo", "iiprop", "url", "iiurlwidth", Integer.toString(imageWidth) };
@@ -328,7 +324,7 @@ public class Connector {
 	 *          user login data
 	 * @param query
 	 *          a user defined query
-	 * @return page list
+	 * @return
 	 */
 	public List<Page> query(User user, Query query) {
 		String response = sendXML(user, query);
@@ -352,7 +348,7 @@ public class Connector {
 	 * @param valuePairs
 	 *          pairs of query strings which should be appended to the Mediawiki
 	 *          API URL
-	 * @return page list
+	 * @return
 	 */
 	public List<Page> query(User user, List<String> listOfTitleStrings, String[] valuePairs) {
 		try {
@@ -478,7 +474,7 @@ public class Connector {
 	}
 
 	/**
-	 * Sends request to get the raw format from the Wikipedia API.
+	 * Sends request for parse action.
 	 * 
 	 * @param user
 	 *          user login data
@@ -487,9 +483,16 @@ public class Connector {
 	 * @return the raw XML string produced by the query; <code>null</code>
 	 *         otherwise
 	 */
-	public String sendXML(User user, RequestBuilder requestBuilder) {
+	private String sendXML(User user, RequestBuilder requestBuilder) {
 		PostMethod method = createAuthenticatedPostMethod(user);
 		method.addParameters(requestBuilder.getParameters());
+		// if (params != null && !params.isEmpty()) {
+		// for (Map.Entry entry : params.entrySet()) {
+		// method.addParameter(new NameValuePair((String) entry.getKey(), (String)
+		// entry.getValue()));
+		// }
+		// }
+		// method.addParameter(new NameValuePair(PARAM_ACTION, "parse"));
 		return executeHttpMethod(method);
 	}
 

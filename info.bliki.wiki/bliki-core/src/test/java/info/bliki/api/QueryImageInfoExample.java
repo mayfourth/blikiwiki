@@ -16,11 +16,10 @@ public class QueryImageInfoExample {
 		// set image width thumb size to 200px
 		List<Page> pages = user.queryImageinfo(new String[] { pageName }, 200);
 
+		System.out.println("PAGES: " + pages.get(0).getTitle());
+
 		if (pages != null) {
 			System.out.println("PAGES: " + pages.size());
-			if (pages.size() > 0) {
-				System.out.println("PAGES: " + pages.get(0).getTitle());
-			}
 
 		} else {
 			System.out.println("PAGES: NULL!");

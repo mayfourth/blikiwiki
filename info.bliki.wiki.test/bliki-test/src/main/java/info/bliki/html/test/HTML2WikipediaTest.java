@@ -140,42 +140,6 @@ public class HTML2WikipediaTest extends TestCase {
 				"</div> and '''''the'' ugly'''");
 	}
 	
-	public void test16() {
-		HTML2WikiConverter conv = new HTML2WikiConverter();
-		conv.setInputHTML(" <table>\n<tr>\n" + 
-				"                    <td align=\"left\" valign=\"top\">accesskey</td>\n" + 
-				"                    <td align=\"left\" valign=\"top\">false</td>\n" + 
-				"                    <td align=\"left\" valign=\"top\"></td>              <!----  empty cell -->\n" + 
-				"                    <td align=\"left\" valign=\"top\">false</td>\n" + 
-				"                    <td align=\"left\" valign=\"top\">String</td>\n" + 
-				"                    <td align=\"left\" valign=\"top\">Set the html accesskey attribute on rendered html element</td>\n" + 
-				"   </tr></table>");
-		String result = conv.toWiki(new ToWikipedia());
-		assertEquals(result, "          \n" + 
-				"{| border=\"1\"\n" + 
-				"|-\n" + 
-				"|accesskey\n" + 
-				"|false\n" + 
-				"| \n" + 
-				"|false\n" + 
-				"|String\n" + 
-				"|Set the html accesskey attribute on rendered html element\n" + 
-				"|}");
-	}
-	
-	public void test17() {
-		HTML2WikiConverter conv = new HTML2WikiConverter();
-		conv.setInputHTML(" <table>\n<tr>\n" + 
-				"                    <td align=\"left\" valign=\"top\"></td>             \n" + 
-				"   </tr></table>");
-		String result = conv.toWiki(new ToWikipedia());
-		assertEquals(result, "    \n" + 
-				"{| border=\"1\"\n" + 
-				"|-\n" + 
-				"| \n" + 
-				"|}");
-	}
-	
 	public static void main(String[] args) {
 		try {
 			HTML2WikiConverter conv = new HTML2WikiConverter();

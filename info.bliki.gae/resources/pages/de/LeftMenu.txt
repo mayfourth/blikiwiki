@@ -1,2 +1,0 @@
-﻿* [[MainPage|Hauptseite]]
-* [http://code.google.com/p/gwtwiki/ Google Code]

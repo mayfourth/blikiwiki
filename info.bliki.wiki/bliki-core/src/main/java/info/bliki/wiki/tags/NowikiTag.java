@@ -54,7 +54,7 @@ public class NowikiTag extends HTMLTag implements INoBodyParsingTag {
 				} else {
 					lastIndex++;
 				}
-				writer.append("&lt;");
+				writer.append("&#60;");
 				break;
 			case '>': // special html escape character
 				if (lastIndex < (currentIndex - 1)) {
@@ -63,7 +63,7 @@ public class NowikiTag extends HTMLTag implements INoBodyParsingTag {
 				} else {
 					lastIndex++;
 				}
-				writer.append("&gt;");
+				writer.append("&#62;");
 				break;
 			case '&': // special html escape character
 				if (lastIndex < (currentIndex - 1)) {
@@ -119,7 +119,7 @@ public class NowikiTag extends HTMLTag implements INoBodyParsingTag {
 				} else {
 					lastIndex++;
 				}
-				writer.append("&lt;");
+				writer.append("&#60;");
 				break;
 			case '>': // special html escape character
 				if (lastIndex < (currentIndex - 1)) {
@@ -128,7 +128,7 @@ public class NowikiTag extends HTMLTag implements INoBodyParsingTag {
 				} else {
 					lastIndex++;
 				}
-				writer.append("&gt;");
+				writer.append("&#62;");
 				break;
 			case '&': // special html escape character
 				if (lastIndex < (currentIndex - 1)) {

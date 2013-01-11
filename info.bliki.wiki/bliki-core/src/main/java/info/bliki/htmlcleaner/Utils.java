@@ -272,14 +272,6 @@ public class Utils {
 	 */
 	public static void escapeXmlToBuffer(String s, Appendable result, boolean advanced, boolean recognizeUnicodeChars,
 			boolean translateSpecialEntities) throws IOException {
-		escapeXmlToBuffer(s, result, advanced, recognizeUnicodeChars, translateSpecialEntities, false);
-	}
-
-	/**
-	 * Escapes XML string into the given result buffer.
-	 */
-	public static void escapeXmlToBuffer(String s, Appendable result, boolean advanced, boolean recognizeUnicodeChars,
-			boolean translateSpecialEntities, boolean plainText) throws IOException {
 		if (s != null) {
 			int len = s.length();
 			for (int i = 0; i < len; i++) {
@@ -363,55 +355,9 @@ public class Utils {
 								// result.append("&quot;");
 								result.append("&#34;");
 								i += 5;
-							} else if (sub.startsWith("&nbsp;")) {
-								result.append("&#160;");
-								i += 5;
 							} else {
 								// result.append("&amp;");
 								result.append("&#38;");
-							}
-
-							continue;
-						} else if (plainText) {
-							String sub = s.substring(i);
-							if (sub.startsWith("&amp;")) {
-								result.append("&");
-								i += 4;
-							} else if (sub.startsWith("&#38;")) {
-								result.append("&");
-								i += 4;
-							} else if (sub.startsWith("&apos;")) {
-								result.append("\'");
-								i += 5;
-							} else if (sub.startsWith("&#39;")) {
-								result.append("\'");
-								i += 4;
-							} else if (sub.startsWith("&gt;")) {
-								result.append(">");
-								i += 3;
-							} else if (sub.startsWith("&#62;")) {
-								result.append(">");
-								i += 4;
-							} else if (sub.startsWith("&lt;")) {
-								result.append("<");
-								i += 3;
-							} else if (sub.startsWith("&#60;")) {
-								result.append("<");
-								i += 4;
-							} else if (sub.startsWith("&quot;")) {
-								result.append("\"");
-								i += 5;
-							} else if (sub.startsWith("&#34;")) {
-								result.append("\"");
-								i += 4;
-							} else if (sub.startsWith("&nbsp;")) {
-								result.append(" ");
-								i += 5;
-							} else if (sub.startsWith("&#160;")) {
-								result.append(" ");
-								i += 5;
-							} else {
-								result.append("&");
 							}
 
 							continue;
@@ -419,24 +365,20 @@ public class Utils {
 
 						result.append("&amp;");
 					}
-				} else if (plainText) {
-					result.append(ch);
+				} else if (ch == '\'') {
+					// result.append("&apos;");
+					result.append("&#39;");
+				} else if (ch == '>') {
+					// result.append("&gt;");
+					result.append("&#62;");
+				} else if (ch == '<') {
+					// result.append("&lt;");
+					result.append("&#60;");
+				} else if (ch == '\"') {
+					// result.append("&quot;");
+					result.append("&#34;");
 				} else {
-					if (ch == '\'') {
-						// result.append("&apos;");
-						result.append("&#39;");
-					} else if (ch == '>') {
-						// result.append("&gt;");
-						result.append("&#62;");
-					} else if (ch == '<') {
-						// result.append("&lt;");
-						result.append("&#60;");
-					} else if (ch == '\"') {
-						// result.append("&quot;");
-						result.append("&#34;");
-					} else {
-						result.append(ch);
-					}
+					result.append(ch);
 				}
 			}
 		}

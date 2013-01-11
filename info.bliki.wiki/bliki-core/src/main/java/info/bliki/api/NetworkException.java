@@ -5,11 +5,6 @@ package info.bliki.api;
  * 
  */ 
 public abstract class NetworkException extends Exception {
-	/**
-	 * Auto-generated serial version UID.
-	 */
-	private static final long serialVersionUID = -7191288040406977235L;
-
 	/** Constructs a new exception with null as its detail message. */
 	public NetworkException() {
 		super();

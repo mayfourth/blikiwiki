@@ -92,7 +92,7 @@ import java.util.regex.Pattern;
  * 
  * @author Aaron Collegeman acollegeman@clutch-inc.com
  * @since JRE 1.5.0
- * @see "http://us3.php.net/manual/en/function.strtotime.php"
+ * @see http://us3.php.net/manual/en/function.strtotime.php
  */
 public class StringToTime extends Date {
 
@@ -184,7 +184,7 @@ public class StringToTime extends Date {
 	/** Date/Time string parsed */
 	private Object dateTimeString;
 
-	/** The format to use in {@link #toString()} */
+	/** The format to use in {@link #toString()) */
 	private String simpleDateFormat;
 
 	/**
@@ -242,7 +242,6 @@ public class StringToTime extends Date {
 	/**
 	 * @return {@link java.util.Date#getTime()}
 	 */
-	@Override
 	public long getTime() {
 		return super.getTime();
 	}
@@ -258,7 +257,7 @@ public class StringToTime extends Date {
 
 	/**
 	 * @param simpleDateFormat
-	 * @see SimpleDateFormat
+	 * @see {@link SimpleDateFormat}
 	 * @return Date formatted according to <code>simpleDateFormat</code>
 	 */
 	public String format(String simpleDateFormat) {
@@ -270,7 +269,6 @@ public class StringToTime extends Date {
 	 *         to format <code>date</code> accordingly; otherwise, returns the
 	 *         <code>String</code> value of {@link java.util.Date#getTime()}.
 	 */
-	@Override
 	public String toString() {
 		if (simpleDateFormat != null)
 			return new SimpleDateFormat(simpleDateFormat).format(this);
@@ -279,14 +277,14 @@ public class StringToTime extends Date {
 	}
 
 	/**
-	 * A single parameter version of {@link #time(Object, Date)}, passing a new
+	 * A single parameter version of {@link #time(String, Date)}, passing a new
 	 * instance of {@link java.util.Date} as the second parameter.
 	 * 
 	 * @param dateTimeString
 	 * @return A {@link java.lang.Long} timestamp representative of
 	 *         <code>dateTimeString</code>, or {@link java.lang.Boolean}
 	 *         <code>false</code>.
-	 * @see #time(Object, Date)
+	 * @see #time(String, Date)
 	 */
 	public static Object time(Object dateTimeString) {
 		return time(dateTimeString, new Date());
@@ -434,7 +432,6 @@ public class StringToTime extends Date {
 			this.sdf = sdf;
 		}
 
-		@Override
 		public String toString() {
 			if (sdf != null)
 				return sdf;

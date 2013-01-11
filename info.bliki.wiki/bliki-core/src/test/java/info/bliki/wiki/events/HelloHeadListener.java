@@ -15,15 +15,11 @@ public class HelloHeadListener extends DefaultEventListener {
 
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public void onHeader(char[] src, int startPosition, int endPosition, int rawStart, int rawEnd, int level) {
+	public void onHeader(char[] src, int rawStart, int rawEnd, int level) {
 		collectorBuffer.append(src, rawStart, rawEnd - rawStart);
 		collectorBuffer.append("\n");
 	}
 
-	/** {@inheritDoc} */
-	@Override
 	public void onWikiLink(char[] src, int rawStart, int rawEnd, String suffix) {
 	}
 

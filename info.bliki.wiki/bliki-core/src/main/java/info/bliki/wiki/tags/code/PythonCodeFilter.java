@@ -37,7 +37,6 @@ public class PythonCodeFilter extends AbstractCPPBasedCodeFilter implements Sour
 	public PythonCodeFilter() {
 	}
 
-	@Override
 	public String filter(String input) {
 		char[] source = input.toCharArray();
 		int currentPosition = 0;

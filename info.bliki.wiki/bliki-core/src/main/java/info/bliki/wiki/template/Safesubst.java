@@ -1,12 +1,8 @@
 package info.bliki.wiki.template;
 
 import info.bliki.htmlcleaner.Utils;
-import info.bliki.wiki.filter.AbstractParser;
-import info.bliki.wiki.filter.AbstractParser.ParsedPageName;
 import info.bliki.wiki.filter.TemplateParser;
-import info.bliki.wiki.filter.Util;
 import info.bliki.wiki.model.IWikiModel;
-import info.bliki.wiki.namespaces.INamespace;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +30,6 @@ public class Safesubst extends AbstractTemplateFunction {
 		char[] src2 = substituted.toCharArray();
 
 		Object[] objs = TemplateParser.createParameterMap(src2, 0, src2.length);
-		@SuppressWarnings("unchecked")
 		List<String> parts = (List<String>) objs[0];
 		String templateName = ((String) objs[1]);
 
@@ -64,21 +59,20 @@ public class Safesubst extends AbstractTemplateFunction {
 		List<String> unnamedParameters = new ArrayList<String>();
 		for (int i = 1; i < parts.size(); i++) {
 			if (i == parts.size() - 1) {
-				TemplateParser.createSingleParameter(parts.get(i), model, parameterMap, unnamedParameters);
+				TemplateParser.createSingleParameter(parts.get(i), parameterMap, unnamedParameters);
 			} else {
-				TemplateParser.createSingleParameter(parts.get(i), model, parameterMap, unnamedParameters);
+				TemplateParser.createSingleParameter(parts.get(i), parameterMap, unnamedParameters);
 			}
 		}
 		TemplateParser.mergeParameters(parameterMap, unnamedParameters);
 
-		final INamespace namespace = model.getNamespace();
-		// TODO: remove trailing "#section"?!
-		ParsedPageName parsedPagename = AbstractParser.parsePageName(model, templateName, namespace.getTemplate(), true, false);
-		if (!parsedPagename.valid) {
-			return "{{" + parsedPagename.pagename + "}}";
+		String plainContent;
+		if (templateName.length() > 0 && templateName.charAt(0) == ':') {
+			plainContent = model.getRawWikiContent("", templateName.substring(1), parameterMap);
+		} else {
+			plainContent = model.getRawWikiContent(model.getTemplateNamespace(), templateName, parameterMap);
 		}
-		
-		String plainContent = model.getRawWikiContent(parsedPagename, parameterMap);
+
 		if (plainContent != null) {
 			return Safesubst.parsePreprocess(plainContent, model, parameterMap);
 		}
@@ -91,19 +85,15 @@ public class Safesubst extends AbstractTemplateFunction {
 	 * 
 	 * @param content
 	 * @param model
-	 * @return parsed content
+	 * @return
 	 */
 	public static String parsePreprocess(String content, IWikiModel model, Map<String, String> templateParameterMap) {
 		if (content == null || content.length() == 0) {
 			return "";
 		}
-		int startIndex = Util.indexOfTemplateParsing(content);
-		if (startIndex < 0) {
-			return Utils.trimNewlineLeft(content);
-		}
 		StringBuilder buf = new StringBuilder(content.length());
 		try {
-			TemplateParser.parsePreprocessRecursive(startIndex, content, model, buf, false, false, templateParameterMap);
+			TemplateParser.parsePreprocessRecursive(content, model, buf, false, false, false, templateParameterMap);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

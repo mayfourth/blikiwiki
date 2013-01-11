@@ -553,11 +553,6 @@ public class MediaWikiComm {
 	 */
 	public static class ConcurrentEditException extends IOException {
 
-		/**
-		 * Auto-generated serial version UID.
-		 */
-		private static final long serialVersionUID = -8699957287237065796L;
-
 		public ConcurrentEditException(String message) {
 			super(message);
 		}

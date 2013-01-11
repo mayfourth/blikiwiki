@@ -19,6 +19,23 @@ public class WPListElement {
 
 	TagStack fStack;
 
+	/**
+	 * 
+	 * @param type
+	 * @param level
+	 * @param sequence
+	 * @param start
+	 * @deprecated use WPListElement(int level, final char[] sequence, int start)
+	 *             instead
+	 */
+	@Deprecated
+	public WPListElement(int type, int level, final char[] sequence, int start) {
+		this(level, sequence, start);
+		// fSequence = sequence;
+		// fStartPos = start;
+		// fStack = null;
+	}
+
 	public WPListElement(int level, final char[] sequence, int start) {
 		fSequence = sequence;
 		fStartPos = start;

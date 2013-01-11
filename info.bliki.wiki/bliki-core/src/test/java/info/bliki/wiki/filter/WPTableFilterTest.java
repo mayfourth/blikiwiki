@@ -134,7 +134,7 @@ public class WPTableFilterTest extends FilterTestSupport {
 				"| C\n" + 
 				"| D\n" + 
 				"|}\n" + 
-				"</pre>\n</blockquote>\n" + 
+				"</pre></blockquote>\n" + 
 				"<blockquote style=\"background: white; border: 1px solid rgb(153, 153, 153); padding: 1em;\">\n" + 
 				"<pre>\n" + 
 				"{| \n" + 
@@ -142,7 +142,7 @@ public class WPTableFilterTest extends FilterTestSupport {
 				"|- \n" + 
 				"| C || D \n" + 
 				"|}\n" + 
-				"</pre>\n</blockquote>\n" + 
+				"</pre></blockquote>\n" + 
 				"\n" + 
 				"<p><b>What it looks like in your browser</b>\n" + 
 				"</p><blockquote style=\"background: white; border: 1px solid rgb(153, 153, 153); padding: 1em;\">\n" + 
@@ -154,7 +154,7 @@ public class WPTableFilterTest extends FilterTestSupport {
 				"<td>B</td></tr>\n" + 
 				"<tr>\n" + 
 				"<td>C</td>\n" + 
-				"<td>D</td></tr></table></div>\n</blockquote>\n" + 
+				"<td>D</td></tr></table></div></blockquote>\n" + 
 				"", wikiModel.render(TEST3, false));
 	}
 
@@ -225,7 +225,7 @@ public class WPTableFilterTest extends FilterTestSupport {
 				"<th>5</th>\n" + 
 				"<td>5 </td>\n" + 
 				"<td>10 </td>\n" + 
-				"<td>15</td></tr></table></div>\n</blockquote></td>\n" + 
+				"<td>15</td></tr></table></div></blockquote></td>\n" + 
 				"</tr>\n" + 
 				"</table>\n" + 
 				"", wikiModel.render(TEST5, false));
@@ -338,7 +338,7 @@ public class WPTableFilterTest extends FilterTestSupport {
 				"<tr>\n" + 
 				"<th colspan=\"2\" style=\"text-align:center;\">\n" + 
 				"<a class=\"image\" href=\"http://www.bliki.info/wiki/Image:300px-Cap.jpg\" ><img src=\"http://www.bliki.info/wiki/300px-Cap.jpg\" width=\"300\" />\n" + 
-				"</a><br />\n" + 
+				"</a><br/>\n" + 
 				"</th></tr>\n" + 
 				"<tr>\n" + 
 				"<td colspan=\"2\" style=\"text-align:center; background: #042462;\"><span class=\"note\" style=\"color:white;\"><b><span style=\"color:white;\">Milwaukee Brewers</span> — No. 39</b></span></td></tr>\n" + 
@@ -370,26 +370,25 @@ public class WPTableFilterTest extends FilterTestSupport {
 
 	public void testBlockquoteTableText01() {
 		assertEquals(
-				"Simple exampleBoth of these generate the same output.  Choose a style based on the number of cells in each row and the total text inside each cell. Wiki markup\n" + 
-				"<nowiki>\n" + 
-				"{| \n" + 
-				"| A \n" + 
-				"| B\n" + 
-				"|- \n" + 
-				"| C\n" + 
-				"| D\n" + 
-				"|}\n" + 
-				"</nowiki>\n" + 
-				"<nowiki>\n" + 
-				"{| \n" + 
-				"| A || B\n" + 
-				"|- \n" + 
-				"| C || D \n" + 
-				"|}\n" + 
-				"</nowiki>\n" + 
-				"What it looks like in your browser\n" + 
-				"\n" + 
-				"\n", wikiModel.render(new PlainTextConverter(), TEST3, false));
+				"Simple exampleBoth of these generate the same output.  Choose a style based on the number of cells in each row and the total text inside each cell.Wiki markup\n"
+						+ "<nowiki>\n"
+						+ "{| \n"
+						+ "| A \n"
+						+ "| B\n"
+						+ "|- \n"
+						+ "| C\n"
+						+ "| D\n"
+						+ "|}\n"
+						+ "</nowiki>\n"
+						+ "<nowiki>\n"
+						+ "{| \n"
+						+ "| A || B\n"
+						+ "|- \n"
+						+ "| C || D \n"
+						+ "|}\n"
+						+ "</nowiki>\n"
+						+ "What it looks like in your browser\n"
+						+ "\n" + "\n" + "", wikiModel.render(new PlainTextConverter(), TEST3, false));
 	}
 
 	public void testWPTableText01() {
@@ -414,7 +413,7 @@ public class WPTableFilterTest extends FilterTestSupport {
 				"<th>col2 </th>\n" + 
 				"<th>col3</th></tr>\n" + 
 				"<tr malformed=\"\">\n" + 
-				"<td><b><a href=\"http://www.bliki.info/wiki/Testing\" title=\"Testing\">testing</a></b></td>\n" + 
+				"<td><b><a href=\"http://www.bliki.info/wiki/Testing\" title=\"testing\">testing</a></b></td>\n" + 
 				"<td>\n" + 
 				"This is a test of a malformed table.</td>\n" + 
 				"<td align=\"center\"><a class=\"image\" href=\"http://www.bliki.info/wiki/Image:140px-test.png\" ><img src=\"http://www.bliki.info/wiki/140px-test.png\" width=\"140\" />\n" + 

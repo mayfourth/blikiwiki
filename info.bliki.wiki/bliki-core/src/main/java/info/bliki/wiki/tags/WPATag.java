@@ -34,7 +34,7 @@ public class WPATag extends HTMLTag {
 		if (!converter.noLinks()) {
 			super.renderHTML(converter, buf, model);
 		} else {
-			List<Object> children = getChildren();
+			List children = getChildren();
 			if (children.size() != 0) {
 				converter.nodesToText(children, buf, model);
 			}

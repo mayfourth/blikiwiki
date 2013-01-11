@@ -22,7 +22,6 @@ import javax.swing.JScrollPane;
  */
 public class BlikiConverter extends JFrame {
 	class ClearListener implements java.awt.event.ActionListener {
-		@Override
 		public void actionPerformed(java.awt.event.ActionEvent event) {
 			input.setText("");
 			output.setText("");
@@ -30,7 +29,6 @@ public class BlikiConverter extends JFrame {
 	}
 
 	class Html2WikiListener implements java.awt.event.ActionListener {
-		@Override
 		public void actionPerformed(java.awt.event.ActionEvent event) {
 			String strData = input.getText();
 			HTML2WikiConverter conv = new HTML2WikiConverter(strData);
@@ -40,7 +38,6 @@ public class BlikiConverter extends JFrame {
 	}
 
 	class Wiki2HtmlListener implements java.awt.event.ActionListener {
-		@Override
 		public void actionPerformed(java.awt.event.ActionEvent event) {
 			String strData = input.getText();
 			WikiModel wikiModel = new WikiModel(Configuration.DEFAULT_CONFIGURATION, Locale.ENGLISH, "${image}", "${title}");
@@ -56,7 +53,6 @@ public class BlikiConverter extends JFrame {
 
 	class Wiki2PlainListener implements java.awt.event.ActionListener {
 
-		@Override
 		public void actionPerformed(java.awt.event.ActionEvent event) {
 			String strData = input.getText();
 			WikiModel wikiModel = new WikiModel(Configuration.DEFAULT_CONFIGURATION, Locale.ENGLISH, "${image}", "${title}");
@@ -82,7 +78,6 @@ public class BlikiConverter extends JFrame {
 
 	public static void main(String[] args) {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			@Override
 			public void run() {
 				createBlikiConverter();
 			}

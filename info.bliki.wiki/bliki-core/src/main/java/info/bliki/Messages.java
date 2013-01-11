@@ -1,7 +1,6 @@
 package info.bliki;
 
 import java.util.Locale;
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
@@ -14,7 +13,6 @@ public class Messages {
 	private static ResourceBundle resourceBundle = null;
 
 	public final static String WIKI_TAGS_TOC_CONTENT = "wiki.tags.toc.content";
-	public final static String WIKI_TAGS_RED_LINK = "wiki.tags.red-link";
 
 	public final static String WIKI_API_URL = "wiki.api.url";
 
@@ -69,12 +67,6 @@ public class Messages {
 	public final static String WIKI_API_CATEGORYTALK1 = "wiki.api.categorytalk1";
 	public final static String WIKI_API_CATEGORYTALK2 = "wiki.api.categorytalk2";
 
-	public final static String WIKI_API_PORTAL1 = "wiki.api.portal1";
-	public final static String WIKI_API_PORTAL2 = "wiki.api.portal2";
-
-	public final static String WIKI_API_PORTALTALK1 = "wiki.api.portaltalk1";
-	public final static String WIKI_API_PORTALTALK2 = "wiki.api.portaltalk2";
-
 	public Messages() {
 	}
 
@@ -90,16 +82,6 @@ public class Messages {
 	public static String getString(final ResourceBundle bundle, final String key) {
 		try {
 			return bundle.getString(key);
-		} catch (final Exception e) {
-			return "!" + key + "!";//$NON-NLS-2$ //$NON-NLS-1$
-		}
-	}
-
-	public static String getString(final ResourceBundle bundle, final String key, final String defaultIfNotFound) {
-		try {
-			return bundle.getString(key);
-		} catch (final MissingResourceException e) {
-			return defaultIfNotFound;
 		} catch (final Exception e) {
 			return "!" + key + "!";//$NON-NLS-2$ //$NON-NLS-1$
 		}

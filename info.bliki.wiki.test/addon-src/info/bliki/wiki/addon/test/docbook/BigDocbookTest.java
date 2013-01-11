@@ -1,9 +1,9 @@
 package info.bliki.wiki.addon.test.docbook;
 
 import info.bliki.wiki.addon.docbook.DocbookGenerator;
-import info.bliki.wiki.filter.FilterTestSupport;
-import info.bliki.wiki.filter.WikiTestModel;
 import info.bliki.wiki.model.WikiModel;
+import info.bliki.wiki.test.filter.FilterTestSupport;
+import info.bliki.wiki.test.filter.WikiTestModel;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 

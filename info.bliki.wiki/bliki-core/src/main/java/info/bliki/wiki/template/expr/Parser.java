@@ -10,13 +10,13 @@ import info.bliki.wiki.template.expr.operator.PostfixOperator;
 import info.bliki.wiki.template.expr.operator.PrefixOperator;
 
 /**
- * Create an expression of the <code>ASTNode</code> class-hierarchy from a math
- * formulas string representation.
+ * Create an expression of the <code>ASTNode</code> class-hierarchy from a
+ * math formulas string representation
  * 
  * See <a
- * href="http://en.wikipedia.org/wiki/Operator-precedence_parser">Operator
- * -precedence parser</a> for the idea, how to parse the operators depending on
- * their precedence.
+ * href="http://en.wikipedia.org/wiki/Operator-precedence_parser">Operator-precedence
+ * parser</a> for the idea, how to parse the operators depending on their
+ * precedence.
  */
 public class Parser extends Scanner {
 	/**
@@ -153,9 +153,9 @@ public class Parser extends Scanner {
 
 	/**
 	 * See <a
-	 * href="http://en.wikipedia.org/wiki/Operator-precedence_parser">Operator
-	 * -precedence parser</a> for the idea, how to parse the operators depending
-	 * on their precedence.
+	 * href="http://en.wikipedia.org/wiki/Operator-precedence_parser">Operator-precedence
+	 * parser</a> for the idea, how to parse the operators depending on their
+	 * precedence.
 	 * 
 	 * @param lhs
 	 *          the already parsed left-hand-side of the operator
@@ -176,6 +176,7 @@ public class Parser extends Scanner {
 					getNextToken();
 					rhs = parseLookaheadOperator(oper.getPrecedence());
 					lhs = ((InfixOperator) oper).createFunction(fFactory, lhs, rhs);
+					// lhs = parseArguments(lhs);
 					continue;
 				}
 			} else {
@@ -184,10 +185,12 @@ public class Parser extends Scanner {
 				if (oper instanceof PostfixOperator) {
 					getNextToken();
 					lhs = ((PostfixOperator) oper).createFunction(fFactory, lhs);
+					// lhs = parseArguments(lhs);
 					continue;
 				}
 				throwSyntaxError("Operator: " + fOperatorString + " is no infix or postfix operator.");
 			}
+			// }
 			break;
 		}
 		return lhs;
@@ -209,7 +212,7 @@ public class Parser extends Scanner {
 				throwSyntaxError("Too many closing ')'; End-of-file not reached.");
 			}
 
-			if (fOperatorString == "E") {
+			if (fOperatorString=="E") {
 				fCurrentPosition--;
 			}
 			throwSyntaxError("End-of-file not reached.");
@@ -245,6 +248,28 @@ public class Parser extends Scanner {
 		return temp;
 	}
 
+	private int getIntegerNumber() throws SyntaxError {
+		final Object[] result = getNumberString();
+		final String number = (String) result[0];
+		final int numFormat = ((Integer) result[1]).intValue();
+		int intValue = 0;
+		try {
+			intValue = Integer.parseInt(number, numFormat);
+		} catch (final NumberFormatException e) {
+			throwSyntaxError("Number format error (not an int type): " + number, number.length());
+		}
+		getNextToken();
+		return intValue;
+	}
+
+	// private ASTNode getString() throws SyntaxError {
+	// final StringBuffer ident = getStringBuffer();
+	//
+	// getNextToken();
+	//
+	// return fFactory.createString(ident);
+	// }
+
 	private ASTNode getFactor() throws SyntaxError {
 		ASTNode temp;
 
@@ -269,6 +294,10 @@ public class Parser extends Scanner {
 
 			return temp;
 		}
+
+		// if (fToken == TT_STRING) {
+		// return getString();
+		// }
 
 		switch (fToken) {
 

@@ -12,6 +12,23 @@ public interface IEventListener {
 	 * 
 	 * @param src
 	 *          the currently parsed raw wikitext character array
+	 * @param rawStart
+	 *          the start offset of the wiki head excluding the wiki head start
+	 * @param rawEnd
+	 *          the end offset of the wiki head excluding the wiki head end tags
+	 * @param level
+	 *          the header level (i.e. <code>==</code> gives level 2;
+	 *          <code>===</code> gives level 3;<code>====</code> gives level 4...)
+	 * @deprecated
+	 */
+	@Deprecated
+	public void onHeader(char[] src, int rawStart, int rawEnd, int level);
+
+	/**
+	 * Notify the listener about a parsed header.
+	 * 
+	 * @param src
+	 *          the currently parsed raw wikitext character array
 	 * @param startPosition
 	 *          the start offset of the wiki head including the wiki head start
 	 * @param endPosition

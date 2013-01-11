@@ -14,7 +14,7 @@ public class BoldFilterTest extends FilterTestSupport {
 
 	public void testBoldItalic() {
 		// close tags if user forget it:
-		assertEquals("\n" + "<p><b><i>kursiv und fett</i></b><br />\n" + "<br />\n" + "test</p>", wikiModel
+		assertEquals("\n" + "<p><b><i>kursiv und fett</i></b><br/>\n" + "<br/>\n" + "test</p>", wikiModel
 				.render("'''''kursiv und fett'''''<br />\n" + "<br />\n" + "test", false));
 	}
 

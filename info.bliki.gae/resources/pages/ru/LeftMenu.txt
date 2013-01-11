@@ -1,2 +1,0 @@
-* [[MainPage|Стартовые точки]]
-* [http://code.google.com/p/gwtwiki/ Google Code]

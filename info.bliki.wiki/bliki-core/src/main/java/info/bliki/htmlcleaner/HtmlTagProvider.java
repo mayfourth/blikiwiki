@@ -50,13 +50,9 @@ import java.util.StringTokenizer;
  * Created by: Vladimir Nikic<br/>
  * Date: November, 2006.
  */
-public class HtmlTagProvider extends HashMap<String, TagInfo> implements ITagInfoProvider {
+public class HtmlTagProvider extends HashMap implements ITagInfoProvider {
 
-    /**
-	 * Auto-generated serial version UID.
-	 */
-	private static final long serialVersionUID = 1542458496477964349L;
-	// singleton instance, used if no other TagInfoProvider is specified
+    // singleton instance, used if no other TagInfoProvider is specified
     private static HtmlTagProvider _instance;
 
     /**
@@ -274,8 +270,7 @@ public class HtmlTagProvider extends HashMap<String, TagInfo> implements ITagInf
      * @param tagName
      * @return TagInfo instance from the map, for the specified tag name.
      */
-    @Override
-	public TagInfo getTagInfo(String tagName) {
+    public TagInfo getTagInfo(String tagName) {
         if (tagName != null) {
             return (TagInfo) get( tagName.toLowerCase() );
         }

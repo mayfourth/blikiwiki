@@ -5,6 +5,7 @@ import info.bliki.htmlcleaner.ContentToken;
 import info.bliki.htmlcleaner.EndTagToken;
 import info.bliki.htmlcleaner.TagNode;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -35,14 +36,14 @@ public class AbstractHTMLToWiki {
 		this(map, noDiv, noFont, false);
 	}
 
-	public void nodesToText(List<Object> nodes, StringBuilder resultBuffer) {
+	public void nodesToText(List nodes, StringBuilder resultBuffer) {
 		if (nodes != null && !nodes.isEmpty()) {
-			for (Object item : nodes) {
+			Iterator childrenIt = nodes.iterator();
+			while (childrenIt.hasNext()) {
+				Object item = childrenIt.next();
 				if (item != null) {
 					if (item instanceof List) {
-						@SuppressWarnings("unchecked")
-						List<Object> list = (List<Object>) item;
-						nodesToText(list, resultBuffer);
+						nodesToText((List) item, resultBuffer);
 					} else if (item instanceof EndTagToken) {
 						EndTagToken node = (EndTagToken) item;
 						if (node.getName().equals("br")) {
@@ -86,7 +87,7 @@ public class AbstractHTMLToWiki {
 				} else if (name.equals("hr")) {
 					wikiText.append("\n----\n");
 				} else {
-					List<Object> children = tagNode.getChildren();
+					List children = tagNode.getChildren();
 					if (children.size() != 0) {
 						nodesToText(children, wikiText);
 					}
@@ -95,14 +96,14 @@ public class AbstractHTMLToWiki {
 		}
 	}
 
-	protected void nodesToPlainText(List<Object> nodes, StringBuilder resultBuffer) {
+	protected void nodesToPlainText(List nodes, StringBuilder resultBuffer) {
 		if (nodes != null && !nodes.isEmpty()) {
-			for (Object item : nodes) {
+			Iterator childrenIt = nodes.iterator();
+			while (childrenIt.hasNext()) {
+				Object item = childrenIt.next();
 				if (item != null) {
 					if (item instanceof List) {
-						@SuppressWarnings("unchecked")
-						final List<Object> list = (List<Object>) item;
-						nodesToPlainText(list, resultBuffer);
+						nodesToPlainText((List) item, resultBuffer);
 					} else if (item instanceof EndTagToken) {
 						EndTagToken node = (EndTagToken) item;
 						if (node.getName().equals("br")) {
@@ -132,7 +133,7 @@ public class AbstractHTMLToWiki {
 			plainText.append(content);
 		} else if (node instanceof TagNode) {
 			TagNode tagNode = (TagNode) node;
-			List<Object> children = tagNode.getChildren();
+			List children = tagNode.getChildren();
 			if (children.size() != 0) {
 				nodesToPlainText(children, plainText);
 			}

@@ -15,7 +15,6 @@ public class DumpExample {
 	 */
 	static class DemoArticleFilter implements IArticleFilter {
 
-		@Override
 		public void process(WikiArticle page, Siteinfo siteinfo) throws SAXException {
 			System.out.println("----------------------------------------");
 			System.out.println(page.getId());
@@ -32,7 +31,6 @@ public class DumpExample {
 	 */
 	static class DemoMainArticleFilter implements IArticleFilter {
 
-		@Override
 		public void process(WikiArticle page, Siteinfo siteinfo) throws SAXException {
 			if (page.isMain()) {
 				System.out.println(page.getTitle());
@@ -46,7 +44,6 @@ public class DumpExample {
 	 */
 	static class DemoTemplateArticleFilter implements IArticleFilter {
 
-		@Override
 		public void process(WikiArticle page, Siteinfo siteinfo) throws SAXException {
 			if (page.isTemplate()) {
 				System.out.println(page.getTitle());
@@ -60,7 +57,6 @@ public class DumpExample {
 	 */
 	static class DemoCategoryArticleFilter implements IArticleFilter {
 
-		@Override
 		public void process(WikiArticle page, Siteinfo siteinfo) throws SAXException {
 			if (page.isCategory()) {
 				System.out.println(page.getTitle());

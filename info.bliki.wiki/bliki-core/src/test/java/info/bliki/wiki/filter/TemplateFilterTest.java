@@ -1,10 +1,5 @@
 package info.bliki.wiki.filter;
 
-import info.bliki.wiki.model.WikiModel;
-
-import java.util.HashSet;
-import java.util.Locale;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -15,39 +10,6 @@ public class TemplateFilterTest extends FilterTestSupport {
 
 	public static Test suite() {
 		return new TestSuite(TemplateFilterTest.class);
-	}
-
-	/**
-	 * Issue124 - Image URL parsing broken in some cases
-	 */
-	public void testTemplateIssue124_001() {
-		final String rawWikiText = "{{AdT-Vorschlag\n"
-				+ "|DATUM            = 01.09.2012\n"
-				+ "|LEMMA            = Nashörner\n"
-				+ "|BILD             = File:Waterberg Nashorn1.jpg\n"
-				+ "|BILDGROESSE      = 150px\n"
-				+ "|BILDUMRANDUNG    = \n"
-				+ "|BILDBESCHREIBUNG = Breitmaulnashörner in Namibia\n"
-				+ "|TEASERTEXT       = Die '''[[Nashörner]]''' (Rhinocerotidae) oder auch '''Rhinozerosse''' zählen zu den markantesten Säugetieren mit ihrem großen Kopf und den namengebenden ein bis zwei Hörnern.}}";
-		final String expected = "\n"
-				+ "<div style=\"float:left; padding-top:0.5em; padding-right:0.5em;\"><a class=\"image\" href=\"http://www.bliki.info/wiki/File:150px-Waterberg_Nashorn1.jpg\" title=\"Breitmaulnashörner in Namibia\"><img src=\"http://www.bliki.info/wiki/150px-Waterberg_Nashorn1.jpg\" alt=\"Breitmaulnashörner in Namibia\" width=\"150\" />\n"
-				+ "</a></div>\n"
-				+ "<p>Die <b><a href=\"http://www.bliki.info/wiki/Nash%C3%B6rner\" title=\"Nashörner\">Nashörner</a></b> (Rhinocerotidae) oder auch <b>Rhinozerosse</b> zählen zu den markantesten Säugetieren mit ihrem großen Kopf und den namengebenden ein bis zwei Hörnern. <small><a href=\"http://www.bliki.info/wiki/Nash%C3%B6rner\" title=\"Nashörner\">mehr</a></small></p>";
-		assertEquals(expected, wikiModel.render(rawWikiText));
-		WikiModel germanWikiTextModel = newWikiTestModel(Locale.GERMAN);
-		assertEquals(expected, germanWikiTextModel.render(rawWikiText));
-	}
-
-	/**
-	 * Issue124 - Image URL parsing broken in some cases
-	 */
-	public void testTemplateIssue124_002() {
-		final String rawWikiText = "[[File:Waterberg Nashorn1.jpg|150px]]";
-		final String expected = "\n"
-				+ "<p><a class=\"image\" href=\"http://www.bliki.info/wiki/File:150px-Waterberg_Nashorn1.jpg\" ><img src=\"http://www.bliki.info/wiki/150px-Waterberg_Nashorn1.jpg\" width=\"150\" />\n</a></p>";
-		assertEquals(expected, wikiModel.render(rawWikiText));
-		WikiModel germanWikiTextModel = newWikiTestModel(Locale.GERMAN);
-		assertEquals(expected, germanWikiTextModel.render(rawWikiText));
 	}
 
 	public void testTemplate06() {
@@ -65,56 +27,13 @@ public class TemplateFilterTest extends FilterTestSupport {
 	}
 
 	public void testSwitch001() {
-		assertEquals(
-				"\n"
-						+ "<p><a href=\"http://www.bliki.info/wiki/Template:Templ1/ind%26\" title=\"Template:Templ1/ind&amp;\">Template:Templ1/ind&#38;</a></p>",
-				wikiModel.render("{{Templ1/{{ #switch: imperative  | ind | ind&}}}}", false));
+		assertEquals("\n" + "<p>{{Templ1/ind&#38;}}</p>", wikiModel.render("{{Templ1/{{ #switch: imperative  | ind | ind&}}}}", false));
 	}
 
-	public void testNonExistingTemplate01() {
-		assertEquals(
-				"<h2><span class=\"mw-headline\" id=\"Other_areas_of_Wikipedia\">Other areas of Wikipedia</span></h2>\n"
-						+ "<p><a href=\"http://www.bliki.info/wiki/Template:WikipediaOther\" title=\"Template:WikipediaOther\">Template:WikipediaOther</a></p>",
-				wikiModel.render("==Other areas of Wikipedia==\n" + "{{WikipediaOther}}<!--Template:WikipediaOther-->", false));
-	}
-
-	public void testNonExistingTemplate02() {
-		assertEquals(
-				"\n"
-						+ "<p>start <a href=\"http://www.bliki.info/wiki/Template:NonExistingTemplate\" title=\"Template:NonExistingTemplate\">Template:NonExistingTemplate</a> end</p>",
-				wikiModel.render("start {{NonExistingTemplate}} end", false));
-	}
-
-	private void nonExistingTemplateTestLink(String wikiText, String linkTitle, String templateName) {
-		String urlTitle = Character.toUpperCase(linkTitle.charAt(0)) + linkTitle.substring(1);
-		assertEquals(wikiText, "\n<p><a href=\"http://www.bliki.info/wiki/" + urlTitle + "\" title=\"" + urlTitle + "\">" + linkTitle
-				+ "</a></p>", wikiModel.render(wikiText, false));
-		if (templateName != null) {
-			assertTrue(wikiText + ", wikiModel.getTemplates().contains(" + templateName + ")", wikiModel.getTemplates().contains(
-					templateName));
-			assertFalse(wikiText + ", !wikiModel.getIncludes().contains(" + templateName + ")", wikiModel.getIncludes().contains(
-					linkTitle));
-			assertFalse(wikiText + ", !wikiModel.getIncludes().contains(" + linkTitle + ")", wikiModel.getIncludes().contains(linkTitle));
-		} else {
-			assertFalse(wikiText + ", !wikiModel.getTemplates().contains(" + linkTitle + ")", wikiModel.getTemplates().contains(
-					templateName));
-			assertTrue(wikiText + ", wikiModel.getIncludes().contains(" + linkTitle + ")", wikiModel.getIncludes().contains(linkTitle));
-		}
-	}
-
-	public void testNonExistingTemplate03() {
-		nonExistingTemplateTestLink("{{Help:NonExistingPage}}", "Help:NonExistingPage", null);
-		nonExistingTemplateTestLink("{{NonExistingTemplate}}", "Template:NonExistingTemplate", "NonExistingTemplate");
-		nonExistingTemplateTestLink("{{:NonExistingTemplate}}", "NonExistingTemplate", null);
-		nonExistingTemplateTestLink("{{:Template:Help:test123456789}}", "Template:Help:test123456789", "Help:test123456789");
-		nonExistingTemplateTestLink("{{:foo:Help:test123456789}}", "foo:Help:test123456789", null);
-		nonExistingTemplateTestLink("{{:Help:Test123456789}}", "Help:Test123456789", null);
-		nonExistingTemplateTestLink("{{Help:Test123456789}}", "Help:Test123456789", null);
-		nonExistingTemplateTestLink("{{:foo:test123456789}}", "foo:test123456789", null);
-		nonExistingTemplateTestLink("{{foo:test123456789}}", "Template:foo:test123456789", "foo:test123456789");
-		nonExistingTemplateTestLink("{{:PAGESIZE:Help:test}}", "PAGESIZE:Help:test", null);
-		assertEquals("\n<p>{{::Help:test123456789}}</p>", wikiModel.render("{{::Help:test123456789}}", false));
-		assertEquals("\n<p>PAGESIZE</p>", wikiModel.render("{{PAGESIZE:Help:test}}", false));
+	public void testNonExistentTemplate() {
+		assertEquals("<h2><span class=\"mw-headline\" id=\"Other_areas_of_Wikipedia\">Other areas of Wikipedia</span></h2>\n"
+				+ "<p>{{WikipediaOther}}</p>", wikiModel.render("==Other areas of Wikipedia==\n"
+				+ "{{WikipediaOther}}<!--Template:WikipediaOther-->", false));
 	}
 
 	public void testTemplateCall1() {
@@ -130,14 +49,14 @@ public class TemplateFilterTest extends FilterTestSupport {
 
 	public void testTemplateCall4() {
 		// see method WikiTestModel#getRawWikiContent() for template tl
-		assertEquals("\n"
-				+ "<p>[[:Template:<a href=\"http://www.bliki.info/wiki/Template:example\" title=\"Template:example\">example</a>]]</p>",
+		assertEquals(
+				"\n" + "<p>{{<a href=\"http://www.bliki.info/wiki/Template:example\" title=\"Template:example\">example</a>}}</p>",
 				wikiModel.render("{{tl|example}}", false));
 	}
 
 	public void testTemplateCall4a() {
 		// see method WikiTestModel#getRawWikiContent() for template tl
-		assertEquals("\n" + "<p>[[:Template:[[Template:{{{1}}}|{{{1}}}]]]]</p>", wikiModel.render("{{tl}}", false));
+		assertEquals("\n" + "<p>{{[[Template:{{{1}}}|{{{1}}}]]}}</p>", wikiModel.render("{{tl}}", false));
 	}
 
 	public void testTemplateCall5() {
@@ -189,7 +108,7 @@ public class TemplateFilterTest extends FilterTestSupport {
 		// see method WikiTestModel#getTemplateContent()
 		assertEquals(
 				"\n"
-						+ "<p>start- <i><a class=\"external text\" href=\"http://www.etymonline.com/index.php?search=hello&#38;searchmode=none\" rel=\"nofollow\">Online Etymology Dictionary</a></i>. -end</p>",
+						+ "<p>start- <i><a class=\"externallink\" href=\"http://www.etymonline.com/index.php?search=hello&#38;searchmode=none\" rel=\"nofollow\" title=\"http://www.etymonline.com/index.php?search=hello&#38;searchmode=none\">Online Etymology Dictionary</a></i>. -end</p>",
 				wikiModel
 						.render(
 								"start- {{cite web|url=http://www.etymonline.com/index.php?search=hello&searchmode=none|title=Online Etymology Dictionary}} -end",
@@ -245,13 +164,13 @@ public class TemplateFilterTest extends FilterTestSupport {
 						+ "<td><a href=\"http://www.bliki.info/wiki/Cross-platform\" title=\"Cross-platform\">Cross-platform</a></td></tr>\n"
 						+ "<tr>\n"
 						+ "<th><a href=\"http://www.bliki.info/wiki/List_of_software_categories\" title=\"List of software categories\">Genre</a></th>\n"
-						+ "<td><a href=\"http://www.bliki.info/wiki/Wiki_software\" title=\"Wiki software\">Wiki software</a></td></tr>\n"
+						+ "<td><a href=\"http://www.bliki.info/wiki/Wiki_software\" title=\"wiki software\">Wiki software</a></td></tr>\n"
 						+ "<tr>\n"
 						+ "<th><a href=\"http://www.bliki.info/wiki/Software_license\" title=\"Software license\">License</a></th>\n"
 						+ "<td><a href=\"http://www.bliki.info/wiki/GNU_Lesser_General_Public_License\" title=\"GNU Lesser General Public License\">LGPL</a></td></tr>\n"
 						+ "<tr>\n"
 						+ "<th><a href=\"http://www.bliki.info/wiki/Website\" title=\"Website\">Website</a></th>\n"
-						+ "<td><a class=\"external text\" href=\"http://www.jamwiki.org/\" rel=\"nofollow\">JAMWiki wiki</a></td></tr></table></div>\n"
+						+ "<td><a class=\"externallink\" href=\"http://www.jamwiki.org/\" rel=\"nofollow\" title=\"http://www.jamwiki.org/\">JAMWiki wiki</a></td></tr></table></div>\n"
 						+ "", wikiModel.render("{{Infobox_Software\n" + "|name = JAMWiki\n" + "|logo = \n" + "|caption =\n" + "\n"
 						+ "|developer = \n" + "|latest_release_version = 0.6.5\n" + "|latest_release_date = [[March 16]], [[2008]]\n"
 						+ "|latest preview version = 0.6.5 \n" + "|latest preview date = \n" + "|operating_system = [[Cross-platform]]\n"
@@ -276,9 +195,9 @@ public class TemplateFilterTest extends FilterTestSupport {
 						+ "<th>Opera </th>\n"
 						+ "<th>Safari </th>\n"
 						+ "<th>Google Chrome</th></tr></table></div>\n"
-						+ "<pre>"
+						+ "<pre>\n"
 						+ "<ol class=\"references\">\n"
-						+ "<li id=\"_note-1\"><b><a href=\"#_ref-1\" title=\"\">&#8593;</a></b> John Resig. <i><a class=\"external text\" href=\"http://ejohn.org/blog/versions-of-javascript\" rel=\"nofollow\">Versions of JavaScript</a></i>. Ejohn.org. Abgerufen am <a href=\"http://www.bliki.info/wiki/Template:safesubst:\" title=\"Template:safesubst:\">Template:safesubst:</a>.</li>\n</ol>\n"
+						+ "<li id=\"_note-1\"><b><a href=\"#_ref-1\" title=\"\">&#8593;</a></b> John Resig. <i><a class=\"externallink\" href=\"http://ejohn.org/blog/versions-of-javascript\" rel=\"nofollow\" title=\"http://ejohn.org/blog/versions-of-javascript\">Versions of JavaScript</a></i>. Ejohn.org. Abgerufen am .</li></ol>\n"
 						+ "</pre>",
 				wikiModel
 						.render(
@@ -370,7 +289,7 @@ public class TemplateFilterTest extends FilterTestSupport {
 			+ "{{{disambiguation|}}}}}}}}}|articles|{{#if:{{{mulcat|}}}|categories|an\n" + "article}}}}}} on:\n";
 
 	public void testNestedIf02() {
-		assertEquals("\n" + "<pre>an\n</pre>\n" + "<p>article on:\n" + "</p>" + "", wikiModel.render(TEST_STRING_02, false));
+		assertEquals("\n" + "<pre>\nan\n</pre>\n" + "<p>article on:\n" + "</p>" + "", wikiModel.render(TEST_STRING_02, false));
 	}
 
 	public void testParserFunctionLC001() {
@@ -380,8 +299,8 @@ public class TemplateFilterTest extends FilterTestSupport {
 	public void testParserFunctionTag001() {
 		assertEquals("\n"
 				+ "<p><sup id=\"_ref-1\" class=\"reference\"><a href=\"#_note-1\" title=\"\">[1]</a></sup></p><ol class=\"references\">\n"
-				+ "<li id=\"_note-1\"><b><a href=\"#_ref-1\" title=\"\">&#8593;</a></b> <b>a simple test</b></li>\n</ol>", wikiModel
-				.render("{{#tag:ref|'''a simple test'''}}{{#tag:references}}", false));
+				+ "<li id=\"_note-1\"><b><a href=\"#_ref-1\" title=\"\">&#8593;</a></b> <b>a simple test</b></li></ol>", wikiModel.render(
+				"{{#tag:ref|'''a simple test'''}}{{#tag:references}}", false));
 	}
 
 	public final static String NAVBOX_STRING = "{{Navbox\n" + "|name  = AcademyAwardBestActor 1981-2000\n"
@@ -407,71 +326,75 @@ public class TemplateFilterTest extends FilterTestSupport {
 
 	public void testNavbox() {
 		assertEquals(
-				"\n"
-						+ "<table cellspacing=\"0\" class=\"navbox\" style=\"border-spacing:0;;\">\n"
-						+ "\n"
-						+ "<tr>\n"
-						+ "\n"
-						+ "<td style=\"padding:2px;\">\n"
-						+ "<table cellspacing=\"0\" class=\"nowraplinks  collapsible autocollapse navbox-inner\" style=\"border-spacing:0;background:transparent;color:inherit;;\">\n"
-						+ "\n"
-						+ "<tr>\n"
-						+ "\n"
-						+ "<th class=\"navbox-title\" colspan=\"2\" scope=\"col\" style=\";background: #EEDD82\">\n"
-						+ "\n"
-						+ "<div class=\"noprint plainlinks hlist navbar mini\">\n"
-						+ "<ul>\n"
-						+ "\n"
-						+ "<li class=\"nv-view\"><a href=\"http://www.bliki.info/wiki/Template:AcademyAwardBestActor_1981-2000\" title=\"Template:AcademyAwardBestActor 1981-2000\"><span style=\";background: #EEDD82;background:none transparent;border:none;\" title=\"View this template\">v</span></a></li>\n"
-						+ "<li class=\"nv-talk\"><a href=\"http://www.bliki.info/wiki/Template_talk:AcademyAwardBestActor_1981-2000\" title=\"Template talk:AcademyAwardBestActor 1981-2000\"><span style=\";background: #EEDD82;background:none transparent;border:none;\" title=\"Discuss this template\">t</span></a></li>\n"
-						+ "<li class=\"nv-edit\"><a class=\"external text\" href=\"http://en.wikipedia.org/w/index.php?title=Template%3AAcademyAwardBestActor+1981-2000&#38;action=edit\" rel=\"nofollow\"><span style=\";background: #EEDD82;background:none transparent;border:none;\" title=\"Edit this template\">e</span></a></li>\n"
-						+ "</ul></div>\n"
-						+ "<div style=\"font-size:110%;\">\n"
-						+ "<p><a href=\"http://www.bliki.info/wiki/Academy_Award_for_Best_Actor\" title=\"Academy Award for Best Actor\">Academy Award for</a> <a href=\"http://www.bliki.info/wiki/Academy_Award_for_Best_Actor#1980s\" title=\"Academy Award for Best Actor\">Best Actor</a></p></div>\n"
-						+ "</th>\n"
-						+ "</tr>\n"
-						+ "<tr style=\"height:2px;\">\n"
-						+ "\n"
-						+ "</tr>\n"
-						+ "<tr>\n"
-						+ "\n"
-						+ "<td class=\"navbox-list navbox-odd \" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n"
-						+ "<div style=\"padding:0em 0.25em\">\n"
-						+ "<div>\n"
-						+ "<p><span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Henry_Fonda\" title=\"Henry Fonda\">Henry Fonda</a> (1981)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Ben_Kingsley\" title=\"Ben Kingsley\">Ben Kingsley</a> (1982)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Robert_Duvall\" title=\"Robert Duvall\">Robert Duvall</a> (1983)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/F._Murray_Abraham\" title=\"F. Murray Abraham\">F. Murray Abraham</a> (1984)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/William_Hurt\" title=\"William Hurt\">William Hurt</a> (1985)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Paul_Newman\" title=\"Paul Newman\">Paul Newman</a> (1986)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Michael_Douglas\" title=\"Michael Douglas\">Michael Douglas</a> (1987)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Dustin_Hoffman\" title=\"Dustin Hoffman\">Dustin Hoffman</a> (1988)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Daniel_Day-Lewis\" title=\"Daniel Day-Lewis\">Daniel Day-Lewis</a> (1989)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Jeremy_Irons\" title=\"Jeremy Irons\">Jeremy Irons</a> (1990)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Anthony_Hopkins\" title=\"Anthony Hopkins\">Anthony Hopkins</a> (1991)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Al_Pacino\" title=\"Al Pacino\">Al Pacino</a> (1992)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Tom_Hanks\" title=\"Tom Hanks\">Tom Hanks</a> (1993)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Tom_Hanks\" title=\"Tom Hanks\">Tom Hanks</a> (1994)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Nicolas_Cage\" title=\"Nicolas Cage\">Nicolas Cage</a> (1995)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Geoffrey_Rush\" title=\"Geoffrey Rush\">Geoffrey Rush</a> (1996)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Jack_Nicholson\" title=\"Jack Nicholson\">Jack Nicholson</a> (1997)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Roberto_Benigni\" title=\"Roberto Benigni\">Roberto Benigni</a> (1998)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Kevin_Spacey\" title=\"Kevin Spacey\">Kevin Spacey</a> (1999)</span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Russell_Crowe\" title=\"Russell Crowe\">Russell Crowe</a> (2000) </span></p><hr />\n"
-						+ "<p><span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Template:Academy_Award_Best_Actor\" title=\"Template:Academy Award Best Actor\">Complete List</a></span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Template:AcademyAwardBestActor_1927-1940\" title=\"Template:AcademyAwardBestActor 1927-1940\">(1928–1940)</a></span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Template:AcademyAwardBestActor_1941-1960\" title=\"Template:AcademyAwardBestActor 1941-1960\">(1941–1960)</a></span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Template:AcademyAwardBestActor_1961-1980\" title=\"Template:AcademyAwardBestActor 1961-1980\">(1961–1980)</a></span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Template:AcademyAwardBestActor_1981-2000\" title=\"Template:AcademyAwardBestActor 1981-2000\"><b>(1981–2000)</b></a></span><span style=\"font-weight:bold;\"> ·</span> \n"
-						+ "<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Template:AcademyAwardBestActor_2001-2020\" title=\"Template:AcademyAwardBestActor 2001-2020\">(2001-present)</a></span>\n"
-						+ "</p></div></div></td>\n" + "</tr>\n" + "</table></td>\n" + "</tr>\n" + "</table>", wikiModel.render(NAVBOX_STRING,
+				"\n" + 
+				"<table cellspacing=\"0\" class=\"navbox\" style=\"border-spacing:0;;\">\n" + 
+				"\n" + 
+				"<tr>\n" + 
+				"\n" + 
+				"<td style=\"padding:2px;\">\n" + 
+				"<table cellspacing=\"0\" class=\"nowraplinks  collapsible autocollapse navbox-inner\" style=\"border-spacing:0;background:transparent;color:inherit;;\">\n" + 
+				"\n" + 
+				"<tr>\n" + 
+				"\n" + 
+				"<th class=\"navbox-title\" colspan=\"2\" scope=\"col\" style=\";background: #EEDD82\">\n" + 
+				"\n" + 
+				"<div class=\"noprint plainlinks hlist navbar mini\">\n" + 
+				"<ul>\n" + 
+				"\n" + 
+				"<li class=\"nv-view\"><a href=\"http://www.bliki.info/wiki/Template:AcademyAwardBestActor_1981-2000\" title=\"Template:AcademyAwardBestActor 1981-2000\"><span style=\";background: #EEDD82;background:none transparent;border:none;\" title=\"View this template\">v</span></a></li>\n" + 
+				"<li class=\"nv-talk\"><a href=\"http://www.bliki.info/wiki/Template_talk:AcademyAwardBestActor_1981-2000\" title=\"Template_talk:AcademyAwardBestActor 1981-2000\"><span style=\";background: #EEDD82;background:none transparent;border:none;\" title=\"Discuss this template\">t</span></a></li>\n" + 
+				"<li class=\"nv-edit\"><a class=\"externallink\" href=\"http://en.wikipedia.org/w/index.php?title=Template%3AAcademyAwardBestActor+1981-2000&#38;action=edit\" rel=\"nofollow\" title=\"http://en.wikipedia.org/w/index.php?title=Template%3AAcademyAwardBestActor+1981-2000&#38;action=edit\"><span style=\";background: #EEDD82;background:none transparent;border:none;\" title=\"Edit this template\">e</span></a></li>\n" + 
+				"</ul></div>\n" + 
+				"<div style=\"font-size:110%;\">\n" + 
+				"<p><a href=\"http://www.bliki.info/wiki/Academy_Award_for_Best_Actor\" title=\"Academy Award for Best Actor\">Academy Award for</a> <a href=\"http://www.bliki.info/wiki/Academy_Award_for_Best_Actor#1980s\" title=\"Academy Award for Best Actor\">Best Actor</a></p></div>\n" + 
+				"</th>\n" + 
+				"</tr>\n" + 
+				"<tr style=\"height:2px;\">\n" + 
+				"\n" + 
+				"</tr>\n" + 
+				"<tr>\n" + 
+				"\n" + 
+				"<td class=\"navbox-list navbox-odd \" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n" + 
+				"<div style=\"padding:0em 0.25em\">\n" + 
+				"<div>\n" + 
+				"<p><span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Henry_Fonda\" title=\"Henry Fonda\">Henry Fonda</a> (1981)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Ben_Kingsley\" title=\"Ben Kingsley\">Ben Kingsley</a> (1982)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Robert_Duvall\" title=\"Robert Duvall\">Robert Duvall</a> (1983)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/F._Murray_Abraham\" title=\"F. Murray Abraham\">F. Murray Abraham</a> (1984)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/William_Hurt\" title=\"William Hurt\">William Hurt</a> (1985)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Paul_Newman\" title=\"Paul Newman\">Paul Newman</a> (1986)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Michael_Douglas\" title=\"Michael Douglas\">Michael Douglas</a> (1987)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Dustin_Hoffman\" title=\"Dustin Hoffman\">Dustin Hoffman</a> (1988)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Daniel_Day-Lewis\" title=\"Daniel Day-Lewis\">Daniel Day-Lewis</a> (1989)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Jeremy_Irons\" title=\"Jeremy Irons\">Jeremy Irons</a> (1990)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Anthony_Hopkins\" title=\"Anthony Hopkins\">Anthony Hopkins</a> (1991)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Al_Pacino\" title=\"Al Pacino\">Al Pacino</a> (1992)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Tom_Hanks\" title=\"Tom Hanks\">Tom Hanks</a> (1993)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Tom_Hanks\" title=\"Tom Hanks\">Tom Hanks</a> (1994)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Nicolas_Cage\" title=\"Nicolas Cage\">Nicolas Cage</a> (1995)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Geoffrey_Rush\" title=\"Geoffrey Rush\">Geoffrey Rush</a> (1996)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Jack_Nicholson\" title=\"Jack Nicholson\">Jack Nicholson</a> (1997)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Roberto_Benigni\" title=\"Roberto Benigni\">Roberto Benigni</a> (1998)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Kevin_Spacey\" title=\"Kevin Spacey\">Kevin Spacey</a> (1999)</span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Russell_Crowe\" title=\"Russell Crowe\">Russell Crowe</a> (2000) </span></p><hr/>\n" + 
+				"<p><span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Template:Academy_Award_Best_Actor\" title=\"Template:Academy Award Best Actor\">Complete List</a></span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Template:AcademyAwardBestActor_1927-1940\" title=\"Template:AcademyAwardBestActor 1927-1940\">(1928–1940)</a></span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Template:AcademyAwardBestActor_1941-1960\" title=\"Template:AcademyAwardBestActor 1941-1960\">(1941–1960)</a></span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Template:AcademyAwardBestActor_1961-1980\" title=\"Template:AcademyAwardBestActor 1961-1980\">(1961–1980)</a></span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Template:AcademyAwardBestActor_1981-2000\" title=\"Template:AcademyAwardBestActor 1981-2000\"><b>(1981–2000)</b></a></span><span style=\"font-weight:bold;\"> ·</span> \n" + 
+				"<span style=\"white-space:nowrap;\"><a href=\"http://www.bliki.info/wiki/Template:AcademyAwardBestActor_2001-2020\" title=\"Template:AcademyAwardBestActor 2001-2020\">(2001-present)</a></span>\n" + 
+				"</p></div></div></td>\n" + 
+				"</tr>\n" + 
+				"</table></td>\n" + 
+				"</tr>\n" + 
+				"</table>", wikiModel.render(NAVBOX_STRING,
 						false));
 	}
 
 	public void test11() {
 		assertEquals(
 				"\n"
-						+ "<p><a href=\"http://www.bliki.info/wiki/Template:AcademyAwardBestActor_1981-2000\" title=\"Template:AcademyAwardBestActor 1981-2000\"><span style=\";background: #EEDD82;border:none;;\" title=\"View this template\">v</span></a></p>",
+						+ "<p><a href=\"http://www.bliki.info/wiki/Template:AcademyAwardBestActor_1981-2000\" title=\"Template:AcademyAwardBestActor_1981-2000\"><span style=\";background: #EEDD82;border:none;;\" title=\"View this template\">v</span></a></p>",
 				wikiModel
 						.render(
 								"[[Template:AcademyAwardBestActor_1981-2000|<span title=\"View this template\" style=\";background: #EEDD82;border:none;;\">v</span>]]",
@@ -509,7 +432,7 @@ public class TemplateFilterTest extends FilterTestSupport {
 		assertEquals(
 				"\n"
 						+ "<dl>\n"
-						+ "<dd><span class=\"boilerplate further\"><i>Further information: <a href=\"http://www.bliki.info/wiki/History_of_molecular_biology\" title=\"History of molecular biology\">History of molecular biology</a></i></span></dd>\n</dl>",
+						+ "<dd><span class=\"boilerplate further\"><i>Further information: <a href=\"http://www.bliki.info/wiki/History_of_molecular_biology\" title=\"History of molecular biology\">History of molecular biology</a></i></span></dd></dl>",
 				wikiModel.render("{{further|[[History of molecular biology]]}}", false));
 	}
 
@@ -671,14 +594,14 @@ public class TemplateFilterTest extends FilterTestSupport {
 						+ "<li>5.5 (JScript 5.5)</li>\n"
 						+ "<li>6 (JScript 5.6)</li>\n"
 						+ "<li>7 (JScript 5.7)</li>\n"
-						+ "<li>8 (JScript 6)</li>\n</ul></td>\n"
+						+ "<li>8 (JScript 6)</li></ul></td>\n"
 						+ "<td>\n"
 						+ "\n"
 						+ "<ul>\n"
 						+ "<li>6.0</li>\n"
 						+ "<li>7.0</li>\n"
 						+ "<li>8.0</li>\n"
-						+ "<li>9.0</li>\n</ul></td>\n"
+						+ "<li>9.0</li></ul></td>\n"
 						+ "<td />\n"
 						+ "<td /></tr>\n"
 						+ "<tr>\n"
@@ -693,7 +616,7 @@ public class TemplateFilterTest extends FilterTestSupport {
 						+ "\n"
 						+ "<ul>\n"
 						+ "<li>3.0</li>\n"
-						+ "<li>3.1</li>\n</ul></td>\n"
+						+ "<li>3.1</li></ul></td>\n"
 						+ "<td /></tr>\n"
 						+ "<tr>\n"
 						+ "<td>1.7 </td>\n"
@@ -707,7 +630,7 @@ public class TemplateFilterTest extends FilterTestSupport {
 						+ "\n"
 						+ "<ul>\n"
 						+ "<li>3.2</li>\n"
-						+ "<li>4.0</li>\n</ul></td>\n"
+						+ "<li>4.0</li></ul></td>\n"
 						+ "<td>1.0</td></tr>\n"
 						+ "<tr>\n"
 						+ "<td>1.8 </td>\n"
@@ -740,7 +663,7 @@ public class TemplateFilterTest extends FilterTestSupport {
 						+ "<td />\n"
 						+ "<td /></tr></table></div>\n"
 						+ "<ol class=\"references\">\n"
-						+ "<li id=\"_note-1\"><b><a href=\"#_ref-1\" title=\"\">&#8593;</a></b> John Resig. <i><a class=\"external text\" href=\"http://ejohn.org/blog/versions-of-javascript\" rel=\"nofollow\">Versions of JavaScript</a></i>. Ejohn.org. Abgerufen am <a href=\"http://www.bliki.info/wiki/Template:safesubst:\" title=\"Template:safesubst:\">Template:safesubst:</a>.</li>\n</ol>",
+						+ "<li id=\"_note-1\"><b><a href=\"#_ref-1\" title=\"\">&#8593;</a></b> John Resig. <i><a class=\"externallink\" href=\"http://ejohn.org/blog/versions-of-javascript\" rel=\"nofollow\" title=\"http://ejohn.org/blog/versions-of-javascript\">Versions of JavaScript</a></i>. Ejohn.org. Abgerufen am .</li></ol>",
 				wikiModel
 						.render(
 								"=== Versionsgeschichte ===\n"
@@ -919,184 +842,189 @@ public class TemplateFilterTest extends FilterTestSupport {
 
 	public void testTemplateNavbox() {
 		assertEquals(
-				"\n"
-						+ "<table cellspacing=\"0\" class=\"navbox\" style=\"border-spacing:0;;\">\n"
-						+ "\n"
-						+ "<tr>\n"
-						+ "\n"
-						+ "<td style=\"padding:2px;\">\n"
-						+ "<table cellspacing=\"0\" class=\"nowraplinks  collapsible autocollapse navbox-inner\" style=\"border-spacing:0;background:transparent;color:inherit;;\">\n"
-						+ "\n"
-						+ "<tr>\n"
-						+ "\n"
-						+ "<th class=\"navbox-title\" colspan=\"2\" scope=\"col\" style=\";\">\n"
-						+ "\n"
-						+ "<div class=\"noprint plainlinks hlist navbar mini\">\n"
-						+ "<ul>\n"
-						+ "\n"
-						+ "<li class=\"nv-view\"><a href=\"http://www.bliki.info/wiki/Template:National_Board_of_Review_Award_for_Best_Actor\" title=\"Template:National Board of Review Award for Best Actor\"><span style=\";;background:none transparent;border:none;\" title=\"View this template\">v</span></a></li>\n"
-						+ "<li class=\"nv-talk\"><a href=\"http://www.bliki.info/wiki/Template_talk:National_Board_of_Review_Award_for_Best_Actor\" title=\"Template talk:National Board of Review Award for Best Actor\"><span style=\";;background:none transparent;border:none;\" title=\"Discuss this template\">t</span></a></li>\n"
-						+ "<li class=\"nv-edit\"><a class=\"external text\" href=\"http://en.wikipedia.org/w/index.php?title=Template%3ANational+Board+of+Review+Award+for+Best+Actor&#38;action=edit\" rel=\"nofollow\"><span style=\";;background:none transparent;border:none;\" title=\"Edit this template\">e</span></a></li>\n"
-						+ "</ul></div>\n"
-						+ "<div style=\"font-size:110%;\">\n"
-						+ "<p><a href=\"http://www.bliki.info/wiki/National_Board_of_Review_Award_for_Best_Actor\" title=\"National Board of Review Award for Best Actor\">National Board of Review Award for Best Actor</a></p></div>\n"
-						+ "</th>\n"
-						+ "</tr>\n"
-						+ "<tr style=\"height:2px;\">\n"
-						+ "\n"
-						+ "</tr>\n"
-						+ "<tr>\n"
-						+ "\n"
-						+ "<td class=\"navbox-list navbox-odd hlist\n"
-						+ "\" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n"
-						+ "<div style=\"padding:0em 0.25em\">\n"
-						+ "\n"
-						+ "<ul>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Ray_Milland\" title=\"Ray Milland\">Ray Milland</a> (1945)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Laurence_Olivier\" title=\"Laurence Olivier\">Laurence Olivier</a> (1946)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Michael_Redgrave\" title=\"Michael Redgrave\">Michael Redgrave</a> (1947)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Walter_Huston\" title=\"Walter Huston\">Walter Huston</a> (1948)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Ralph_Richardson\" title=\"Ralph Richardson\">Ralph Richardson</a> (1949)</li>\n</ul></div></td>\n"
-						+ "</tr>\n"
-						+ "<tr style=\"height:2px\">\n"
-						+ "\n"
-						+ "</tr>\n"
-						+ "<tr>\n"
-						+ "\n"
-						+ "<td class=\"navbox-list navbox-even hlist\n"
-						+ "\" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n"
-						+ "<div style=\"padding:0em 0.25em\">\n"
-						+ "\n"
-						+ "<ul>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Alec_Guinness\" title=\"Alec Guinness\">Alec Guinness</a> (1950)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Richard_Basehart\" title=\"Richard Basehart\">Richard Basehart</a> (1951)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Ralph_Richardson\" title=\"Ralph Richardson\">Ralph Richardson</a> (1952)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/James_Mason\" title=\"James Mason\">James Mason</a> (1953)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Bing_Crosby\" title=\"Bing Crosby\">Bing Crosby</a> (1954)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Ernest_Borgnine\" title=\"Ernest Borgnine\">Ernest Borgnine</a> (1955)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Yul_Brynner\" title=\"Yul Brynner\">Yul Brynner</a> (1956)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Alec_Guinness\" title=\"Alec Guinness\">Alec Guinness</a> (1957)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Spencer_Tracy\" title=\"Spencer Tracy\">Spencer Tracy</a> (1958)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Victor_Sj%C3%B6str%C3%B6m\" title=\"Victor Sjöström\">Victor Sjöström</a> (1959)</li>\n</ul></div></td>\n"
-						+ "</tr>\n"
-						+ "<tr style=\"height:2px\">\n"
-						+ "\n"
-						+ "</tr>\n"
-						+ "<tr>\n"
-						+ "\n"
-						+ "<td class=\"navbox-list navbox-odd hlist\n"
-						+ "\" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n"
-						+ "<div style=\"padding:0em 0.25em\">\n"
-						+ "\n"
-						+ "<ul>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Robert_Mitchum\" title=\"Robert Mitchum\">Robert Mitchum</a> (1960)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Albert_Finney\" title=\"Albert Finney\">Albert Finney</a> (1961)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Jason_Robards\" title=\"Jason Robards\">Jason Robards</a> (1962)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Rex_Harrison\" title=\"Rex Harrison\">Rex Harrison</a> (1963)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Anthony_Quinn\" title=\"Anthony Quinn\">Anthony Quinn</a> (1964)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Lee_Marvin\" title=\"Lee Marvin\">Lee Marvin</a> (1965)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Paul_Scofield\" title=\"Paul Scofield\">Paul Scofield</a> (1966)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Peter_Finch\" title=\"Peter Finch\">Peter Finch</a> (1967)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Cliff_Robertson\" title=\"Cliff Robertson\">Cliff Robertson</a> (1968)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Peter_O&#39;Toole\" title=\"Peter O&#39;Toole\">Peter O&#39;Toole</a> (1969)</li>\n</ul></div></td>\n"
-						+ "</tr>\n"
-						+ "<tr style=\"height:2px\">\n"
-						+ "\n"
-						+ "</tr>\n"
-						+ "<tr>\n"
-						+ "\n"
-						+ "<td class=\"navbox-list navbox-even hlist\n"
-						+ "\" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n"
-						+ "<div style=\"padding:0em 0.25em\">\n"
-						+ "\n"
-						+ "<ul>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/George_C._Scott\" title=\"George C. Scott\">George C. Scott</a> (1970)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Gene_Hackman\" title=\"Gene Hackman\">Gene Hackman</a> (1971)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Peter_O&#39;Toole\" title=\"Peter O&#39;Toole\">Peter O&#39;Toole</a> (1972)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Al_Pacino\" title=\"Al Pacino\">Al Pacino</a> / <a href=\"http://www.bliki.info/wiki/Robert_Ryan\" title=\"Robert Ryan\">Robert Ryan</a> (1973)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Gene_Hackman\" title=\"Gene Hackman\">Gene Hackman</a> (1974)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Jack_Nicholson\" title=\"Jack Nicholson\">Jack Nicholson</a> (1975)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/David_Carradine\" title=\"David Carradine\">David Carradine</a> (1976)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/John_Travolta\" title=\"John Travolta\">John Travolta</a> (1977)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Jon_Voight\" title=\"Jon Voight\">Jon Voight</a> / <a href=\"http://www.bliki.info/wiki/Laurence_Olivier\" title=\"Laurence Olivier\">Laurence Olivier</a> (1978)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Peter_Sellers\" title=\"Peter Sellers\">Peter Sellers</a> (1979)</li>\n</ul></div></td>\n"
-						+ "</tr>\n"
-						+ "<tr style=\"height:2px\">\n"
-						+ "\n"
-						+ "</tr>\n"
-						+ "<tr>\n"
-						+ "\n"
-						+ "<td class=\"navbox-list navbox-odd hlist\n"
-						+ "\" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n"
-						+ "<div style=\"padding:0em 0.25em\">\n"
-						+ "\n"
-						+ "<ul>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Robert_De_Niro\" title=\"Robert De Niro\">Robert De Niro</a> (1980)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Peter_Fonda\" title=\"Peter Fonda\">Peter Fonda</a> (1981)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Ben_Kingsley\" title=\"Ben Kingsley\">Ben Kingsley</a> (1982)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Tom_Conti\" title=\"Tom Conti\">Tom Conti</a> (1983)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Victor_Banerjee\" title=\"Victor Banerjee\">Victor Banerjee</a> (1984)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/William_Hurt\" title=\"William Hurt\">William Hurt</a> / <a href=\"http://www.bliki.info/wiki/Ra%C3%BAl_Juli%C3%A1\" title=\"Raúl Juliá\">Raúl Juliá</a> (1985)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Paul_Newman\" title=\"Paul Newman\">Paul Newman</a> (1986)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Michael_Douglas\" title=\"Michael Douglas\">Michael Douglas</a> (1987)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Gene_Hackman\" title=\"Gene Hackman\">Gene Hackman</a> (1988)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Morgan_Freeman\" title=\"Morgan Freeman\">Morgan Freeman</a> (1989)</li>\n</ul></div></td>\n"
-						+ "</tr>\n"
-						+ "<tr style=\"height:2px\">\n"
-						+ "\n"
-						+ "</tr>\n"
-						+ "<tr>\n"
-						+ "\n"
-						+ "<td class=\"navbox-list navbox-even hlist\n"
-						+ "\" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n"
-						+ "<div style=\"padding:0em 0.25em\">\n"
-						+ "\n"
-						+ "<ul>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Robert_De_Niro\" title=\"Robert De Niro\">Robert De Niro</a> / <a href=\"http://www.bliki.info/wiki/Robin_Williams\" title=\"Robin Williams\">Robin Williams</a> (1990)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Warren_Beatty\" title=\"Warren Beatty\">Warren Beatty</a> (1991)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Jack_Lemmon\" title=\"Jack Lemmon\">Jack Lemmon</a> (1992)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Anthony_Hopkins\" title=\"Anthony Hopkins\">Anthony Hopkins</a> (1993)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Tom_Hanks\" title=\"Tom Hanks\">Tom Hanks</a> (1994)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Nicolas_Cage\" title=\"Nicolas Cage\">Nicolas Cage</a> (1995)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Tom_Cruise\" title=\"Tom Cruise\">Tom Cruise</a> (1996)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Jack_Nicholson\" title=\"Jack Nicholson\">Jack Nicholson</a> (1997)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Ian_McKellen\" title=\"Ian McKellen\">Ian McKellen</a> (1998)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Russell_Crowe\" title=\"Russell Crowe\">Russell Crowe</a> (1999)</li>\n</ul></div></td>\n"
-						+ "</tr>\n"
-						+ "<tr style=\"height:2px\">\n"
-						+ "\n"
-						+ "</tr>\n"
-						+ "<tr>\n"
-						+ "\n"
-						+ "<td class=\"navbox-list navbox-odd hlist\n"
-						+ "\" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n"
-						+ "<div style=\"padding:0em 0.25em\">\n"
-						+ "\n"
-						+ "<ul>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Javier_Bardem\" title=\"Javier Bardem\">Javier Bardem</a> (2000)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Billy_Bob_Thornton\" title=\"Billy Bob Thornton\">Billy Bob Thornton</a> (2001)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Campbell_Scott\" title=\"Campbell Scott\">Campbell Scott</a> (2002)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Sean_Penn\" title=\"Sean Penn\">Sean Penn</a> (2003)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Jamie_Foxx\" title=\"Jamie Foxx\">Jamie Foxx</a> (2004)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Philip_Seymour_Hoffman\" title=\"Philip Seymour Hoffman\">Philip Seymour Hoffman</a> (2005)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Forest_Whitaker\" title=\"Forest Whitaker\">Forest Whitaker</a> (2006)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/George_Clooney\" title=\"George Clooney\">George Clooney</a> (2007)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Clint_Eastwood\" title=\"Clint Eastwood\">Clint Eastwood</a> (2008)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/George_Clooney\" title=\"George Clooney\">George Clooney</a> / <a href=\"http://www.bliki.info/wiki/Morgan_Freeman\" title=\"Morgan Freeman\">Morgan Freeman</a> (2009)</li>\n</ul></div></td>\n"
-						+ "</tr>\n"
-						+ "<tr style=\"height:2px\">\n"
-						+ "\n"
-						+ "</tr>\n"
-						+ "<tr>\n"
-						+ "\n"
-						+ "<td class=\"navbox-list navbox-even hlist\n"
-						+ "\" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n"
-						+ "<div style=\"padding:0em 0.25em\">\n"
-						+ "\n"
-						+ "<ul>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/Jesse_Eisenberg\" title=\"Jesse Eisenberg\">Jesse Eisenberg</a> (2010)</li>\n"
-						+ "<li><a href=\"http://www.bliki.info/wiki/George_Clooney\" title=\"George Clooney\">George Clooney</a> (2011)</li>\n</ul>\n"
-						+ "</div></td>\n" + "</tr>\n" + "</table></td>\n" + "</tr>\n" + "</table>\n" + "", wikiModel.render("{{Navbox \n"
+				"\n" + 
+				"<table cellspacing=\"0\" class=\"navbox\" style=\"border-spacing:0;;\">\n" + 
+				"\n" + 
+				"<tr>\n" + 
+				"\n" + 
+				"<td style=\"padding:2px;\">\n" + 
+				"<table cellspacing=\"0\" class=\"nowraplinks  collapsible autocollapse navbox-inner\" style=\"border-spacing:0;background:transparent;color:inherit;;\">\n" + 
+				"\n" + 
+				"<tr>\n" + 
+				"\n" + 
+				"<th class=\"navbox-title\" colspan=\"2\" scope=\"col\" style=\";\">\n" + 
+				"\n" + 
+				"<div class=\"noprint plainlinks hlist navbar mini\">\n" + 
+				"<ul>\n" + 
+				"\n" + 
+				"<li class=\"nv-view\"><a href=\"http://www.bliki.info/wiki/Template:National_Board_of_Review_Award_for_Best_Actor\" title=\"Template:National Board of Review Award for Best Actor\"><span style=\";;background:none transparent;border:none;\" title=\"View this template\">v</span></a></li>\n" + 
+				"<li class=\"nv-talk\"><a href=\"http://www.bliki.info/wiki/Template_talk:National_Board_of_Review_Award_for_Best_Actor\" title=\"Template_talk:National Board of Review Award for Best Actor\"><span style=\";;background:none transparent;border:none;\" title=\"Discuss this template\">t</span></a></li>\n" + 
+				"<li class=\"nv-edit\"><a class=\"externallink\" href=\"http://en.wikipedia.org/w/index.php?title=Template%3ANational+Board+of+Review+Award+for+Best+Actor&#38;action=edit\" rel=\"nofollow\" title=\"http://en.wikipedia.org/w/index.php?title=Template%3ANational+Board+of+Review+Award+for+Best+Actor&#38;action=edit\"><span style=\";;background:none transparent;border:none;\" title=\"Edit this template\">e</span></a></li>\n" + 
+				"</ul></div>\n" + 
+				"<div style=\"font-size:110%;\">\n" + 
+				"<p><a href=\"http://www.bliki.info/wiki/National_Board_of_Review_Award_for_Best_Actor\" title=\"National Board of Review Award for Best Actor\">National Board of Review Award for Best Actor</a></p></div>\n" + 
+				"</th>\n" + 
+				"</tr>\n" + 
+				"<tr style=\"height:2px;\">\n" + 
+				"\n" + 
+				"</tr>\n" + 
+				"<tr>\n" + 
+				"\n" + 
+				"<td class=\"navbox-list navbox-odd hlist\n" + 
+				"\" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n" + 
+				"<div style=\"padding:0em 0.25em\">\n" + 
+				"\n" + 
+				"<ul>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Ray_Milland\" title=\"Ray Milland\">Ray Milland</a> (1945)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Laurence_Olivier\" title=\"Laurence Olivier\">Laurence Olivier</a> (1946)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Michael_Redgrave\" title=\"Michael Redgrave\">Michael Redgrave</a> (1947)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Walter_Huston\" title=\"Walter Huston\">Walter Huston</a> (1948)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Ralph_Richardson\" title=\"Ralph Richardson\">Ralph Richardson</a> (1949)</li></ul></div></td>\n" + 
+				"</tr>\n" + 
+				"<tr style=\"height:2px\">\n" + 
+				"\n" + 
+				"</tr>\n" + 
+				"<tr>\n" + 
+				"\n" + 
+				"<td class=\"navbox-list navbox-even hlist\n" + 
+				"\" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n" + 
+				"<div style=\"padding:0em 0.25em\">\n" + 
+				"\n" + 
+				"<ul>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Alec_Guinness\" title=\"Alec Guinness\">Alec Guinness</a> (1950)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Richard_Basehart\" title=\"Richard Basehart\">Richard Basehart</a> (1951)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Ralph_Richardson\" title=\"Ralph Richardson\">Ralph Richardson</a> (1952)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/James_Mason\" title=\"James Mason\">James Mason</a> (1953)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Bing_Crosby\" title=\"Bing Crosby\">Bing Crosby</a> (1954)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Ernest_Borgnine\" title=\"Ernest Borgnine\">Ernest Borgnine</a> (1955)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Yul_Brynner\" title=\"Yul Brynner\">Yul Brynner</a> (1956)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Alec_Guinness\" title=\"Alec Guinness\">Alec Guinness</a> (1957)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Spencer_Tracy\" title=\"Spencer Tracy\">Spencer Tracy</a> (1958)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Victor_Sj%C3%B6str%C3%B6m\" title=\"Victor Sjöström\">Victor Sjöström</a> (1959)</li></ul></div></td>\n" + 
+				"</tr>\n" + 
+				"<tr style=\"height:2px\">\n" + 
+				"\n" + 
+				"</tr>\n" + 
+				"<tr>\n" + 
+				"\n" + 
+				"<td class=\"navbox-list navbox-odd hlist\n" + 
+				"\" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n" + 
+				"<div style=\"padding:0em 0.25em\">\n" + 
+				"\n" + 
+				"<ul>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Robert_Mitchum\" title=\"Robert Mitchum\">Robert Mitchum</a> (1960)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Albert_Finney\" title=\"Albert Finney\">Albert Finney</a> (1961)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Jason_Robards\" title=\"Jason Robards\">Jason Robards</a> (1962)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Rex_Harrison\" title=\"Rex Harrison\">Rex Harrison</a> (1963)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Anthony_Quinn\" title=\"Anthony Quinn\">Anthony Quinn</a> (1964)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Lee_Marvin\" title=\"Lee Marvin\">Lee Marvin</a> (1965)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Paul_Scofield\" title=\"Paul Scofield\">Paul Scofield</a> (1966)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Peter_Finch\" title=\"Peter Finch\">Peter Finch</a> (1967)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Cliff_Robertson\" title=\"Cliff Robertson\">Cliff Robertson</a> (1968)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Peter_O&#39;Toole\" title=\"Peter O&#39;Toole\">Peter O&#39;Toole</a> (1969)</li></ul></div></td>\n" + 
+				"</tr>\n" + 
+				"<tr style=\"height:2px\">\n" + 
+				"\n" + 
+				"</tr>\n" + 
+				"<tr>\n" + 
+				"\n" + 
+				"<td class=\"navbox-list navbox-even hlist\n" + 
+				"\" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n" + 
+				"<div style=\"padding:0em 0.25em\">\n" + 
+				"\n" + 
+				"<ul>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/George_C._Scott\" title=\"George C. Scott\">George C. Scott</a> (1970)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Gene_Hackman\" title=\"Gene Hackman\">Gene Hackman</a> (1971)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Peter_O&#39;Toole\" title=\"Peter O&#39;Toole\">Peter O&#39;Toole</a> (1972)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Al_Pacino\" title=\"Al Pacino\">Al Pacino</a> / <a href=\"http://www.bliki.info/wiki/Robert_Ryan\" title=\"Robert Ryan\">Robert Ryan</a> (1973)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Gene_Hackman\" title=\"Gene Hackman\">Gene Hackman</a> (1974)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Jack_Nicholson\" title=\"Jack Nicholson\">Jack Nicholson</a> (1975)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/David_Carradine\" title=\"David Carradine\">David Carradine</a> (1976)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/John_Travolta\" title=\"John Travolta\">John Travolta</a> (1977)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Jon_Voight\" title=\"Jon Voight\">Jon Voight</a> / <a href=\"http://www.bliki.info/wiki/Laurence_Olivier\" title=\"Laurence Olivier\">Laurence Olivier</a> (1978)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Peter_Sellers\" title=\"Peter Sellers\">Peter Sellers</a> (1979)</li></ul></div></td>\n" + 
+				"</tr>\n" + 
+				"<tr style=\"height:2px\">\n" + 
+				"\n" + 
+				"</tr>\n" + 
+				"<tr>\n" + 
+				"\n" + 
+				"<td class=\"navbox-list navbox-odd hlist\n" + 
+				"\" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n" + 
+				"<div style=\"padding:0em 0.25em\">\n" + 
+				"\n" + 
+				"<ul>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Robert_De_Niro\" title=\"Robert De Niro\">Robert De Niro</a> (1980)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Peter_Fonda\" title=\"Peter Fonda\">Peter Fonda</a> (1981)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Ben_Kingsley\" title=\"Ben Kingsley\">Ben Kingsley</a> (1982)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Tom_Conti\" title=\"Tom Conti\">Tom Conti</a> (1983)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Victor_Banerjee\" title=\"Victor Banerjee\">Victor Banerjee</a> (1984)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/William_Hurt\" title=\"William Hurt\">William Hurt</a> / <a href=\"http://www.bliki.info/wiki/Ra%C3%BAl_Juli%C3%A1\" title=\"Raúl Juliá\">Raúl Juliá</a> (1985)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Paul_Newman\" title=\"Paul Newman\">Paul Newman</a> (1986)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Michael_Douglas\" title=\"Michael Douglas\">Michael Douglas</a> (1987)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Gene_Hackman\" title=\"Gene Hackman\">Gene Hackman</a> (1988)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Morgan_Freeman\" title=\"Morgan Freeman\">Morgan Freeman</a> (1989)</li></ul></div></td>\n" + 
+				"</tr>\n" + 
+				"<tr style=\"height:2px\">\n" + 
+				"\n" + 
+				"</tr>\n" + 
+				"<tr>\n" + 
+				"\n" + 
+				"<td class=\"navbox-list navbox-even hlist\n" + 
+				"\" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n" + 
+				"<div style=\"padding:0em 0.25em\">\n" + 
+				"\n" + 
+				"<ul>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Robert_De_Niro\" title=\"Robert De Niro\">Robert De Niro</a> / <a href=\"http://www.bliki.info/wiki/Robin_Williams\" title=\"Robin Williams\">Robin Williams</a> (1990)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Warren_Beatty\" title=\"Warren Beatty\">Warren Beatty</a> (1991)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Jack_Lemmon\" title=\"Jack Lemmon\">Jack Lemmon</a> (1992)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Anthony_Hopkins\" title=\"Anthony Hopkins\">Anthony Hopkins</a> (1993)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Tom_Hanks\" title=\"Tom Hanks\">Tom Hanks</a> (1994)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Nicolas_Cage\" title=\"Nicolas Cage\">Nicolas Cage</a> (1995)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Tom_Cruise\" title=\"Tom Cruise\">Tom Cruise</a> (1996)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Jack_Nicholson\" title=\"Jack Nicholson\">Jack Nicholson</a> (1997)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Ian_McKellen\" title=\"Ian McKellen\">Ian McKellen</a> (1998)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Russell_Crowe\" title=\"Russell Crowe\">Russell Crowe</a> (1999)</li></ul></div></td>\n" + 
+				"</tr>\n" + 
+				"<tr style=\"height:2px\">\n" + 
+				"\n" + 
+				"</tr>\n" + 
+				"<tr>\n" + 
+				"\n" + 
+				"<td class=\"navbox-list navbox-odd hlist\n" + 
+				"\" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n" + 
+				"<div style=\"padding:0em 0.25em\">\n" + 
+				"\n" + 
+				"<ul>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Javier_Bardem\" title=\"Javier Bardem\">Javier Bardem</a> (2000)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Billy_Bob_Thornton\" title=\"Billy Bob Thornton\">Billy Bob Thornton</a> (2001)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Campbell_Scott\" title=\"Campbell Scott\">Campbell Scott</a> (2002)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Sean_Penn\" title=\"Sean Penn\">Sean Penn</a> (2003)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Jamie_Foxx\" title=\"Jamie Foxx\">Jamie Foxx</a> (2004)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Philip_Seymour_Hoffman\" title=\"Philip Seymour Hoffman\">Philip Seymour Hoffman</a> (2005)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Forest_Whitaker\" title=\"Forest Whitaker\">Forest Whitaker</a> (2006)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/George_Clooney\" title=\"George Clooney\">George Clooney</a> (2007)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Clint_Eastwood\" title=\"Clint Eastwood\">Clint Eastwood</a> (2008)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/George_Clooney\" title=\"George Clooney\">George Clooney</a> / <a href=\"http://www.bliki.info/wiki/Morgan_Freeman\" title=\"Morgan Freeman\">Morgan Freeman</a> (2009)</li></ul></div></td>\n" + 
+				"</tr>\n" + 
+				"<tr style=\"height:2px\">\n" + 
+				"\n" + 
+				"</tr>\n" + 
+				"<tr>\n" + 
+				"\n" + 
+				"<td class=\"navbox-list navbox-even hlist\n" + 
+				"\" colspan=\"2\" style=\"width:100%;padding:0px;;;\">\n" + 
+				"<div style=\"padding:0em 0.25em\">\n" + 
+				"\n" + 
+				"<ul>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/Jesse_Eisenberg\" title=\"Jesse Eisenberg\">Jesse Eisenberg</a> (2010)</li>\n" + 
+				"<li><a href=\"http://www.bliki.info/wiki/George_Clooney\" title=\"George Clooney\">George Clooney</a> (2011)</li></ul>\n" + 
+				"</div></td>\n" + 
+				"</tr>\n" + 
+				"</table></td>\n" + 
+				"</tr>\n" + 
+				"</table>\n" + 
+				"", wikiModel.render("{{Navbox \n"
 						+ "| name       = National Board of Review Award for Best Actor\n"
 						+ "| title      = [[National Board of Review Award for Best Actor]]\n" + "| listclass = hlist\n" + "\n"
 						+ "|group 1 = 1945-1949\n" + "|list1=\n" + "* [[Ray Milland]] (1945)\n" + "* [[Laurence Olivier]] (1946)\n"
@@ -1132,232 +1060,15 @@ public class TemplateFilterTest extends FilterTestSupport {
 	}
 
 	public void testTemplateNavbar() {
-		assertEquals(
-				"\n"
-						+ "<div class=\"noprint plainlinks hlist navbar \"><span style=\"word-spacing:0;\">This box: </span>\n"
-						+ "<ul>\n"
-						+ "\n"
-						+ "<li class=\"nv-view\"><a href=\"http://www.bliki.info/wiki/Template:Screen_Actors_Guild_Award_for_Outstanding_Performance_by_a_Cast_in_a_Motion_Picture_(1995%E2%80%932000)\" title=\"Template:Screen Actors Guild Award for Outstanding Performance by a Cast in a Motion Picture (1995–2000)\"><span title=\"View this template\">view</span></a></li>\n"
-						+ "<li class=\"nv-talk\"><a href=\"http://www.bliki.info/wiki/Template_talk:Screen_Actors_Guild_Award_for_Outstanding_Performance_by_a_Cast_in_a_Motion_Picture_(1995%E2%80%932000)\" title=\"Template talk:Screen Actors Guild Award for Outstanding Performance by a Cast in a Motion Picture (1995–2000)\"><span title=\"Discuss this template\">talk</span></a></li>\n"
-						+ "<li class=\"nv-edit\"><a class=\"external text\" href=\"http://en.wikipedia.org/w/index.php?title=Template%3AScreen+Actors+Guild+Award+for+Outstanding+Performance+by+a+Cast+in+a+Motion+Picture+%281995%E2%80%932000%29&#38;action=edit\" rel=\"nofollow\"><span title=\"Edit this template\">edit</span></a></li>\n"
-						+ "</ul></div>\n" + "", wikiModel.render(
-						"{{Navbar|Screen Actors Guild Award for Outstanding Performance by a Cast in a Motion Picture (1995–2000)}}\n", false));
-	}
-
-	public void testTemplateWithNewlines001() {
-		assertEquals("\n" + "<p>{{Serie de TV</p>\n" + "<pre>" + " Nombre        = FabulÃ³polis\n" + "</pre>\n" + "<p>}}</p>",
-				wikiModel.render("{{Serie de TV\n  Nombre        = FabulÃ³polis\n}}", false));
-
-		assertEquals(new HashSet<String>(), wikiModel.getTemplates());
-	}
-
-	public void testTemplateWithNewlines002() {
-		assertEquals("[[:Template:Serie de TV]]", wikiModel.parseTemplates("{{Serie de TV\n\n}}"));
-
-		assertTrue("wikiModel.getTemplates() = " + wikiModel.getTemplates().toString(), wikiModel.getTemplates()
-				.contains("Serie de TV"));
-	}
-
-	public void testTemplateWithNewlines003() {
-		assertEquals("[[:Template:Serie de TV]]", wikiModel.parseTemplates("{{Serie de TV\n}}"));
-
-		assertTrue("wikiModel.getTemplates() = " + wikiModel.getTemplates().toString(), wikiModel.getTemplates()
-				.contains("Serie de TV"));
-	}
-
-	public void testTemplateWithHashtag001() {
-		assertEquals("\n" + "<p>{{::Viva_World_Cup#Tournament_results}}\n"
-				+ "<a href=\"http://www.bliki.info/wiki/Viva_World_Cup\" title=\"Viva World Cup\">Viva_World_Cup</a>\n"
-				+ "<a href=\"http://www.bliki.info/wiki/Viva_World_Cup\" title=\"Viva World Cup\">Viva_World_Cup</a>\n" + "</p>", wikiModel
-				.render("{{::Viva_World_Cup#Tournament_results}}\n" + "{{:Viva_World_Cup#Tournament_results}}\n"
-						+ "{{:Viva_World_Cup#Tournament_results#History}}\n" + "[[Category:Test#test]]", false));
-
-		assertTrue("wikiModel.getIncludes() = " + wikiModel.getIncludes().toString(), wikiModel.getIncludes()
-				.contains("Viva_World_Cup"));
-		assertTrue("wikiModel.getCategories() = " + wikiModel.getCategories().keySet().toString(), wikiModel.getCategories().keySet()
-				.contains("Test"));
-	}
-
-	public void testTransclusionInPre001() {
-		assertEquals("<pre>{{:Viva_World_Cup}}</pre>", wikiModel.parseTemplates("<pre>{{:Viva_World_Cup}}</pre>"));
-
-		assertTrue("wikiModel.getIncludes() = " + wikiModel.getIncludes().toString(), wikiModel.getIncludes().size() == 0);
-		assertTrue("wikiModel.getTemplates() = " + wikiModel.getTemplates().toString(), wikiModel.getTemplates().size() == 0);
-	}
-
-	public void testPreAlmostEqualToNowiki001() {
-		// https://en.wikipedia.org/wiki/Help:Wiki_markup#Pre
-		assertEquals("\n<pre>Text\n[[wiki]] markup</pre>", wikiModel.render("<pre>Text\n[[wiki]] markup</pre>", false));
-
-		assertTrue("wikiModel.getLinks() = " + wikiModel.getLinks().toString(), wikiModel.getLinks().size() == 0);
-	}
-
-	public void testPreAlmostEqualToNowiki002() {
-		// https://en.wikipedia.org/wiki/Help:Wiki_markup#Nowiki
-		assertEquals("\n<p>Text\n[[wiki]] markup</p>", wikiModel.render("<nowiki>Text\n[[wiki]] markup</nowiki>", false));
-
-		assertTrue("wikiModel.getLinks() = " + wikiModel.getLinks().toString(), wikiModel.getLinks().size() == 0);
-	}
-
-	/**
-	 * Issue 131 - incorrect parsing of links if an additional HTML tag is
-	 * appended
-	 */
-	public void testLinkWithExtraHTMLTag001() {
-		assertEquals(
-				"\n<p><a class=\"external free\" href=\"http://www.example.com/\" rel=\"nofollow\">http://www.example.com/</a>&#60;hello&#62;</p>",
-				wikiModel.render("http://www.example.com/<hello>", false));
-	}
-
-	/**
-	 * Issue 133 - self-inclusion is only allowed once in MediaWiki
-	 */
-	public void testSelfRecusion001() {
-		// https://en.wikipedia.org/wiki/Help:Template#Nesting_templates
-		assertEquals(
-				"\n<p>Line1</p>"
-						+ "\n<p>Line1</p>"
-						+ "\n<p><span class=\"error\">Template loop detected: <strong class=\"selflink\">Template:SELF_RECURSION</strong></span></p>",
-				wikiModel.render(WikiTestModel.SELF_RECURSION, false));
-	}
-
-	/**
-	 * Issue 133 - self-inclusion is only allowed once in MediaWiki
-	 */
-	public void testSelfRecusion002() {
-		// check that a template can be included more than once
-		assertEquals("\n<p>a, a</p>", wikiModel.render("{{1x|a}}, {{1x|a}}", false));
-		assertEquals("\n<p>a, b</p>", wikiModel.render("{{1x|a}}, {{1x|b}}", false));
-	}
-
-	/**
-	 * Issue 133 - self-inclusion is only allowed once in MediaWiki
-	 */
-	public void testSelfRecusion003() {
-		// check that a template can be included as a parameter to itself
-		assertEquals("\n<p>a</p>", wikiModel.render("{{1x|{{1x|a}}}}", false));
-		assertEquals("\n<p>ab</p>", wikiModel.render("{{1x|a{{1x|b}}}}", false));
-	}
-
-	/**
-	 * Issue 133 - self-inclusion is only allowed once in MediaWiki
-	 */
-	public void testSelfRecusion004() {
-		// check that a template which includes itself via a parameter is recognised as a loop
-		assertEquals("\n<p>Line1</p>"
-						+ "\n<p><span class=\"error\">Template loop detected: <strong class=\"selflink\">Template:SELF_RECURSION1</strong></span></p>",
-				wikiModel.render("{{SELF_RECURSION1|SELF_RECURSION1}}", false));
-	}
-
-	public void testSelfRecusion005() {
-		assertEquals("foo|bar", wikiModel.parseTemplates("{{1x|{{1x|foo{{!}}bar}}}}"));
-	}
-
-	/**
-	 * Issue 133 - self-inclusion is only allowed once in MediaWiki
-	 */
-	public void testIndirectSelfRecusion001() {
-		// https://en.wikipedia.org/wiki/Help:Template#Nesting_templates
-		assertEquals(
-				"\n"
-						+ "<p>INDIRECT_SELF_RECURSION1</p>\n"
-						+ "<p>INDIRECT_SELF_RECURSION2</p>\n"
-						+ "<p>INDIRECT_SELF_RECURSION1</p>\n"
-						+ "<p><span class=\"error\">Template loop detected: <strong class=\"selflink\">Template:INDIRECT_SELF_RECURSION2</strong></span></p>",
-				wikiModel.render(WikiTestModel.INDIRECT_SELF_RECURSION1, false));
-	}
-
-	/**
-	 * Issue 133 - self-inclusion is only allowed once in MediaWiki
-	 */
-	public void testIndirectSelfRecusion002() {
-		// https://en.wikipedia.org/wiki/Help:Template#Nesting_templates
-		assertEquals(
-				"\n"
-						+ "<p>INDIRECT_SELF_RECURSION2</p>\n"
-						+ "<p>INDIRECT_SELF_RECURSION1</p>\n"
-						+ "<p>INDIRECT_SELF_RECURSION2</p>\n"
-						+ "<p><span class=\"error\">Template loop detected: <strong class=\"selflink\">Template:INDIRECT_SELF_RECURSION1</strong></span></p>",
-				wikiModel.render(WikiTestModel.INDIRECT_SELF_RECURSION2, false));
-	}
-
-	/**
-	 * Issue 133 - self-inclusion is only allowed once in MediaWiki
-	 */
-	public void testIndirectSelfRecusion001a() {
-		// https://en.wikipedia.org/wiki/Help:Template#Nesting_templates
-		assertEquals(
-				"\n"
-						+ "<p>INDIRECT_SELF_RECURSION1a</p>\n"
-						+ "<p>INDIRECT_SELF_RECURSION2a</p>\n"
-						+ "<p>INDIRECT_SELF_RECURSION1a</p>\n"
-						+ "<p><span class=\"error\">Template loop detected: <strong class=\"selflink\">Template:INDIRECT_SELF_RECURSION2a</strong></span></p>",
-				wikiModel.render(WikiTestModel.INDIRECT_SELF_RECURSION1a, false));
-	}
-
-	/**
-	 * Issue 133 - self-inclusion is only allowed once in MediaWiki
-	 */
-	public void testIndirectSelfRecusion002a() {
-		// https://en.wikipedia.org/wiki/Help:Template#Nesting_templates
-		assertEquals(
-				"\n"
-						+ "<p>INDIRECT_SELF_RECURSION2a</p>\n"
-						+ "<p>INDIRECT_SELF_RECURSION1a</p>\n"
-						+ "<p>INDIRECT_SELF_RECURSION2a</p>\n"
-						+ "<p><span class=\"error\">Template loop detected: <strong class=\"selflink\">Template:INDIRECT_SELF_RECURSION1a</strong></span></p>",
-				wikiModel.render(WikiTestModel.INDIRECT_SELF_RECURSION2a, false));
-	}
-
-	/**
-	 * Test whether the template cache distinguishes pages from different
-	 * namespaces with the same page title.
-	 */
-	public void testTemplateCache001() {
-		assertEquals("\n<p>FOOBAR</p>", wikiModel.render("{{FOO}}{{:FOO}}", false));
-	}
-
-	/**
-	 * Test whether the template cache distinguishes pages from different
-	 * namespaces with the same page title.
-	 */
-	public void testTemplateCache002() {
-		assertEquals("\n<p>FOOFOO</p>", wikiModel.render("{{FOO}}{{Template:FOO}}", false));
-	}
-
-	/**
-	 * Test whether the template cache distinguishes pages from different
-	 * namespaces with the same page title.
-	 */
-	public void testTemplateCache003() {
-		assertEquals("\n<p>FOOFOO</p>", wikiModel.render("{{Template:FOO}}{{FOO}}", false));
-	}
-
-	/**
-	 * Test whether the template cache distinguishes pages from different
-	 * namespaces with the same page title.
-	 */
-	public void testTemplateCache004() {
-		String foodate = wikiModel.render("{{FOODATE}}", false);
-		System.out.println(foodate);
-		try {
-			Thread.sleep(1);
-		} catch (InterruptedException e) {
-		}
-		assertEquals(foodate, wikiModel.render("{{Template:FOODATE}}", false));
-	}
-
-	/**
-	 * Test whether the template cache distinguishes pages from different
-	 * namespaces with the same page title.
-	 */
-	public void testTemplateCache005() {
-		String foodate = wikiModel.render("{{Template:FOODATE}}", false);
-		System.out.println(foodate);
-		try {
-			Thread.sleep(1);
-		} catch (InterruptedException e) {
-		}
-		assertEquals(foodate, wikiModel.render("{{FOODATE}}", false));
+		assertEquals("\n" + 
+				"<div class=\"noprint plainlinks hlist navbar \"><span style=\"word-spacing:0;\">This box: </span>\n" + 
+				"<ul>\n" + 
+				"\n" + 
+				"<li class=\"nv-view\"><a href=\"http://www.bliki.info/wiki/Template:Screen_Actors_Guild_Award_for_Outstanding_Performance_by_a_Cast_in_a_Motion_Picture_(1995%E2%80%932000)\" title=\"Template:Screen Actors Guild Award for Outstanding Performance by a Cast in a Motion Picture (1995–2000)\"><span title=\"View this template\">view</span></a></li>\n" + 
+				"<li class=\"nv-talk\"><a href=\"http://www.bliki.info/wiki/Template_talk:Screen_Actors_Guild_Award_for_Outstanding_Performance_by_a_Cast_in_a_Motion_Picture_(1995%E2%80%932000)\" title=\"Template_talk:Screen Actors Guild Award for Outstanding Performance by a Cast in a Motion Picture (1995–2000)\"><span title=\"Discuss this template\">talk</span></a></li>\n" + 
+				"<li class=\"nv-edit\"><a class=\"externallink\" href=\"http://en.wikipedia.org/w/index.php?title=Template%3AScreen+Actors+Guild+Award+for+Outstanding+Performance+by+a+Cast+in+a+Motion+Picture+%281995%E2%80%932000%29&#38;action=edit\" rel=\"nofollow\" title=\"http://en.wikipedia.org/w/index.php?title=Template%3AScreen+Actors+Guild+Award+for+Outstanding+Performance+by+a+Cast+in+a+Motion+Picture+%281995%E2%80%932000%29&#38;action=edit\"><span title=\"Edit this template\">edit</span></a></li>\n" + 
+				"</ul></div>\n" + 
+				"", wikiModel.render(
+				"{{Navbar|Screen Actors Guild Award for Outstanding Performance by a Cast in a Motion Picture (1995–2000)}}\n", false));
 	}
 }

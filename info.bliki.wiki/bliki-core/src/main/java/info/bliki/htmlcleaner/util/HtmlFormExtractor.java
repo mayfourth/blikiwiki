@@ -2,6 +2,7 @@ package info.bliki.htmlcleaner.util;
 
 import info.bliki.htmlcleaner.TagNode;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,9 +32,11 @@ public class HtmlFormExtractor extends AbstractHtmlExtractor<HtmlForm> {
 	}
 
 	@Override
-	public void appendContent(List<Object> nodes) {
+	public void appendContent(List nodes) {
 		if (nodes != null && !nodes.isEmpty()) {
-			for (Object item : nodes) {
+			Iterator childrenIt = nodes.iterator();
+			while (childrenIt.hasNext()) {
+				Object item = childrenIt.next();
 				if (item != null && (item instanceof TagNode)) {
 					TagNode tagNode = (TagNode) item;
 					if (tagNode.getName().equalsIgnoreCase(INPUT_TAG) || tagNode.getName().equalsIgnoreCase(TEXTAREA_TAG)) {
@@ -53,9 +56,7 @@ public class HtmlFormExtractor extends AbstractHtmlExtractor<HtmlForm> {
 					if (attributeValue != null && attributeValue.toLowerCase().equals("errorbox")) {
 
 					} else if (item instanceof List) {
-						@SuppressWarnings("unchecked")
-						final List<Object> list = (List<Object>) item;
-						appendContent(list);
+						appendContent((List) item);
 					}
 				}
 			}

@@ -112,8 +112,7 @@ public class DoctypeToken implements BaseToken {
     	return "";
     }
     
-    @Override
-	public void serialize(XmlSerializer xmlSerializer) throws IOException {
+    public void serialize(XmlSerializer xmlSerializer) throws IOException {
     	xmlSerializer.getWriter().write(getContent() + "\n");
     }
 

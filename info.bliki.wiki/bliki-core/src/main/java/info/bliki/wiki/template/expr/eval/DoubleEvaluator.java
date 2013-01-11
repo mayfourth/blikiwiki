@@ -41,12 +41,10 @@ public class DoubleEvaluator {
 	private static Map<String, Object> FUNCTION_BOOLEAN_MAP;
 
 	static class PlusFunction implements IDoubleFunction, IDouble2Function {
-		@Override
 		public double evaluate(double arg1, double arg2) {
 			return arg1 + arg2;
 		}
 
-		@Override
 		public double evaluate(DoubleEvaluator engine, FunctionNode function) {
 			double result = 0.0;
 			for (int i = 1; i < function.size(); i++) {
@@ -57,12 +55,10 @@ public class DoubleEvaluator {
 	}
 
 	static class SubtractFunction implements IDoubleFunction, IDouble2Function {
-		@Override
 		public double evaluate(double arg1, double arg2) {
 			return arg1 - arg2;
 		}
 
-		@Override
 		public double evaluate(DoubleEvaluator engine, FunctionNode function) {
 			double result = 0.0;
 			for (int i = 1; i < function.size(); i++) {
@@ -73,12 +69,10 @@ public class DoubleEvaluator {
 	}
 
 	static class TimesFunction implements IDoubleFunction, IDouble2Function {
-		@Override
 		public double evaluate(double arg1, double arg2) {
 			return arg1 * arg2;
 		}
 
-		@Override
 		public double evaluate(DoubleEvaluator engine, FunctionNode function) {
 			double result = 1.0;
 			for (int i = 1; i < function.size(); i++) {
@@ -89,7 +83,6 @@ public class DoubleEvaluator {
 	}
 
 	static class DivideFunction implements IDouble2Function {
-		@Override
 		public double evaluate(double arg1, double arg2) {
 			if (Math.abs(arg2 - 0.0) < DoubleEvaluator.EPSILON) {
 				throw new ArithmeticException("Division by zero");
@@ -99,17 +92,15 @@ public class DoubleEvaluator {
 	}
 
 	static class ModFunction implements IDouble2Function {
-		@Override
 		public double evaluate(double arg1, double arg2) {
 			if (Math.abs(arg2 - 0.0) < DoubleEvaluator.EPSILON) {
 				throw new ArithmeticException("Division by zero");
 			}
-			return ((int) arg1) % ((int) arg2);
+			return arg1 % arg2;
 		}
 	}
 
 	static class PowFunction implements IDouble2Function {
-		@Override
 		public double evaluate(double arg1, double arg2) {
 			return Math.pow(arg1, arg2);
 		}
@@ -123,56 +114,47 @@ public class DoubleEvaluator {
 		SYMBOL_DOUBLE_MAP.put("Pi", new Double(Math.PI));
 
 		FUNCTION_BOOLEAN_MAP.put("And", new IBooleanBoolean2Function() {
-			@Override
 			public boolean evaluate(boolean arg1, boolean arg2) {
 				return arg1 && arg2;
 			}
 		});
 		FUNCTION_BOOLEAN_MAP.put("Not", new IBooleanBoolean1Function() {
-			@Override
 			public boolean evaluate(boolean arg1) {
 				return !arg1;
 			}
 		});
 		FUNCTION_BOOLEAN_MAP.put("Or", new IBooleanBoolean2Function() {
-			@Override
 			public boolean evaluate(boolean arg1, boolean arg2) {
 				return arg1 || arg2;
 			}
 		});
 
 		FUNCTION_BOOLEAN_MAP.put("Equal", new IBooleanDouble2Function() {
-			@Override
 			public boolean evaluate(double arg1, double arg2) {
 				return Math.abs(arg1 - arg2) < EPSILON;
 			}
 		});
 		FUNCTION_BOOLEAN_MAP.put("Greater", new IBooleanDouble2Function() {
-			@Override
 			public boolean evaluate(double arg1, double arg2) {
 				return arg1 > arg2;
 			}
 		});
 		FUNCTION_BOOLEAN_MAP.put("GreaterEqual", new IBooleanDouble2Function() {
-			@Override
 			public boolean evaluate(double arg1, double arg2) {
 				return arg1 >= arg2;
 			}
 		});
 		FUNCTION_BOOLEAN_MAP.put("Less", new IBooleanDouble2Function() {
-			@Override
 			public boolean evaluate(double arg1, double arg2) {
 				return arg1 < arg2;
 			}
 		});
 		FUNCTION_BOOLEAN_MAP.put("LessEqual", new IBooleanDouble2Function() {
-			@Override
 			public boolean evaluate(double arg1, double arg2) {
 				return arg1 <= arg2;
 			}
 		});
 		FUNCTION_BOOLEAN_MAP.put("Unequal", new IBooleanDouble2Function() {
-			@Override
 			public boolean evaluate(double arg1, double arg2) {
 				return !(Math.abs(arg1 - arg2) < EPSILON);
 			}
@@ -180,73 +162,61 @@ public class DoubleEvaluator {
 
 		FUNCTION_DOUBLE_MAP = new HashMap<String, Object>();
 		FUNCTION_DOUBLE_MAP.put("Sin", new IDouble1Function() {
-			@Override
 			public double evaluate(double arg1) {
 				return Math.sin(arg1);
 			}
 		});
 		FUNCTION_DOUBLE_MAP.put("Cos", new IDouble1Function() {
-			@Override
 			public double evaluate(double arg1) {
 				return Math.cos(arg1);
 			}
 		});
 		FUNCTION_DOUBLE_MAP.put("Tan", new IDouble1Function() {
-			@Override
 			public double evaluate(double arg1) {
 				return Math.tan(arg1);
 			}
 		});
 		FUNCTION_DOUBLE_MAP.put("ASin", new IDouble1Function() {
-			@Override
 			public double evaluate(double arg1) {
 				return Math.asin(arg1);
 			}
 		});
 		FUNCTION_DOUBLE_MAP.put("ACos", new IDouble1Function() {
-			@Override
 			public double evaluate(double arg1) {
 				return Math.acos(arg1);
 			}
 		});
 		FUNCTION_DOUBLE_MAP.put("ATan", new IDouble1Function() {
-			@Override
 			public double evaluate(double arg1) {
 				return Math.atan(arg1);
 			}
 		});
 		FUNCTION_DOUBLE_MAP.put("Ln", new IDouble1Function() {
-			@Override
 			public double evaluate(double arg1) {
 				return Math.log(arg1);
 			}
 		});
 		FUNCTION_DOUBLE_MAP.put("Exp", new IDouble1Function() {
-			@Override
 			public double evaluate(double arg1) {
 				return Math.exp(arg1);
 			}
 		});
 		FUNCTION_DOUBLE_MAP.put("Abs", new IDouble1Function() {
-			@Override
 			public double evaluate(double arg1) {
 				return Math.abs(arg1);
 			}
 		});
 		FUNCTION_DOUBLE_MAP.put("Ceil", new IDouble1Function() {
-			@Override
 			public double evaluate(double arg1) {
 				return Math.ceil(arg1);
 			}
 		});
 		FUNCTION_DOUBLE_MAP.put("Floor", new IDouble1Function() {
-			@Override
 			public double evaluate(double arg1) {
 				return Math.floor(arg1);
 			}
 		});
 		FUNCTION_DOUBLE_MAP.put("Trunc", new IDouble1Function() {
-			@Override
 			public double evaluate(double arg1) {
 				if (arg1 < 0.0d) {
 					return Math.ceil(arg1);
@@ -263,7 +233,6 @@ public class DoubleEvaluator {
 		FUNCTION_DOUBLE_MAP.put("Pow", new PowFunction());
 
 		FUNCTION_DOUBLE_MAP.put("Round", new IDouble2Function() {
-			@Override
 			public double evaluate(double arg1, double arg2) {
 				double pow10arg2 = Math.pow(10, arg2);
 				if (arg1 > 0) {
@@ -366,19 +335,19 @@ public class DoubleEvaluator {
 	 * @throws SyntaxError
 	 */
 	public double evaluate(String expression) {
-		List<String> list = splitByBrackets(expression);
-		int listSize = list.size();
-		while (listSize > 1) {
-			int len = 0;
-			for (int i = 0; i < listSize; i++) {
+		String expr = expression;
+		List<String> list = splitByBrackets(expr);
+		int len;
+		while (list.size() > 1) {
+			len = 0;
+			for (int i = 0; i < list.size(); i++) {
 				len += list.get(i).length();
 			}
 			StringBuilder buf = new StringBuilder(len);
-			for (int i = 0; i < listSize; i++) {
+			for (int i = 0; i < list.size(); i++) {
 				buf.append(list.get(i));
 			}
 			list = splitByBrackets(buf.toString());
-			listSize = list.size();
 		}
 		return Double.parseDouble(list.get(0));
 	}

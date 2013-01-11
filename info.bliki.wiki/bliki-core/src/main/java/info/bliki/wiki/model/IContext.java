@@ -52,11 +52,11 @@ public interface IContext {
 	 * What renderer is registered for this attributeClassType for this template.
 	 * If not found, the template's group is queried.
 	 */
-	public AttributeRenderer getAttributeRenderer(Class<?> attributeClassType);
+	public AttributeRenderer getAttributeRenderer(Class attributeClassType);
 
 	/**
 	 * Register a renderer for all objects of a particular type. This overrides
 	 * any renderer set in the group for this class type.
 	 */
-	public void registerRenderer(Class<?> attributeClassType, AttributeRenderer renderer);
+	public void registerRenderer(Class attributeClassType, AttributeRenderer renderer);
 }

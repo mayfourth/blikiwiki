@@ -46,7 +46,6 @@ public class ABAPCodeFilter extends AbstractCodeFormatter {
 	/**
 	 * @return Returns the KEYWORD_SET.
 	 */
-	@Override
 	public HashMap<String, String> getKeywordSet() {
 		return KEYWORD_SET;
 	}
@@ -54,7 +53,6 @@ public class ABAPCodeFilter extends AbstractCodeFormatter {
 	/**
 	 * @return Returns the OBJECT_SET.
 	 */
-	@Override
 	public HashMap<String, String> getObjectSet() {
 		return OBJECT_SET;
 	}
@@ -108,7 +106,6 @@ public class ABAPCodeFilter extends AbstractCodeFormatter {
 		return currentPosition;
 	}
 
-	@Override
 	public String filter(String input) {
 		char[] source = input.toCharArray();
 		int currentPosition = 0;

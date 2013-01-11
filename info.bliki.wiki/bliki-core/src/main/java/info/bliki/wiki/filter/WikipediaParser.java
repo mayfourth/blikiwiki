@@ -87,7 +87,7 @@ public class WikipediaParser extends AbstractParser implements IParser {
 		return false;
 	}
 
-	public int getNextToken()  // throws InvalidInputException
+	public int getNextToken() // throws InvalidInputException
 	{
 		fWhiteStart = true;
 		fWhiteStartPosition = fCurrentPosition;
@@ -316,8 +316,6 @@ public class WikipediaParser extends AbstractParser implements IParser {
 							if (fCurrentCharacter == 'i' || fCurrentCharacter == 'I') {
 								// ISBN ?
 								if (parseISBNLinks()) {
-									fWhiteStart = true;
-									fWhiteStartPosition = fCurrentPosition;
 									continue;
 								}
 							}
@@ -325,16 +323,12 @@ public class WikipediaParser extends AbstractParser implements IParser {
 							if (parseURIScheme()) {
 								// a URI scheme registered in the wiki model (ftp, http,
 								// https,...)
-								fWhiteStart = true;
-								fWhiteStartPosition = fCurrentPosition;
 								continue;
 							}
 
 							if (fWikiModel.isCamelCaseEnabled() && Character.isUpperCase(fCurrentCharacter)
 									&& fWikiModel.getRecursionLevel() <= 1) {
 								if (parseCamelCaseLink()) {
-									fWhiteStart = true;
-									fWhiteStartPosition = fCurrentPosition;
 									continue;
 								}
 							}
@@ -368,9 +362,9 @@ public class WikipediaParser extends AbstractParser implements IParser {
 	 */
 	private String parseNowiki(String input) {
 		int indx = input.indexOf("<nowiki>");
+		int indx2;
+		int lastIndx = 0;
 		if (indx >= 0) {
-			int indx2;
-			int lastIndx = 0;
 			StringBuilder buf = new StringBuilder(input.length());
 			while (indx >= 0) {
 				buf.append(input.substring(lastIndx, indx));
@@ -422,6 +416,23 @@ public class WikipediaParser extends AbstractParser implements IParser {
 		fWikiModel.pushNode(new PTag());
 	}
 
+	private boolean parseHTMLCommentTags() {
+		int htmlStartPosition = fCurrentPosition;
+		String htmlCommentString = fStringSource.substring(fCurrentPosition - 1, fCurrentPosition + 3);
+
+		if (htmlCommentString.equals("<!--")) {
+			fCurrentPosition += 3;
+			if (readUntil("-->")) {
+				String htmlCommentContent = fStringSource.substring(htmlStartPosition + 3, fCurrentPosition - 3);
+				if (htmlCommentContent != null) {
+					createContentToken(fCurrentPosition - htmlStartPosition + 1);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	private boolean parseISBNLinks() {
 		final int urlStartPosition = fCurrentPosition;
 		boolean foundISBN = false;
@@ -462,8 +473,7 @@ public class WikipediaParser extends AbstractParser implements IParser {
 					&& (fSource[++fCurrentPosition] == 'i' || fSource[fCurrentPosition] == 'I')
 					&& (fSource[++fCurrentPosition] == 'l' || fSource[fCurrentPosition] == 'L')
 					&& (fSource[++fCurrentPosition] == 't' || fSource[fCurrentPosition] == 'T')
-					&& (fSource[++fCurrentPosition] == 'o' || fSource[fCurrentPosition] == 'O')
-					&& fSource[fCurrentPosition+1] == ':') {
+					&& (fSource[++fCurrentPosition] == 'o' || fSource[fCurrentPosition] == 'O')) {
 				tempPosition += 6;
 				fCurrentCharacter = fSource[tempPosition++];
 
@@ -523,17 +533,12 @@ public class WikipediaParser extends AbstractParser implements IParser {
 					foundUrl = true;
 					while (Encoder.isUrlIdentifierPart(fSource[tempPosition++])) {
 					}
+
 				}
 			}
 		} catch (IndexOutOfBoundsException e) {
 		}
 		if (foundUrl) {
-			// separators at the end must be removed - maybe more chars?
-			final String separators = ".!;?:,";
-			while (tempPosition > 1 && tempPosition > urlStartPosition
-					&& (separators.indexOf(fSource[tempPosition - 2]) != (-1))) {
-				--tempPosition;
-			}
 			String restString = fStringSource.substring(urlStartPosition - 1, tempPosition - 1);
 			String uriSchemeSpecificPart = fStringSource.substring(index + 1, tempPosition - 1);
 			if (fWikiModel.isValidUriSchemeSpecificPart(uriSchemeName, uriSchemeSpecificPart)) {
@@ -1067,20 +1072,11 @@ public class WikipediaParser extends AbstractParser implements IParser {
 			}
 
 			if (foundUrl) {
-				// Wikipedia link style: name separated by invalid URL character?
-				// see test: "open square bracket forbidden in URL (named) (bug 4377)"
-				int pipeIndex = 0;
-				while (pipeIndex < urlString.length()
-						&& Encoder.isUrlIdentifierPart(urlString.charAt(pipeIndex))) {
-					++pipeIndex;
-				}
+				// Wikipedia link style: name separated by space?
+				int pipeIndex = urlString.indexOf(' ');
 				String alias = "";
-				if (pipeIndex < urlString.length()) {
-					if (urlString.charAt(pipeIndex) == ' ') {
-						alias = urlString.substring(pipeIndex + 1);
-					} else {
-						alias = urlString.substring(pipeIndex);
-					}
+				if (pipeIndex != (-1)) {
+					alias = urlString.substring(pipeIndex + 1);
 					urlString = urlString.substring(0, pipeIndex);
 				} else {
 					if (protocolRelativeURL) {
@@ -1213,7 +1209,6 @@ public class WikipediaParser extends AbstractParser implements IParser {
 
 	}
 
-	@Override
 	public boolean isNoToC() {
 		return fNoToC;
 	}
@@ -1233,7 +1228,7 @@ public class WikipediaParser extends AbstractParser implements IParser {
 	 * <code>setUp()</code> method before parsing and the <code>tearDown()</code>
 	 * method after the parser has finished.
 	 * 
-	 * @param rawWikiText
+	 * @param rawWikitext
 	 *          the raw text of the article
 	 * @param wikiModel
 	 *          a suitable wiki model for the given wiki article text
@@ -1290,6 +1285,7 @@ public class WikipediaParser extends AbstractParser implements IParser {
 	 * 
 	 * @param rawWikitext
 	 * @param wikiModel
+	 * @return
 	 */
 	public static void parseRecursive(String rawWikitext, IWikiModel wikiModel) {
 		parseRecursive(rawWikitext, wikiModel, false, true);
@@ -1306,8 +1302,9 @@ public class WikipediaParser extends AbstractParser implements IParser {
 	 * @param rawWikitext
 	 * @param wikiModel
 	 * @param noTOC
-	 * @param createOnlyLocalStack
-	 * @return HTML tags from the parsing process
+	 * @param appendStack
+	 * @return
+	 * @return
 	 */
 	public static TagStack parseRecursive(String rawWikitext, IWikiModel wikiModel, boolean createOnlyLocalStack, boolean noTOC) {
 		AbstractParser parser = wikiModel.createNewInstance(rawWikitext);
@@ -1319,7 +1316,6 @@ public class WikipediaParser extends AbstractParser implements IParser {
 	 * 
 	 * @return <code>true</code> if the currently parsed wiki text is a template
 	 */
-	@Override
 	public boolean isTemplate() {
 		return fRenderTemplate;
 	}

@@ -5,16 +5,16 @@
     with or without modification, are permitted provided that the following 
     conditions are met:
 	
- * Redistributions of source code must retain the above
+    * Redistributions of source code must retain the above
       copyright notice, this list of conditions and the
       following disclaimer.
 	
- * Redistributions in binary form must reproduce the above
+    * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the
       following disclaimer in the documentation and/or other
       materials provided with the distribution.
 	
- * The name of HtmlCleaner may not be used to endorse or promote 
+    * The name of HtmlCleaner may not be used to endorse or promote 
       products derived from this software without specific prior
       written permission.
 
@@ -33,50 +33,37 @@
     You can contact Vladimir Nikic by sending e-mail to
     nikic_vladimir@yahoo.com. Please include the word "HtmlCleaner" in the
     subject line.
- */
+*/
 
 package info.bliki.htmlcleaner;
 
 import java.io.IOException;
 
 /**
- * <p>
- * HTML text token.
- * </p>
+ * <p>HTML text token.</p>
  * 
  * Created by: Vladimir Nikic<br/>
  * Date: November, 2006.
  */
 public class ContentToken implements BaseToken {
 
-	private final String content;
+    private final String content;
 
-	public ContentToken(String content) {
-		this.content = content;
-	}
+    public ContentToken(String content) {
+        this.content = content;
+    }
 
-	public String getContent() {
-		return content;
-	}
+    public String getContent() {
+        return content;
+    }
 
-	@Override
-	public String toString() {
-		return content.trim();
-	}
+    @Override
+		public String toString() {
+        return content.trim();
+    }
+    
+    public void serialize(XmlSerializer xmlSerializer) throws IOException {
+    	xmlSerializer.getWriter().write( getContent() );
+    }
 
-	@Override
-	public void serialize(XmlSerializer xmlSerializer) throws IOException {
-		xmlSerializer.getWriter().write(getContent());
-	}
-
-	public void appendPlainText(Appendable buf) throws IOException {
-		if (content.length() > 0) {
-			Utils.escapeXmlToBuffer(content, buf, false, true, true, true);
-			char ch = content.charAt(content.length() - 1);
-			if (ch == '.' || ch == '!' || ch == '?') {
-				// issue117 add a SPACE behind the end of a sentence
-				buf.append(" ");
-			}
-		}
-	}
 }

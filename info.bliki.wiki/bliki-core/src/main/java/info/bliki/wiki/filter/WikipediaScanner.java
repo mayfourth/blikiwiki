@@ -334,48 +334,37 @@ public class WikipediaScanner {
 			list = new WPList();
 
 			while (true) {
-				if (ch == WPList.DL_DD_CHAR) {
-					if ((fScannerPosition < fSource.length - 2) && fSource[fScannerPosition] == '/' && fSource[fScannerPosition + 1] == '/') {
-						if (fScannerPosition > 1 && Character.isLetter(fSource[fScannerPosition - 2])) {
-							// definition list with URL link
-							fScannerPosition += 2;
-							ch = fSource[fScannerPosition++];
-							continue;
-						}
+				if (ch == WPList.DL_DD_CHAR && lastCh == WPList.DL_DT_CHAR && sequence != null) {
+					startPosition = fScannerPosition;
+					if (listElement != null) {
+						listElement.createTagStack(fSource, fWikiModel, fScannerPosition - 1);
+						list.add(listElement);
+						listElement = null;
 					}
+					char[] ddSequence = new char[sequence.length];
+					System.arraycopy(sequence, 0, ddSequence, 0, sequence.length);
+					ddSequence[sequence.length - 1] = WPList.DL_DD_CHAR;
+					sequence = ddSequence;
 
-					if (lastCh == WPList.DL_DT_CHAR && sequence != null) {
-						startPosition = fScannerPosition;
-						if (listElement != null) {
-							listElement.createTagStack(fSource, fWikiModel, fScannerPosition - 1);
+					int startPos;
+					while (true) {
+						ch = fSource[fScannerPosition++];
+						if (!Character.isWhitespace(ch)) {
+							startPos = fScannerPosition - 1;
+							listElement = new WPListElement(count, sequence, startPos);
+							break;
+						}
+						if (ch == '\n') {
+							fScannerPosition--; // to detect next row
+							startPos = fScannerPosition;
+							listElement = new WPListElement(count, sequence, startPos);
+							listElement.createTagStack(fSource, fWikiModel, startPos);
 							list.add(listElement);
 							listElement = null;
+							break;
 						}
-						char[] ddSequence = new char[sequence.length];
-						System.arraycopy(sequence, 0, ddSequence, 0, sequence.length);
-						ddSequence[sequence.length - 1] = WPList.DL_DD_CHAR;
-						sequence = ddSequence;
-
-						int startPos;
-						while (true) {
-							ch = fSource[fScannerPosition++];
-							if (!Character.isWhitespace(ch)) {
-								startPos = fScannerPosition - 1;
-								listElement = new WPListElement(count, sequence, startPos);
-								break;
-							}
-							if (ch == '\n') {
-								fScannerPosition--; // to detect next row
-								startPos = fScannerPosition;
-								listElement = new WPListElement(count, sequence, startPos);
-								listElement.createTagStack(fSource, fWikiModel, startPos);
-								list.add(listElement);
-								listElement = null;
-								break;
-							}
-						}
-						lastCh = ' ';
 					}
+					lastCh = ' ';
 				}
 				if (ch == '\n' || fScannerPosition == 0) {
 					startPosition = fScannerPosition;
@@ -432,11 +421,8 @@ public class WikipediaScanner {
 					int temp = readSpecialWikiTags(fScannerPosition);
 					if (temp >= 0) {
 						fScannerPosition = temp;
-					}
-				} else if (ch == '[') {
-					int temp = findNestedEndSingle(fSource, '[', ']', fScannerPosition);
-					if (temp >= 0) {
-						fScannerPosition = temp;
+						ch = fSource[fScannerPosition++];
+						continue;
 					}
 				}
 				ch = fSource[fScannerPosition++];
@@ -619,14 +605,11 @@ public class WikipediaScanner {
 	/**
 	 * Replace the wiki template parameters in the given template string
 	 * 
-	 * @param templateParameters
-	 * @param curlyBraceOffset
-	 *          TODO
 	 * @param template
-	 * 
+	 * @param templateParameters
 	 * @return <code>null</code> if no replacement could be found
 	 */
-	public StringBuilder replaceTemplateParameters(Map<String, String> templateParameters, int curlyBraceOffset) {
+	public StringBuilder replaceTemplateParameters(String template, Map<String, String> templateParameters) {
 		StringBuilder buffer = null;
 		int bufferStart = 0;
 		try {
@@ -634,7 +617,6 @@ public class WikipediaScanner {
 			if (level > Configuration.PARSER_RECURSION_LIMIT) {
 				return null; // no further processing
 			}
-			fScannerPosition += curlyBraceOffset;
 			char ch;
 			int parameterStart = -1;
 			StringBuilder recursiveResult;
@@ -652,14 +634,6 @@ public class WikipediaScanner {
 						List<String> list = splitByPipe(fSource, parameterStart, fScannerPosition - 3, null);
 						if (list.size() > 0) {
 							String parameterString = list.get(0).trim();
-
-							WikipediaScanner scanner1 = new WikipediaScanner(parameterString);
-							scanner1.setModel(fWikiModel);
-							recursiveResult = scanner1.replaceTemplateParameters(templateParameters, curlyBraceOffset);
-							if (recursiveResult != null) {
-								parameterString = recursiveResult.toString();
-							}
-
 							String value = null;
 							isDefaultValue = false;
 							if (templateParameters != null) {
@@ -673,18 +647,18 @@ public class WikipediaScanner {
 							if (value != null) {
 								if (value.length() <= Configuration.TEMPLATE_VALUE_LIMIT) {
 									if (buffer == null) {
-										buffer = new StringBuilder(fSource.length + 128);
+										buffer = new StringBuilder(template.length() + 128);
 									}
 									if (bufferStart < fScannerPosition) {
 										buffer.append(fSource, bufferStart, parameterStart - bufferStart - 3);
 									}
 
-									WikipediaScanner scanner2 = new WikipediaScanner(value);
-									scanner2.setModel(fWikiModel);
+									WikipediaScanner scanner = new WikipediaScanner(value);
+									scanner.setModel(fWikiModel);
 									if (isDefaultValue) {
-										recursiveResult = scanner2.replaceTemplateParameters(templateParameters, curlyBraceOffset);
+										recursiveResult = scanner.replaceTemplateParameters(value, templateParameters);
 									} else {
-										recursiveResult = scanner2.replaceTemplateParameters(null, curlyBraceOffset);
+										recursiveResult = scanner.replaceTemplateParameters(value, null);
 									}
 									if (recursiveResult != null) {
 										buffer.append(recursiveResult);
@@ -722,75 +696,25 @@ public class WikipediaScanner {
 	 * @param sourceString
 	 * @param resultList
 	 *          the list which contains the splitted strings
-	 * @return splitted strings
+	 * @return
 	 */
 	public static List<String> splitByPipe(String sourceString, List<String> resultList) {
-		return splitByChar('|', sourceString, resultList, -1);
+		// TODO optimize this to avoid new char[] generation inside toCharArray() ?
+		return splitByPipe(sourceString.toCharArray(), 0, sourceString.length(), resultList);
 	}
 
 	/**
 	 * Split the given <code>srcArray</code> character array by pipe symbol (i.e.
-	 * &quot;|&quot;).
+	 * &quot;|&quot;)
 	 * 
 	 * @param srcArray
-	 *          the array to split
 	 * @param currOffset
-	 *          start position in <tt>srcArray</tt>
 	 * @param endOffset
-	 *          end position in <tt>srcArray</tt>
 	 * @param resultList
 	 *          the list which contains the splitted strings
-	 * 
-	 * @return splitted strings
+	 * @return
 	 */
 	public static List<String> splitByPipe(char[] srcArray, int currOffset, int endOffset, List<String> resultList) {
-		return splitByChar('|', srcArray, currOffset, endOffset, resultList, -1);
-	}
-
-	/**
-	 * Split the given src string by pipe symbol (i.e. &quot;|&quot;)
-	 * 
-	 * @param splitChar
-	 *          the character to split by
-	 * @param sourceString
-	 *          the string to split
-	 * @param resultList
-	 *          the list which contains the splitted strings
-	 * @param maxParts
-	 *          max number of parts to split the source into (less than <tt>0</tt>
-	 *          for infinite number of parts, otherwise only values greater than
-	 *          <tt>0</tt> allowed!)
-	 * @return splitted strings
-	 */
-	public static List<String> splitByChar(final char splitChar, String sourceString, List<String> resultList, final int maxParts) {
-		// TODO optimize this to avoid new char[] generation inside toCharArray() ?
-		return splitByChar(splitChar, sourceString.toCharArray(), 0, sourceString.length(), resultList, maxParts);
-	}
-
-	/**
-	 * Split the given <code>srcArray</code> character array by the given
-	 * character.
-	 * 
-	 * @param splitChar
-	 *          the character to split by
-	 * @param srcArray
-	 *          the array to split
-	 * @param currOffset
-	 *          start position in <tt>srcArray</tt>
-	 * @param endOffset
-	 *          end position in <tt>srcArray</tt>
-	 * @param resultList
-	 *          the list which contains the splitted strings
-	 * @param maxParts
-	 *          max number of parts to split the source into (less than <tt>0</tt>
-	 *          for infinite number of parts, otherwise only values greater than
-	 *          <tt>0</tt> allowed!)
-	 * 
-	 * @return splitted strings
-	 */
-	protected static List<String> splitByChar(final char splitChar, char[] srcArray, int currOffset, int endOffset,
-			List<String> resultList, final int maxParts) {
-		assert (maxParts != 0 && maxParts != 1); // this doesn't make any sense!
 		if (resultList == null) {
 			resultList = new ArrayList<String>();
 		}
@@ -821,12 +745,7 @@ public class WikipediaScanner {
 							currOffset = temp[0];
 						}
 					}
-				} else if (ch == splitChar) {
-					if (maxParts > 0 && resultList.size() >= maxParts - 1) {
-						// take rest and put it into the last part
-						currOffset = endOffset;
-						break;
-					}
+				} else if (ch == '|') {
 					resultList.add(new String(srcArray, lastOffset, currOffset - lastOffset - 1));
 					lastOffset = currOffset;
 				}
@@ -1490,7 +1409,18 @@ public class WikipediaScanner {
 				WikiTagNode tagNode = parseTag(start);
 				if (tagNode != null && !tagNode.isEmptyXmlTag()) {
 					String tagName = tagNode.getTagName();
-					return readUntilIgnoreCase(fScannerPosition, "</", tagName+">");
+					if (tagName.equals("nowiki")) {
+						return readUntilIgnoreCase(fScannerPosition, "</", "nowiki>");
+					} else if (tagName.equals("source")) {
+						return readUntilIgnoreCase(fScannerPosition, "</", "source>");
+					} else if (tagName.equals("math")) {
+						return readUntilIgnoreCase(fScannerPosition, "</", "math>");
+					} else if (tagName.equals("span")) {
+						return readUntilIgnoreCase(fScannerPosition, "</", "span>");
+						// <div> could be nested ?
+						// } else if (tagName.equals("div")) {
+						// return readUntilIgnoreCase(fScannerPosition, "</", "div>");
+					}
 				}
 			}
 		} catch (IndexOutOfBoundsException e) {
@@ -1576,5 +1506,5 @@ public class WikipediaScanner {
 			}
 		}
 	}
-
+	
 }

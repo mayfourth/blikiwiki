@@ -3,30 +3,30 @@
 	<parent>
 		<groupId>info.bliki.wiki</groupId>
 		<artifactId>bliki</artifactId>
-		<version>3.1.01-SNAPSHOT</version>
+		<version>3.0.19</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>bliki-pdf</artifactId>
 	<groupId>info.bliki.wiki</groupId>
 	<packaging>jar</packaging>
 	<name>Bliki (PDF)</name>
-	<version>3.1.01-SNAPSHOT</version>
+	<version>3.0.19</version>
 	<description> This is the Bliki PDF project. </description>
 	<dependencies>
 		<dependency>
 			<groupId>info.bliki.wiki</groupId>
 			<artifactId>bliki-core</artifactId>
-			<version>3.1.01-SNAPSHOT</version>
+			<version>3.0.19</version>
 		</dependency>
 		<dependency>
 			<groupId>com.lowagie</groupId>
 			<artifactId>itext</artifactId>
-			<version>2.1.7</version>
+			<version>2.0.8</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.xhtmlrenderer</groupId>
-	        <artifactId>flying-saucer-pdf</artifactId>
-	        <version>9.0.1</version>
+			<groupId>org.xhtmlrenderer</groupId>
+			<artifactId>core-renderer</artifactId>
+			<version>R8pre2</version>
 		</dependency> 
 		<dependency>
 			<groupId>org.apache.derby</groupId>
@@ -52,8 +52,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.5</source>
+					<target>1.5</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>

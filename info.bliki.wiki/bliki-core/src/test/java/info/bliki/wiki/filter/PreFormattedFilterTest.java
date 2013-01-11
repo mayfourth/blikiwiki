@@ -18,7 +18,7 @@ public class PreFormattedFilterTest extends FilterTestSupport
 	public void testPreformattedInput1()
 	{
 		assertEquals("\n" + 
-				"<pre>This is some\n" + 
+				"<pre>\nThis is some\n" + 
 				"Preformatted text\n" + 
 				"With <i>italic</i>\n" + 
 				"And <b>bold</b>\n" + 

@@ -91,9 +91,9 @@ public class PrettyXmlSerializer extends XmlSerializer {
         return result.toString();
     }
 
-    private String getSingleLineOfChildren(List<Object> children) {
+    private String getSingleLineOfChildren(List children) {
         StringBuffer result = new StringBuffer();
-        Iterator<Object> childrenIt = children.iterator();
+        Iterator childrenIt = children.iterator();
         boolean isFirst = true;
 
         while (childrenIt.hasNext()) {
@@ -127,8 +127,8 @@ public class PrettyXmlSerializer extends XmlSerializer {
         return result.toString();
     }
     
-    private void serializePrettyXml(List<Object> nodes, int level, boolean dontEscape) throws IOException {
-        Iterator<Object> childrenIt = nodes.iterator();
+    private void serializePrettyXml(List nodes, int level, boolean dontEscape) throws IOException {
+        Iterator childrenIt = nodes.iterator();
         while (childrenIt.hasNext()) {
             Object child = childrenIt.next();
             if (child instanceof TagNode) {
@@ -147,15 +147,13 @@ public class PrettyXmlSerializer extends XmlSerializer {
             	String content = commentToken.getContent();
             	writer.write( getIndentedText(content, level + 1) );
             } else if (child instanceof List) {
-            	@SuppressWarnings("unchecked")
-				final List<Object> list = (List<Object>) child;
-				serializePrettyXml(list, level, true );
+            	serializePrettyXml( (List)child, level, true );
             }
         }
     }
 
     protected void serializePrettyXml(TagNode tagNode, int level) throws IOException {
-        List<Object> tagChildren = tagNode.getChildren();
+        List tagChildren = tagNode.getChildren();
         String indent = indent(level);
 
         writer.write(indent);

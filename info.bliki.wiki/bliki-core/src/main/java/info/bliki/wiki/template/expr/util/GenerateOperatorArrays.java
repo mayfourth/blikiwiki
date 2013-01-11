@@ -16,7 +16,6 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -50,23 +49,23 @@ public class GenerateOperatorArrays {
 			} else {
 				operatorDefinitions = GenerateOperatorArrays.class.getResourceAsStream("/operators.txt");
 			}
-			final HashMap<String, Operator> operatorMap = new HashMap<String, Operator>();
-			final HashMap<String, ArrayList<Operator>> operatorTokenStartSet = new HashMap<String, ArrayList<Operator>>();
+			final HashMap operatorMap = new HashMap();
+			final HashMap operatorTokenStartSet = new HashMap();
 			GenerateOperatorArrays.generateOperatorTable(operatorDefinitions, operatorMap, operatorTokenStartSet);
 
-			final Iterator<String> i1 = operatorMap.keySet().iterator();
+			final Iterator i1 = operatorMap.keySet().iterator();
 			System.out.println("public static final String[] HEADER_STRINGS = {");
 			while (i1.hasNext()) {
-				final String headStr = i1.next();
+				final String headStr = (String) i1.next();
 				System.out.println("    \"" + headStr + "\",");
 			}
 			System.out.println("};");
 
-			final Iterator<String> i2 = operatorMap.keySet().iterator();
+			final Iterator i2 = operatorMap.keySet().iterator();
 			System.out.println("public static final String[] OPERATOR_STRINGS = {");
 			while (i2.hasNext()) {
-				final String headStr = i2.next();
-				final Operator oper = operatorMap.get(headStr);
+				final String headStr = (String) i2.next();
+				final Operator oper = (Operator) operatorMap.get(headStr);
 				if (oper == null) {
 					System.out.println("    \" null-value-in-operator-map \",");
 				} else {
@@ -75,11 +74,11 @@ public class GenerateOperatorArrays {
 			}
 			System.out.println("};");
 
-			final Iterator<String> i3 = operatorMap.keySet().iterator();
+			final Iterator i3 = operatorMap.keySet().iterator();
 			System.out.println("public static final Operator[] OPERATORS = {");
 			while (i3.hasNext()) {
-				final String headStr = i3.next();
-				final Operator oper = operatorMap.get(headStr);
+				final String headStr = (String) i3.next();
+				final Operator oper = (Operator) operatorMap.get(headStr);
 				if (oper instanceof DivideOperator) {
 					final InfixOperator iOper = (DivideOperator) oper;
 					String grouping = null;
@@ -137,7 +136,7 @@ public class GenerateOperatorArrays {
 		}
 	}
 
-	public static void generateOperatorTable(final InputStream is, final HashMap<String, Operator> operatorMap, final HashMap<String, ArrayList<Operator>> operatorTokenStartSet) {
+	public static void generateOperatorTable(final InputStream is, final HashMap operatorMap, final HashMap operatorTokenStartSet) {
 		String record = null;
 		final BufferedReader r = new BufferedReader(new InputStreamReader(is));
 

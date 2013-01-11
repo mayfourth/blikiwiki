@@ -29,7 +29,7 @@ public class TemplateSubstParserTest extends FilterTestSupport {
 	 * Substitution</a>
 	 */
 	public void testSubst002() {
-		assertEquals("File", wikiModel.parseTemplates("{{subst:ns:{{subst:#expr:2*3}}}}", false));
+		assertEquals("Image", wikiModel.parseTemplates("{{subst:ns:{{subst:#expr:2*3}}}}", false));
 	}
 
 	/**
@@ -38,7 +38,7 @@ public class TemplateSubstParserTest extends FilterTestSupport {
 	 * Substitution</a>
 	 */
 	public void testSubst003() {
-		assertEquals("File", wikiModel.parseTemplates("{{ns:{{subst:#expr:2*3}}}}", false));
+		assertEquals("Image", wikiModel.parseTemplates("{{ns:{{subst:#expr:2*3}}}}", false));
 	}
 
 	/**

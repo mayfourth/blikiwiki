@@ -3,7 +3,7 @@ package info.bliki.api;
 import info.bliki.api.creator.DocumentCreator;
 import info.bliki.api.creator.WikiDB;
 import info.bliki.wiki.filter.Encoder;
-import info.bliki.wiki.impl.APIWikiModel;
+import info.bliki.wiki.model.APIWikiModel;
 
 /**
  * Test to load a page from en.wikipedia.org and render it to a PDF file

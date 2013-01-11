@@ -36,7 +36,6 @@ public class FunctionNode extends ASTNode implements java.util.List<ASTNode> {
 		fNodesList.add(arg1);
 	}
 
-	@Override
 	public void add(final int index, final ASTNode element) {
 		fNodesList.add(index, element);
 	}
@@ -48,32 +47,26 @@ public class FunctionNode extends ASTNode implements java.util.List<ASTNode> {
 	 *          element to be appended to this list
 	 * @return <tt>true</tt> (as specified by {@link Collection#add})
 	 */
-	@Override
 	public boolean add(final ASTNode node) {
 		return fNodesList.add(node);
 	}
 
-	@Override
 	public boolean addAll(final Collection<? extends ASTNode> c) {
 		return fNodesList.addAll(c);
 	}
 
-	@Override
 	public boolean addAll(final int index, final Collection<? extends ASTNode> c) {
 		return fNodesList.addAll(index, c);
 	}
 
-	@Override
 	public void clear() {
 		fNodesList.clear();
 	}
 
-	@Override
 	public boolean contains(final Object o) {
 		return fNodesList.contains(o);
 	}
 
-	@Override
 	public boolean containsAll(final Collection<?> c) {
 		return fNodesList.containsAll(c);
 	}
@@ -99,7 +92,6 @@ public class FunctionNode extends ASTNode implements java.util.List<ASTNode> {
 	 * 
 	 * @throws IndexOutOfBoundsException
 	 */
-	@Override
 	public ASTNode get(final int index) {
 		return fNodesList.get(index);
 	}
@@ -109,78 +101,63 @@ public class FunctionNode extends ASTNode implements java.util.List<ASTNode> {
 		return fNodesList.hashCode();
 	}
 
-	@Override
 	public int indexOf(final Object o) {
 		return fNodesList.indexOf(o);
 	}
 
-	@Override
 	public boolean isEmpty() {
 		return fNodesList.isEmpty();
 	}
 
-	@Override
 	public Iterator<ASTNode> iterator() {
 		return fNodesList.iterator();
 	}
 
-	@Override
 	public int lastIndexOf(final Object o) {
 		return fNodesList.lastIndexOf(o);
 	}
 
-	@Override
 	public ListIterator<ASTNode> listIterator() {
 		return fNodesList.listIterator();
 	}
 
-	@Override
 	public ListIterator<ASTNode> listIterator(final int index) {
 		return fNodesList.listIterator(index);
 	}
 
-	@Override
 	public ASTNode remove(final int index) {
 		return fNodesList.remove(index);
 	}
 
-	@Override
 	public boolean remove(final Object o) {
 		return fNodesList.remove(o);
 	}
 
-	@Override
 	public boolean removeAll(final Collection<?> c) {
 		return fNodesList.removeAll(c);
 	}
 
-	@Override
 	public boolean retainAll(final Collection<?> c) {
 		return fNodesList.retainAll(c);
 	}
 
-	@Override
 	public ASTNode set(final int index, final ASTNode element) {
 		return fNodesList.set(index, element);
 	}
 
-	@Override
 	public int size() {
 		return fNodesList.size();
 	}
 
-	@Override
 	public List<ASTNode> subList(final int fromIndex, final int toIndex) {
 		return fNodesList.subList(fromIndex, toIndex);
 	}
 
-	@Override
 	public Object[] toArray() {
 		return fNodesList.toArray();
 	}
 
-	@Override
-	public <T> T[] toArray(final T[] a) {
+	public Object[] toArray(final Object[] a) {
 		return fNodesList.toArray(a);
 	}
 

@@ -1,8 +1,8 @@
 package info.bliki.pdf.test;
 
 import info.bliki.pdf.PDFGenerator;
-import info.bliki.wiki.filter.FilterTestSupport;
 import info.bliki.wiki.model.PDFWikiModel;
+import info.bliki.wiki.test.filter.FilterTestSupport;
 
 import java.io.File;
 import java.net.URL;

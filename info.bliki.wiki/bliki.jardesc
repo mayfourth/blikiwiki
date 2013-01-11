@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<jardesc> 
-    <jar path="info.bliki.wiki/bliki-core-3.1.01.jar"/>
+<jardesc>
+    <jar path="info.bliki.wiki/bliki-core-3.0.19.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/info.bliki.wiki/bliki.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>

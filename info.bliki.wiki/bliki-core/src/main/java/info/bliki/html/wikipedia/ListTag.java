@@ -24,18 +24,18 @@ public class ListTag extends AbstractHTMLTag {
 		StringBuilder subBuffer;
 		String subString;
 		if (children.size() != 0) {
-			for (Object child : children) {
-				if (child != null) {
-					if (child instanceof TagNode
-					    && ((TagNode) child).getName().equals("li")) {
-						subNode = ((TagNode) child);
+			for (int i = 0; i < children.size(); i++) {
+				if (children.get(i) != null) {
+					if (children.get(i) instanceof TagNode
+					    && ((TagNode) children.get(i)).getName().equals("li")) {
+						subNode = ((TagNode) children.get(i));
 						subChildren = subNode.getChildren();
 						subBuffer = new StringBuilder(" ");
 
-						for (Object subChild : subChildren) {
-							if (subChild != null) {
-								if (subChild instanceof TagNode) {
-									subSubNode = ((TagNode) subChild);
+						for (int j = 0; j < subChildren.size(); j++) {
+							if (subChildren.get(j) != null) {
+								if (subChildren.get(j) instanceof TagNode) {
+									subSubNode = ((TagNode) subChildren.get(j));
 									if (subSubNode.getName().equals("ol")
 									    || subSubNode.getName().equals("ul")) {
 										if (subBuffer.length() > 1) {
@@ -57,12 +57,10 @@ public class ListTag extends AbstractHTMLTag {
 									} else {
 										w.nodeToWiki(subSubNode, subBuffer);
 									}
-								} else if (subChild instanceof List) {
-									@SuppressWarnings("unchecked")
-									final List<Object> subChildList = (List<Object>) subChild;
-									w.nodesToText(subChildList, subBuffer);
+								} else if (subChildren.get(j) instanceof List) {
+									w.nodesToText((List)subChildren.get(j), subBuffer);
 								} else {
-									w.nodeToWiki((BaseToken) subChild, subBuffer);
+									w.nodeToWiki((BaseToken) subChildren.get(j), subBuffer);
 								}
 							}
 						}
@@ -85,7 +83,7 @@ public class ListTag extends AbstractHTMLTag {
 	@Override
 	public void content(AbstractHTMLToWiki w, TagNode node,
 	    StringBuilder resultBuffer, boolean showWithoutTag) {
-		List<String> listLines = getListLines(fListChar, w, node);
+		List listLines = getListLines(fListChar, w, node);
 		if (listLines.size() > 0) {
 			resultBuffer.append("\n");
 			for (int i = 0; i < listLines.size(); i++) {

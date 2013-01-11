@@ -3,10 +3,8 @@ package info.bliki.wiki.filter;
 import info.bliki.htmlcleaner.ContentToken;
 import info.bliki.htmlcleaner.TagNode;
 import info.bliki.htmlcleaner.Utils;
-import info.bliki.wiki.filter.AbstractParser.ParsedPageName;
 import info.bliki.wiki.model.Configuration;
 import info.bliki.wiki.model.WikiModel;
-import info.bliki.wiki.namespaces.INamespace.NamespaceCode;
 import info.bliki.wiki.tags.IgnoreTag;
 import info.bliki.wiki.tags.extension.ChartTag;
 
@@ -20,87 +18,9 @@ import java.util.Map;
  * 
  */
 public class WikiTestModel extends WikiModel {
-	/**
-	 * Issue 124
-	 */
-	public static String ADTVorschlag = "<includeonly>{{#if: {{{LEMMA|}}} | | {{Achtung|1=Das Lemma ist nicht eingetragen.}} }}{{#if: {{{BILD|}}} | {{#if: {{{BILDBESCHREIBUNG|}}} | | {{Achtung|1=Die Bildbeschreibung ist nicht eingetragen.}} }} }}</includeonly>{{#ifeq: {{NAMESPACEE}} | Wikipedia_Diskussion\n"
-			+ "| <div style=\"width:50%;\">\n"
-			+ "<div id=\"hauptseite\" class=\"hauptseite-links\">\n"
-			+ "<!--<div style=\"background-color:#D8E8FF; border:1px solid #8898BF; font-size:1em; font-weight:bold; margin:0; padding:0.1em 0.8em;\">{{#if: {{{DATUM|}}} | AdT-Vorschlag für den {{{DATUM}}}:<br/>}}{{{LEMMA}}}</div> -->\n"
-			+ "<div style=\"background-color:#D8E8FF; border:1px solid #8898BF; font-size:1em; font-weight:bold; margin:0; padding:0.1em 0.8em;\">&nbsp;</div>\n"
-			+ "<div class=\"inhalt\">\n"
-			+ "}}{{#if: {{{BILD|}}} | <div style=\"float:left; padding-top:0.5em; padding-right:0.5em;\">[[{{{BILD|}}}|{{#if: {{{BILDGROESSE|}}} | {{{BILDGROESSE|}}} | x89px}}|{{#if: {{{BILDUMRANDUNG|}}} | border}}|{{{BILDBESCHREIBUNG|}}}]]</div> }}\n"
-			+ "{{{TEASERTEXT|}}} <small>[[{{{LEMMA|}}}|mehr]]{{#if: {{{AUDIOVERSION|}}} | &nbsp;&nbsp;{{Audio|{{{AUDIOVERSION}}}|Gesprochene Version}} }}{{#if: {{{AUDIOVERSION1|}}} | [[Datei:Loudspeaker.svg|12px|link=|alt=]]&nbsp;Gesprochener Artikel:\n"
-			+ "[[Media:{{{AUDIOVERSION1}}}|Teil&nbsp;1]]<sup>[[Hilfe:Audio|<span title=\"Hilfe&nbsp;– Audio\">?</span>]]/[[:Datei:{{{AUDIOVERSION1}}}|<span title=\"Tondateibeschreibungsseite mit Lizenzangabe für „{{{AUDIOVERSION1}}}“\"><tt>i</tt></span>]]</sup> }}{{#if: {{{AUDIOVERSION2|}}} | &nbsp;·\n"
-			+ "[[Media:{{{AUDIOVERSION2}}}|Teil&nbsp;2]]<sup>[[Hilfe:Audio|<span title=\"Hilfe&nbsp;– Audio\">?</span>]]/[[:Datei:{{{AUDIOVERSION2}}}|<span title=\"Tondateibeschreibungsseite mit Lizenzangabe für „{{{AUDIOVERSION2}}}“\"><tt>i</tt></span>]]</sup> }}{{#if: {{{AUDIOVERSION3|}}} | &nbsp;·\n"
-			+ "[[Media:{{{AUDIOVERSION3}}}|Teil&nbsp;3]]<sup>[[Hilfe:Audio|<span title=\"Hilfe&nbsp;– Audio\">?</span>]]/[[:Datei:{{{AUDIOVERSION3}}}|<span title=\"Tondateibeschreibungsseite mit Lizenzangabe für „{{{AUDIOVERSION3}}}“\"><tt>i</tt></span>]]</sup> }}{{#if: {{{AUDIOVERSION4|}}} | &nbsp;·\n"
-			+ "[[Media:{{{AUDIOVERSION4}}}|Teil&nbsp;4]]<sup>[[Hilfe:Audio|<span title=\"Hilfe&nbsp;– Audio\">?</span>]]/[[:Datei:{{{AUDIOVERSION4}}}|<span title=\"Tondateibeschreibungsseite mit Lizenzangabe für „{{{AUDIOVERSION4}}}“\"><tt>i</tt></span>]]</sup> }}{{#if: {{{AUDIOVERSION5|}}} | &nbsp;·\n"
-			+ "[[Media:{{{AUDIOVERSION5}}}|Teil&nbsp;5]]<sup>[[Hilfe:Audio|<span title=\"Hilfe&nbsp;– Audio\">?</span>]]/[[:Datei:{{{AUDIOVERSION5}}}|<span title=\"Tondateibeschreibungsseite mit Lizenzangabe für „{{{AUDIOVERSION5}}}“\"><tt>i</tt></span>]]</sup> }}{{#if: {{{AUDIOVERSION6|}}} | &nbsp;·\n"
-			+ "[[Media:{{{AUDIOVERSION6}}}|Teil&nbsp;6]]<sup>[[Hilfe:Audio|<span title=\"Hilfe&nbsp;– Audio\">?</span>]]/[[:Datei:{{{AUDIOVERSION6}}}|<span title=\"Tondateibeschreibungsseite mit Lizenzangabe für „{{{AUDIOVERSION6}}}“\"><tt>i</tt></span>]]</sup> }}</small>{{#ifeq: {{NAMESPACEE}} | Wikipedia_Diskussion\n"
-			+ "| <div style=\"clear:left;\"></div>\n"
-			+ "</div>\n"
-			+ "</div>\n"
-			+ "</div>\n"
-			+ "}}<noinclude>\n"
-			+ "\n"
-			+ " <nowiki>\n"
-			+ "{{AdT-Vorschlag\n"
-			+ " | DATUM            = <!-- Datum des Wunschtermins -->\n"
-			+ " | LEMMA            = <!-- Angabe ohne Klammern -->\n"
-			+ " | BILD             = <!-- Angabe ohne Klammern, aber mit „Datei:“ o. ä. -->\n"
-			+ " | BILDBESCHREIBUNG = <!-- nur Text, keine Formatierungen außer &amp;nbsp; -->\n"
-			+ " | BILDGROESSE      = <!-- kann weggelassen werden -->\n"
-			+ " | BILDUMRANDUNG    = <!-- kann weggelassen werden, Angaben JA, RAND oder BORDER möglich -->\n"
-			+ " | TEASERTEXT       = <!-- nur Text, inkl. Wiki-Formatierungen -->\n"
-			+ " | AUDIOVERSION     = <!-- Audiodatei, falls einteilig vorhanden -->\n"
-			+ " | AUDIOVERSION1    = <!-- 1. Audiodatei, falls mehrteilig vorhanden -->\n"
-			+ " | AUDIOVERSION2    = <!-- 2. Audiodatei, falls mehrteilig vorhanden -->\n"
-			+ " | AUDIOVERSION3    = <!-- 3. Audiodatei, falls mehrteilig vorhanden -->\n"
-			+ " | AUDIOVERSION4    = <!-- 4. Audiodatei, falls mehrteilig vorhanden -->\n"
-			+ " | AUDIOVERSION5    = <!-- 5. Audiodatei, falls mehrteilig vorhanden -->\n"
-			+ " | AUDIOVERSION6    = <!-- 6. Audiodatei, falls mehrteilig vorhanden -->\n"
-			+ "}}\n"
-			+ "</nowiki>\n"
-			+ "\n"
-			+ "== Beispiel ==\n"
-			+ "<pre>"
-			+ "{{AdT-Vorschlag\n"
-			+ " | DATUM            = 29.07.2010\n"
-			+ " | LEMMA            = Satz des Pythagoras\n"
-			+ " | BILD             = Datei:pythagoras_abc.svg\n"
-			+ " | BILDBESCHREIBUNG = Rechtwinkliges Dreieck\n"
-			+ " | BILDGROESSE      = 100px\n"
-			+ " | BILDUMRANDUNG    = JA\n"
-			+ " | TEASERTEXT       = Der '''[[Satz des Pythagoras]]''' ist einer der fundamentalen Sätze der euklidischen Geometrie. Er besagt, dass in allen ebenen rechtwinkligen Dreiecken die Summe der Flächeninhalte der Kathetenquadrate gleich dem Flächeninhalt des Hypotenusenquadrates ist. Als Gleichung ausgedrückt lautet er:<br /> <math>a^2 + b^2 = c^2</math>,\n"
-			+ "wobei ''a'' und ''b'' wie im Bild für die Längen der am rechten Winkel anliegenden Seiten, der Katheten, stehen und ''c'' die Länge der dem rechten Winkel gegenüberliegenden Seite, der Hypotenuse, darstellt.\n"
-			+ "In der modernen Mathematik motiviert der Satz das Konzept des Senkrechtstehens in abstrakten Räumen.\n"
-			+ "Der Satz ist nach Pythagoras von Samos benannt, der als erster einen Beweis dafür gefunden haben soll, was allerdings in der Forschung umstritten ist. Schon lange vor Pythagoras war der ''Satz des Pythagoras'' in Babylon und Indien bekannt. Es gibt jedoch keinen Nachweis dafür, dass man dort bereits einen mathematischen Beweis hatte.\n"
-			+ "}}\n"
-			+ "</pre>\n"
-			+ "wird zu\n"
-			+ "{{AdT-Vorschlag\n"
-			+ " | DATUM            = 29.07.2010\n"
-			+ " | LEMMA            = Satz des Pythagoras\n"
-			+ " | BILD             = Datei:pythagoras_abc.svg\n"
-			+ " | BILDBESCHREIBUNG = Rechtwinkliges Dreieck\n"
-			+ " | BILDGROESSE      = 100px\n"
-			+ " | BILDUMRANDUNG    = JA\n"
-			+ " | TEASERTEXT       = Der '''[[Satz des Pythagoras]]''' ist einer der fundamentalen Sätze der euklidischen Geometrie. Er besagt, dass in allen ebenen rechtwinkligen Dreiecken die Summe der Flächeninhalte der Kathetenquadrate gleich dem Flächeninhalt des Hypotenusenquadrates ist. Als Gleichung ausgedrückt lautet er:<br /> <math>a^2 + b^2 = c^2</math>,\n"
-			+ "wobei ''a'' und ''b'' wie im Bild für die Längen der am rechten Winkel anliegenden Seiten, der Katheten, stehen und ''c'' die Länge der dem rechten Winkel gegenüberliegenden Seite, der Hypotenuse, darstellt.\n"
-			+ "In der modernen Mathematik motiviert der Satz das Konzept des Senkrechtstehens in abstrakten Räumen.\n"
-			+ "Der Satz ist nach Pythagoras von Samos benannt, der als erster einen Beweis dafür gefunden haben soll, was allerdings in der Forschung umstritten ist. Schon lange vor Pythagoras war der ''Satz des Pythagoras'' in Babylon und Indien bekannt. Es gibt jedoch keinen Nachweis dafür, dass man dort bereits einen mathematischen Beweis hatte.\n"
-			+ "}}\n"
-			+ "\n"
-			+ "[[Kategorie:Vorlage:Wikipedia:|Adt-Vorschlag]]\n"
-			+ "[[Kategorie:Wikipedia:Hauptseite/Artikel des Tages|{{PAGENAME}}]]\n" + "</noinclude>\n" + "";
 
 	public static String RELLINK = "<div class=\"rellink{{#if:{{{extraclasses|}}}|<nowiki> </nowiki>{{{extraclasses}}}}}\">{{{1}}}</div><noinclude>\n"
 			+ "{{documentation}}\n" + "</noinclude>\n" + "";
-
-	public final static String WEATHERVAL01 = "{{{show}}}";
-	public final static String WEATHERVAL02 = "{{{jan1}}}";
-	public final static String WEATHERVAL03 = "{{{jan{{{show}}}}}}";
-	public final static String WEATHERBOX03 = "{{WeatherVal03\n|show={{#if:{{{show1|}}}|1|2}}|jan1=10|jan2=20}}";
 
 	public static String MAIN = "{{Rellink|extraclasses=relarticle mainarticle|{{#ifeq:{{SUBJECTSPACE}}|Category|The main {{#ifeq:{{NAMESPACE:{{{1}}}}}||article|page}}{{#if:{{{2|}}}|s}} for this [[Wikipedia:Categorization|category]] {{#if:{{{2|}}}|are|is}}|Main {{#ifeq:{{NAMESPACE:{{{1}}}}}||article|page}}{{#if:{{{2|}}}|s}}:}} [[{{{1|{{PAGENAME}}}}}|{{{l1|{{{1|{{PAGENAME}}}}}}}}]]{{#if:{{{2| }}}\n"
 			+ " |{{#if:{{{3|}}}|,&#32;|&#32;and&#32;}}[[{{{2}}}|{{{l2|{{{2}}}}}}]]}}{{#if:{{{3|}}}\n"
@@ -114,24 +34,27 @@ public class WikiTestModel extends WikiModel {
 			+ " |, and [[{{{10}}}|{{{l10|{{{10}}}}}}]]}}{{#if:{{{11| }}}|&#32; (too many parameters in &#123;&#123;[[Template:main|main]]&#125;&#125;)}}}}<noinclude>\n"
 			+ "\n" + "{{Documentation}}\n" + "\n" + "</noinclude>";
 
-	public static String SEE_ALSO = "{{rellink|extraclasses=boilerplate seealso|{{{altphrase|See also}}}: {{#if:{{{1<includeonly>|</includeonly>}}} |<!--then:-->[[:{{{1}}}{{#if:{{{label 1|{{{l1|}}}}}}|{{!}}{{{label 1|{{{l1}}}}}}}}]] |<!--else:-->'''Error: [[Template:See also|Template must be given at least one article name]]'''\n"
-			+ "}}{{#if:{{{2|}}}|{{#if:{{{3|}}}|, |&nbsp;and }} [[:{{{2}}}{{#if:{{{label 2|{{{l2|}}}}}}|{{!}}{{{label 2|{{{l2}}}}}}}}]]\n"
-			+ "}}{{#if:{{{3|}}}|{{#if:{{{4|}}}|, |,&nbsp;and }} [[:{{{3}}}{{#if:{{{label 3|{{{l3|}}}}}}|{{!}}{{{label 3|{{{l3}}}}}}}}]]\n"
-			+ "}}{{#if:{{{4|}}}|{{#if:{{{5|}}}|, |,&nbsp;and }} [[:{{{4}}}{{#if:{{{label 4|{{{l4|}}}}}}|{{!}}{{{label 4|{{{l4}}}}}}}}]]\n"
-			+ "}}{{#if:{{{5|}}}|{{#if:{{{6|}}}|, |,&nbsp;and }} [[:{{{5}}}{{#if:{{{label 5|{{{l5|}}}}}}|{{!}}{{{label 5|{{{l5}}}}}}}}]]\n"
-			+ "}}{{#if:{{{6|}}}|{{#if:{{{7|}}}|, |,&nbsp;and }} [[:{{{6}}}{{#if:{{{label 6|{{{l6|}}}}}}|{{!}}{{{label 6|{{{l6}}}}}}}}]]\n"
-			+ "}}{{#if:{{{7|}}}|{{#if:{{{8|}}}|, |,&nbsp;and }} [[:{{{7}}}{{#if:{{{label 7|{{{l7|}}}}}}|{{!}}{{{label 7|{{{l7}}}}}}}}]]\n"
-			+ "}}{{#if:{{{8|}}}|{{#if:{{{9|}}}|, |,&nbsp;and }} [[:{{{8}}}{{#if:{{{label 8|{{{l8|}}}}}}|{{!}}{{{label 8|{{{l8}}}}}}}}]]\n"
-			+ "}}{{#if:{{{9|}}}|{{#if:{{{10|}}}|, |,&nbsp;and }} [[:{{{9}}}{{#if:{{{label 9|{{{l9|}}}}}}|{{!}}{{{label 9|{{{l9}}}}}}}}]]\n"
-			+ "}}{{#if:{{{10|}}}|{{#if:{{{11|}}}|, |,&nbsp;and }} [[:{{{10}}}{{#if:{{{label 10|{{{l10|}}}}}}|{{!}}{{{label 10|{{{l10}}}}}}}}]]\n"
-			+ "}}{{#if:{{{11|}}}|{{#if:{{{12|}}}|, |,&nbsp;and }} [[:{{{11}}}{{#if:{{{label 11|{{{l11|}}}}}}|{{!}}{{{label 11|{{{l11}}}}}}}}]]\n"
-			+ "}}{{#if:{{{12|}}}|{{#if:{{{13|}}}|, |,&nbsp;and }} [[:{{{12}}}{{#if:{{{label 12|{{{l12|}}}}}}|{{!}}{{{label 12|{{{l12}}}}}}}}]]\n"
-			+ "}}{{#if:{{{13|}}}|{{#if:{{{14|}}}|, |,&nbsp;and }} [[:{{{13}}}{{#if:{{{label 13|{{{l13|}}}}}}|{{!}}{{{label 13|{{{l13}}}}}}}}]]\n"
-			+ "}}{{#if:{{{14|}}}|{{#if:{{{15|}}}|, |,&nbsp;and }} [[:{{{14}}}{{#if:{{{label 14|{{{l14|}}}}}}|{{!}}{{{label 14|{{{l14}}}}}}}}]]\n"
-			+ "}}{{#if:{{{15|}}}|,&nbsp;and [[:{{{15}}}{{#if:{{{label 15|{{{l15|}}} }}}|{{!}}{{{label 15|{{{l15|}}} }}} }}]]\n"
-			+ "}}{{#if:{{{16|}}}| &mdash; '''<br/>Error: [[Template:See also|Too many links specified (maximum is 15)]]'''\n"
-			+ "}}}}<noinclude>\n" + "{{documentation}}\n" + "</noinclude>\n" + "";
-
+	public static String SEE_ALSO  = "{{rellink|extraclasses=boilerplate seealso|{{{altphrase|See also}}}: {{#if:{{{1<includeonly>|</includeonly>}}} |<!--then:-->[[:{{{1}}}{{#if:{{{label 1|{{{l1|}}}}}}|{{!}}{{{label 1|{{{l1}}}}}}}}]] |<!--else:-->'''Error: [[Template:See also|Template must be given at least one article name]]'''\n" + 
+	"}}{{#if:{{{2|}}}|{{#if:{{{3|}}}|, |&nbsp;and }} [[:{{{2}}}{{#if:{{{label 2|{{{l2|}}}}}}|{{!}}{{{label 2|{{{l2}}}}}}}}]]\n" + 
+	"}}{{#if:{{{3|}}}|{{#if:{{{4|}}}|, |,&nbsp;and }} [[:{{{3}}}{{#if:{{{label 3|{{{l3|}}}}}}|{{!}}{{{label 3|{{{l3}}}}}}}}]]\n" + 
+	"}}{{#if:{{{4|}}}|{{#if:{{{5|}}}|, |,&nbsp;and }} [[:{{{4}}}{{#if:{{{label 4|{{{l4|}}}}}}|{{!}}{{{label 4|{{{l4}}}}}}}}]]\n" + 
+	"}}{{#if:{{{5|}}}|{{#if:{{{6|}}}|, |,&nbsp;and }} [[:{{{5}}}{{#if:{{{label 5|{{{l5|}}}}}}|{{!}}{{{label 5|{{{l5}}}}}}}}]]\n" + 
+	"}}{{#if:{{{6|}}}|{{#if:{{{7|}}}|, |,&nbsp;and }} [[:{{{6}}}{{#if:{{{label 6|{{{l6|}}}}}}|{{!}}{{{label 6|{{{l6}}}}}}}}]]\n" + 
+	"}}{{#if:{{{7|}}}|{{#if:{{{8|}}}|, |,&nbsp;and }} [[:{{{7}}}{{#if:{{{label 7|{{{l7|}}}}}}|{{!}}{{{label 7|{{{l7}}}}}}}}]]\n" + 
+	"}}{{#if:{{{8|}}}|{{#if:{{{9|}}}|, |,&nbsp;and }} [[:{{{8}}}{{#if:{{{label 8|{{{l8|}}}}}}|{{!}}{{{label 8|{{{l8}}}}}}}}]]\n" + 
+	"}}{{#if:{{{9|}}}|{{#if:{{{10|}}}|, |,&nbsp;and }} [[:{{{9}}}{{#if:{{{label 9|{{{l9|}}}}}}|{{!}}{{{label 9|{{{l9}}}}}}}}]]\n" + 
+	"}}{{#if:{{{10|}}}|{{#if:{{{11|}}}|, |,&nbsp;and }} [[:{{{10}}}{{#if:{{{label 10|{{{l10|}}}}}}|{{!}}{{{label 10|{{{l10}}}}}}}}]]\n" + 
+	"}}{{#if:{{{11|}}}|{{#if:{{{12|}}}|, |,&nbsp;and }} [[:{{{11}}}{{#if:{{{label 11|{{{l11|}}}}}}|{{!}}{{{label 11|{{{l11}}}}}}}}]]\n" + 
+	"}}{{#if:{{{12|}}}|{{#if:{{{13|}}}|, |,&nbsp;and }} [[:{{{12}}}{{#if:{{{label 12|{{{l12|}}}}}}|{{!}}{{{label 12|{{{l12}}}}}}}}]]\n" + 
+	"}}{{#if:{{{13|}}}|{{#if:{{{14|}}}|, |,&nbsp;and }} [[:{{{13}}}{{#if:{{{label 13|{{{l13|}}}}}}|{{!}}{{{label 13|{{{l13}}}}}}}}]]\n" + 
+	"}}{{#if:{{{14|}}}|{{#if:{{{15|}}}|, |,&nbsp;and }} [[:{{{14}}}{{#if:{{{label 14|{{{l14|}}}}}}|{{!}}{{{label 14|{{{l14}}}}}}}}]]\n" + 
+	"}}{{#if:{{{15|}}}|,&nbsp;and [[:{{{15}}}{{#if:{{{label 15|{{{l15|}}} }}}|{{!}}{{{label 15|{{{l15|}}} }}} }}]]\n" + 
+	"}}{{#if:{{{16|}}}| &mdash; '''<br/>Error: [[Template:See also|Too many links specified (maximum is 15)]]'''\n" + 
+	"}}}}<noinclude>\n" + 
+	"{{documentation}}\n" + 
+	"</noinclude>\n" + 
+	"";
+	
 	public static String RNDFRAC = "<includeonly>{{#ifexpr:({{{2}}}-1)round0=abs({{{2}}}-1)|{{#ifexpr:{{{1}}}*{{{2}}}round0<0|−}}{{formatnum:{{rndfrac/out|{{#expr:floor((abs{{{1}}}*{{{2}}}round0)/{{{2}}})}}|{{#expr:(abs{{{1}}}*{{{2}}}round0)mod{{{2}}}}}|{{{2}}}|{{gcd|{{#expr:(abs{{{1}}}*{{{2}}}round0)mod{{{2}}}}}|{{{2}}}}}}}}}|{{color|red|This fractional rounding function only accepts positive intergers as the denominator.}}}}</includeonly><noinclude>{{documentation}}</noinclude>\n";
 	public static String RNDFRAC_OUT = "<includeonly>{{#ifeq:{{{2}}}|0|{{{1}}}|<span class=\"frac nowrap\">{{#ifexpr:{{{1}}}>0|{{{1}}}<sup>&#32;</sup>}}{{#iferror:{{#expr:1/{{{4}}}}}|<sup>{{{2}}}</sup>&frasl;<sub>{{{3}}}</sub>|<sup>{{#expr:{{{2}}}/{{{4}}}}}</sup>&frasl;<sub>{{#expr:{{{3}}}/{{{4}}}}}</sub>}}</span>}}</includeonly><noinclude>{{documentation}}</noinclude>";
 	public static String SORTNAME = "<includeonly><</includeonly><noinclude>&lt;</noinclude>span style=\"display:none;\">{{#if:{{{4|{{{sort|}}}}}} | {{{4|{{{sort}}}}}} | {{{2|{{{last}}}}}}, {{{1|{{{first}}}}}} }}<includeonly><</includeonly><noinclude>&lt;</noinclude>/span>{{#if:{{{nolink|}}}\n"
@@ -1388,16 +1311,13 @@ public class WikiTestModel extends WikiModel {
 	public final static String XHTML_END = "</body>\n" + "</html>";
 
 	public final static String PIPE_SYMBOL = "|<noinclude>{{template doc}}</noinclude>";
-	public final static String SINGLE_PARAMETER = "{{{1}}}";
 	public final static String DOUBLE_PARAMETER = "{{{1}}}{{{1}}}";
-	public final static String TWO_PARAMETER = "{{{1}}}{{{2}}}";
-	public final static String TWO_PARAMETER_OPTIONAL = "1{{{1}}}2{{#if:{{{2|}}}|{{{2}}}}}";
 	public final static String REFLIST_TEXT = "<div class=\"references-small\" {{#if: {{{colwidth|}}}| style=\"-moz-column-width:{{{colwidth}}}; -webkit-column-width:{{{colwidth}}}; column-width:{{{colwidth}}};\" | {{#if: {{{1|}}}| style=\"-moz-column-count:{{{1}}}; -webkit-column-count:{{{1}}}; column-count:{{{1}}} }};\" |}}>\n"
 			+ "<references /></div><noinclude>{{pp-template|small=yes}}{{template doc}}</noinclude>\n";
 
 	public final static String CAT = "[[:Category:{{{1}}}]]<noinclude>\n"
 			+ "{{Interwikitmp-grp ineligible|CAT|Commons|Wiktionary}}\n" + "Creates a link to the specified category.\n" + "\n"
-			+ "\'\'\'Example\'\'\':\n" + "<pre>" + "{{Cat|stubs}}\n" + "</pre>\n" + "{{Cat|stubs}}\n" + "\n" + "==See also==\n"
+			+ "\'\'\'Example\'\'\':\n" + "<pre>\n" + "{{Cat|stubs}}\n" + "</pre>\n" + "{{Cat|stubs}}\n" + "\n" + "==See also==\n"
 			+ "* {{Tl|Cl}}\n" + "* {{Tl|Ccl}}\n" + "* {{Tl|Lcs}}\n" + "\n" + "[[sl:predloga:kat]]\n" + "</noinclude>\n" + "";
 
 	public final static String CITE_WEB_TEXT = "<includeonly>{{\n"
@@ -1557,7 +1477,6 @@ public class WikiTestModel extends WikiModel {
 	public final static String IFEQ_TEST = "{{#ifeq: {{{1}}}|{{{2}}} | {{{1}}} equals {{{2}}} | {{{1}}} is not equal {{{2}}}}}";
 
 	public final static String ENDLESS_RECURSION_TEST = " {{recursion}} ";
-
 	public final static String TNAVBAR_TEXT = "<includeonly>{{#if:{{{nodiv|}}}|<!--then:\n"
 			+ "-->&nbsp;<span class=\"noprint plainlinksneverexpand\" style=\"white-space:nowrap; font-weight:normal; font-size:xx-small; {{{fontstyle|}}}; {{#if:{{{fontcolor|}}}|color:{{{fontcolor}}};}} {{{style|}}}\">|<!--else:\n"
 			+ "--><div class=\"noprint plainlinksneverexpand\" style=\"background-color:transparent; padding:0; white-space:nowrap; font-weight:normal; font-size:xx-small; {{{fontstyle|}}}; {{#if:{{{fontcolor|}}}|color:{{{fontcolor}}};}} {{{style|}}}\"><!--\n"
@@ -1576,323 +1495,347 @@ public class WikiTestModel extends WikiModel {
 			+ "<hr/><center>\'\'\'{{purge}}\'\'\' the Wikipedia cache of this template.<hr/></center><br/>\n" + "{{documentation}} \n"
 			+ "<!--Note: Metadata (interwiki links, etc) for this template should be put on [[Template:Tnavbar/doc]]-->\n"
 			+ "</noinclude>";
-	public final static String NAVBOX_TEXT = "<!--\n"
-			+ "\n"
-			+ "Please do not edit without discussion first as this is a VERY complex template.\n"
-			+ "\n"
-			+ "-->{{#switch:{{{border|{{{1|}}}}}}|subgroup|child=</div>|none=|#default=<table cellspacing=\"0\" <!--\n"
-			+ " -->class=\"navbox\" style=\"border-spacing:0;{{{bodystyle|}}};{{{style|}}}\"><tr><td style=\"padding:2px;\">}}<!--\n"
-			+ "\n"
-			+ "--><table cellspacing=\"0\" class=\"nowraplinks {{{bodyclass|}}} {{#if:{{{title|}}}|{{#switch:{{{state|}}}|<!--\n"
-			+ " -->plain|off=|#default=collapsible {{#if:{{{state|}}}|{{{state}}}|autocollapse}}}}}} {{#switch:{{{border|{{{1|}}}}}}|<!--\n"
-			+ " -->subgroup|child|none=navbox-subgroup\" style=\"border-spacing:0;{{{bodystyle|}}};{{{style|}}}|<!--\n"
-			+ " -->#default=navbox-inner\" style=\"border-spacing:0;background:transparent;color:inherit}};{{{innerstyle|}}};\"><!--\n"
-			+ "\n"
-			+ "\n"
-			+ "---Title and Navbar---\n"
-			+ "-->{{#if:{{{title|}}}|<tr>{{#if:{{{titlegroup|}}}|<!--\n"
-			+ " --><th scope=\"row\" class=\"navbox-group {{{titlegroupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{{groupstyle|}}};{{{titlegroupstyle|}}}\"><!--\n"
-			+ " -->{{{titlegroup|}}}</th><th scope=\"col\" style=\"border-left:2px solid #fdfdfd;width:100%;|<!--\n"
-			+ " --><th scope=\"col\" style=\"}}{{{basestyle|}}};{{{titlestyle|}}}\" class=\"navbox-title\" <!--\n"
-			+ " -->colspan={{#expr:2{{#if:{{{imageleft|}}}|+1}}{{#if:{{{image|}}}|+1}}{{#if:{{{titlegroup|}}}|-1}}}}><!--\n"
-			+ "\n"
-			+ "-->{{#if:{{#switch:{{{navbar|}}}|plain|off=1}}<!--\n"
-			+ " -->{{#if:{{{name|}}}||{{#switch:{{{border|{{{1|}}}}}}|subgroup|child|none=1}}}}|<!--\n"
-			+ " -->{{#ifeq:{{{navbar|}}}|off|{{#ifeq:{{{state|}}}|plain|<span style=\"float:right;width:6em;\">&nbsp;</span>}}|<!--\n"
-			+ " -->{{#ifeq:{{{state|}}}|plain||<span style=\"float:left;width:6em;\">&nbsp;</span>}}}}|<!--\n"
-			+ " -->{{#if:{{{name|}}}|{{Navbar|{{{name}}}|mini=1|<!--\n"
-			+ " -->fontstyle={{{basestyle|}}};{{{titlestyle|}}};background:none transparent;border:none;}}|<!--\n"
-			+ " --><span class=\"error\" style=\"float:left;white-space:nowrap;\">Error: No name provided</span>}}<!--\n"
-			+ " -->{{#ifeq:{{{state|}}}|plain|<span style=\"float:right;width:6em;\">&nbsp;</span>}}}}<!--\n"
-			+ "\n"
-			+ " --><div class=\"{{{titleclass|}}}\" style=\"font-size:110%;\">\n"
-			+ "{{{title}}}</div></th></tr>}}<!--\n"
-			+ "\n"
-			+ "\n"
-			+ "---Above---\n"
-			+ "-->{{#if:{{{above|}}}|<!--\n"
-			+ " -->{{#if:{{{title|}}}|<tr style=\"height:2px;\"><td></td></tr>}}<!--\n"
-			+ " --><tr><td class=\"navbox-abovebelow {{{aboveclass|}}}\" style=\"{{{basestyle|}}};{{{abovestyle|}}}\" <!--\n"
-			+ " -->colspan=\"{{#expr:2{{#if:{{{imageleft|}}}|+1}}{{#if:{{{image|}}}|+1}}}}\"><div>\n"
-			+ "{{{above}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "\n"
-			+ "---Body---\n"
-			+ "\n"
-			+ "---First group/list and images---\n"
-			+ "-->{{#if:{{{list1|}}}|{{#if:{{{title|}}}{{{above|}}}|<tr style=\"height:2px;\"><td></td></tr>}}<tr><!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{imageleft|}}}|<!--\n"
-			+ " --><td class=\"navbox-image {{{imageclass|}}}\" style=\"width:0%;padding:0px 2px 0px 0px;{{{imageleftstyle|}}}\" <!--\n"
-			+ " -->rowspan={{#expr:1{{#if:{{{list2|}}}|+2}}{{#if:{{{list3|}}}|+2}}{{#if:{{{list4|}}}|+2}}<!--\n"
-			+ " -->{{#if:{{{list5|}}}|+2}}{{#if:{{{list6|}}}|+2}}{{#if:{{{list7|}}}|+2}}{{#if:{{{list8|}}}|+2}}<!--\n"
-			+ " -->{{#if:{{{list9|}}}|+2}}{{#if:{{{list10|}}}|+2}}{{#if:{{{list11|}}}|+2}}{{#if:{{{list12|}}}|+2}}<!--\n"
-			+ " -->{{#if:{{{list13|}}}|+2}}{{#if:{{{list14|}}}|+2}}{{#if:{{{list15|}}}|+2}}{{#if:{{{list16|}}}|+2}}<!--\n"
-			+ " -->{{#if:{{{list17|}}}|+2}}{{#if:{{{list18|}}}|+2}}{{#if:{{{list19|}}}|+2}}{{#if:{{{list20|}}}|+2}}}}><div>\n"
-			+ "{{{imageleft}}}</div></td>}}<!--\n"
-			+ "\n"
-			+ " -->{{#if:{{{group1|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group1style|}}}\"><!--\n"
-			+ " -->{{{group1}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list1style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{list1padding|{{{listpadding|0em 0.25em}}}}}}\">\n"
-			+ "{{{list1}}}</div></td><!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{image|}}}|<!--\n"
-			+ " --><td class=\"navbox-image {{{imageclass|}}}\" style=\"width:0%;padding:0px 0px 0px 2px;{{{imagestyle|}}}\" <!--\n"
-			+ " -->rowspan={{#expr:1{{#if:{{{list2|}}}|+2}}{{#if:{{{list3|}}}|+2}}{{#if:{{{list4|}}}|+2}}<!--\n"
-			+ " -->{{#if:{{{list5|}}}|+2}}{{#if:{{{list6|}}}|+2}}{{#if:{{{list7|}}}|+2}}{{#if:{{{list8|}}}|+2}}<!--\n"
-			+ " -->{{#if:{{{list9|}}}|+2}}{{#if:{{{list10|}}}|+2}}{{#if:{{{list11|}}}|+2}}{{#if:{{{list12|}}}|+2}}<!--\n"
-			+ " -->{{#if:{{{list13|}}}|+2}}{{#if:{{{list14|}}}|+2}}{{#if:{{{list15|}}}|+2}}{{#if:{{{list16|}}}|+2}}<!--\n"
-			+ " -->{{#if:{{{list17|}}}|+2}}{{#if:{{{list18|}}}|+2}}{{#if:{{{list19|}}}|+2}}{{#if:{{{list20|}}}|+2}}}}><div>\n"
-			+ "{{{image}}}</div></td>}}<!--\n"
-			+ "\n"
-			+ "--></tr>}}<!--\n"
-			+ "\n"
-			+ "\n"
-			+ "---Remaining groups/lists---\n"
-			+ "\n"
-			+ "-->{{#if:{{{list2|}}}|<!--\n"
-			+ " -->{{#if:{{{title|}}}{{{above|}}}{{{list1|}}}|<tr style=\"height:2px\"><td></td></tr>}}<tr><!--\n"
-			+ " -->{{#if:{{{group2|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group2style|}}}\"><!--\n"
-			+ " -->{{{group2}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list2style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list2}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list3|}}}|<!--\n"
-			+ " -->{{#if:{{{title|}}}{{{above|}}}{{{list1|}}}{{{list2|}}}|<tr style=\"height:2px\"><td></td></tr>}}<tr><!--\n"
-			+ " -->{{#if:{{{group3|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group3style|}}}\"><!--\n"
-			+ " -->{{{group3}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list3style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list3}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list4|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group4|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group4style|}}}\"><!--\n"
-			+ " -->{{{group4}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list4style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list4}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list5|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group5|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group5style|}}}\"><!--\n"
-			+ " -->{{{group5}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list5style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list5}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list6|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group6|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group6style|}}}\"><!--\n"
-			+ " -->{{{group6}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list6style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list6}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list7|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group7|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group7style|}}}\"><!--\n"
-			+ " -->{{{group7}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list7style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list7}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list8|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group8|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group8style|}}}\"><!--\n"
-			+ " -->{{{group8}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list8style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list8}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list9|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group9|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group9style|}}}\"><!--\n"
-			+ " -->{{{group9}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list9style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list9}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list10|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group10|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group10style|}}}\"><!--\n"
-			+ " -->{{{group10}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list10style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list10}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list11|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group11|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group11style|}}}\"><!--\n"
-			+ " -->{{{group11}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list11style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list11}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list12|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group12|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group12style|}}}\"><!--\n"
-			+ " -->{{{group12}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list12style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list12}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list13|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group13|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group13style|}}}\"><!--\n"
-			+ " -->{{{group13}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list13style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list13}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list14|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group14|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group14style|}}}\"><!--\n"
-			+ " -->{{{group14}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list14style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list14}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list15|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group15|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group15style|}}}\"><!--\n"
-			+ " -->{{{group15}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list15style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list15}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list16|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group16|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group16style|}}}\"><!--\n"
-			+ " -->{{{group16}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list16style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list16}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list17|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group17|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group17style|}}}\"><!--\n"
-			+ " -->{{{group17}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list17style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list17}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list18|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group18|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group18style|}}}\"><!--\n"
-			+ " -->{{{group18}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list18style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list18}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list19|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group19|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group19style|}}}\"><!--\n"
-			+ " -->{{{group19}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list19style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list19}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{list20|}}}|<!--\n"
-			+ " --><tr style=\"height:2px\"><td></td></tr><tr><!--\n"
-			+ " -->{{#if:{{{group20|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n"
-			+ " -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group20style|}}}\"><!--\n"
-			+ " -->{{{group20}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n"
-			+ " -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list20style|}}}\" <!--\n"
-			+ " -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n"
-			+ " --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n"
-			+ "{{{list20}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "\n"
-			+ "---Below---\n"
-			+ "-->{{#if:{{{below|}}}|<!--\n"
-			+ " -->{{#if:{{{title|}}}{{{above|}}}{{{list1|}}}{{{list2|}}}{{{list3|}}}|<tr style=\"height:2px;\"><td></td></tr>}}<!--\n"
-			+ " --><tr><td class=\"navbox-abovebelow {{{belowclass|}}}\" style=\"{{{basestyle|}}};{{{belowstyle|}}}\" <!--\n"
-			+ " -->colspan=\"{{#expr:2{{#if:{{{imageleft|}}}|+1}}{{#if:{{{image|}}}|+1}}}}\"><div>\n"
-			+ "{{{below}}}</div></td></tr>}}<!--\n"
-			+ "\n"
-			+ "\n"
-			+ "--></table>{{#switch:{{{border|{{{1|}}}}}}|subgroup|child=<div>|none=|#default=</td></tr></table>}}<!--\n"
-			+ "\n"
-			+ "-->{{#ifeq:{{NAMESPACE}}|{{ns:10}}|{{#ifeq:{{{border|{{{1|}}}}}}|child||{{#ifeq:{{{border|{{{1|}}}}}}|subgroup||{{#switch:{{lc:{{SUBPAGENAME}}}}\n"
-			+ " |doc\n" + " |sandbox\n" + " |testcases =\n" + " |#default = {{#switch:{{{bodyclass|}}}\n" + "  |plainlist\n"
-			+ "  |hlist\n" + "  |hlist hnum\n" + "  |hlist vcard\n" + "  |vcard hlist = \n"
-			+ "  |#default = {{#switch:{{{listclass|}}}\n" + "   |plainlist\n" + "   |hlist\n" + "   |hlist hnum\n" + "   |hlist vcard\n"
-			+ "   |vcard hlist = \n"
-			+ "   |#default = {{#ifeq:{{{tracking|}}}|no||[[Category:Navigational boxes without horizontal lists]]}}\n" + "   }}\n"
-			+ "  }}\n" + " }}\n" + "}}}}}}<noinclude>\n" + "\n" + "{{documentation}}\n"
-			+ "<!-- Add categories and interwikis to the /doc subpage, not here! -->\n" + "</noinclude>";
+	public final static String NAVBOX_TEXT = "<!--\n" + 
+			"\n" + 
+			"Please do not edit without discussion first as this is a VERY complex template.\n" + 
+			"\n" + 
+			"-->{{#switch:{{{border|{{{1|}}}}}}|subgroup|child=</div>|none=|#default=<table cellspacing=\"0\" <!--\n" + 
+			" -->class=\"navbox\" style=\"border-spacing:0;{{{bodystyle|}}};{{{style|}}}\"><tr><td style=\"padding:2px;\">}}<!--\n" + 
+			"\n" + 
+			"--><table cellspacing=\"0\" class=\"nowraplinks {{{bodyclass|}}} {{#if:{{{title|}}}|{{#switch:{{{state|}}}|<!--\n" + 
+			" -->plain|off=|#default=collapsible {{#if:{{{state|}}}|{{{state}}}|autocollapse}}}}}} {{#switch:{{{border|{{{1|}}}}}}|<!--\n" + 
+			" -->subgroup|child|none=navbox-subgroup\" style=\"border-spacing:0;{{{bodystyle|}}};{{{style|}}}|<!--\n" + 
+			" -->#default=navbox-inner\" style=\"border-spacing:0;background:transparent;color:inherit}};{{{innerstyle|}}};\"><!--\n" + 
+			"\n" + 
+			"\n" + 
+			"---Title and Navbar---\n" + 
+			"-->{{#if:{{{title|}}}|<tr>{{#if:{{{titlegroup|}}}|<!--\n" + 
+			" --><th scope=\"row\" class=\"navbox-group {{{titlegroupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{{groupstyle|}}};{{{titlegroupstyle|}}}\"><!--\n" + 
+			" -->{{{titlegroup|}}}</th><th scope=\"col\" style=\"border-left:2px solid #fdfdfd;width:100%;|<!--\n" + 
+			" --><th scope=\"col\" style=\"}}{{{basestyle|}}};{{{titlestyle|}}}\" class=\"navbox-title\" <!--\n" + 
+			" -->colspan={{#expr:2{{#if:{{{imageleft|}}}|+1}}{{#if:{{{image|}}}|+1}}{{#if:{{{titlegroup|}}}|-1}}}}><!--\n" + 
+			"\n" + 
+			"-->{{#if:{{#switch:{{{navbar|}}}|plain|off=1}}<!--\n" + 
+			" -->{{#if:{{{name|}}}||{{#switch:{{{border|{{{1|}}}}}}|subgroup|child|none=1}}}}|<!--\n" + 
+			" -->{{#ifeq:{{{navbar|}}}|off|{{#ifeq:{{{state|}}}|plain|<span style=\"float:right;width:6em;\">&nbsp;</span>}}|<!--\n" + 
+			" -->{{#ifeq:{{{state|}}}|plain||<span style=\"float:left;width:6em;\">&nbsp;</span>}}}}|<!--\n" + 
+			" -->{{#if:{{{name|}}}|{{Navbar|{{{name}}}|mini=1|<!--\n" + 
+			" -->fontstyle={{{basestyle|}}};{{{titlestyle|}}};background:none transparent;border:none;}}|<!--\n" + 
+			" --><span class=\"error\" style=\"float:left;white-space:nowrap;\">Error: No name provided</span>}}<!--\n" + 
+			" -->{{#ifeq:{{{state|}}}|plain|<span style=\"float:right;width:6em;\">&nbsp;</span>}}}}<!--\n" + 
+			"\n" + 
+			" --><div class=\"{{{titleclass|}}}\" style=\"font-size:110%;\">\n" + 
+			"{{{title}}}</div></th></tr>}}<!--\n" + 
+			"\n" + 
+			"\n" + 
+			"---Above---\n" + 
+			"-->{{#if:{{{above|}}}|<!--\n" + 
+			" -->{{#if:{{{title|}}}|<tr style=\"height:2px;\"><td></td></tr>}}<!--\n" + 
+			" --><tr><td class=\"navbox-abovebelow {{{aboveclass|}}}\" style=\"{{{basestyle|}}};{{{abovestyle|}}}\" <!--\n" + 
+			" -->colspan=\"{{#expr:2{{#if:{{{imageleft|}}}|+1}}{{#if:{{{image|}}}|+1}}}}\"><div>\n" + 
+			"{{{above}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"\n" + 
+			"---Body---\n" + 
+			"\n" + 
+			"---First group/list and images---\n" + 
+			"-->{{#if:{{{list1|}}}|{{#if:{{{title|}}}{{{above|}}}|<tr style=\"height:2px;\"><td></td></tr>}}<tr><!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{imageleft|}}}|<!--\n" + 
+			" --><td class=\"navbox-image {{{imageclass|}}}\" style=\"width:0%;padding:0px 2px 0px 0px;{{{imageleftstyle|}}}\" <!--\n" + 
+			" -->rowspan={{#expr:1{{#if:{{{list2|}}}|+2}}{{#if:{{{list3|}}}|+2}}{{#if:{{{list4|}}}|+2}}<!--\n" + 
+			" -->{{#if:{{{list5|}}}|+2}}{{#if:{{{list6|}}}|+2}}{{#if:{{{list7|}}}|+2}}{{#if:{{{list8|}}}|+2}}<!--\n" + 
+			" -->{{#if:{{{list9|}}}|+2}}{{#if:{{{list10|}}}|+2}}{{#if:{{{list11|}}}|+2}}{{#if:{{{list12|}}}|+2}}<!--\n" + 
+			" -->{{#if:{{{list13|}}}|+2}}{{#if:{{{list14|}}}|+2}}{{#if:{{{list15|}}}|+2}}{{#if:{{{list16|}}}|+2}}<!--\n" + 
+			" -->{{#if:{{{list17|}}}|+2}}{{#if:{{{list18|}}}|+2}}{{#if:{{{list19|}}}|+2}}{{#if:{{{list20|}}}|+2}}}}><div>\n" + 
+			"{{{imageleft}}}</div></td>}}<!--\n" + 
+			"\n" + 
+			" -->{{#if:{{{group1|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group1style|}}}\"><!--\n" + 
+			" -->{{{group1}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list1style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{list1padding|{{{listpadding|0em 0.25em}}}}}}\">\n" + 
+			"{{{list1}}}</div></td><!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{image|}}}|<!--\n" + 
+			" --><td class=\"navbox-image {{{imageclass|}}}\" style=\"width:0%;padding:0px 0px 0px 2px;{{{imagestyle|}}}\" <!--\n" + 
+			" -->rowspan={{#expr:1{{#if:{{{list2|}}}|+2}}{{#if:{{{list3|}}}|+2}}{{#if:{{{list4|}}}|+2}}<!--\n" + 
+			" -->{{#if:{{{list5|}}}|+2}}{{#if:{{{list6|}}}|+2}}{{#if:{{{list7|}}}|+2}}{{#if:{{{list8|}}}|+2}}<!--\n" + 
+			" -->{{#if:{{{list9|}}}|+2}}{{#if:{{{list10|}}}|+2}}{{#if:{{{list11|}}}|+2}}{{#if:{{{list12|}}}|+2}}<!--\n" + 
+			" -->{{#if:{{{list13|}}}|+2}}{{#if:{{{list14|}}}|+2}}{{#if:{{{list15|}}}|+2}}{{#if:{{{list16|}}}|+2}}<!--\n" + 
+			" -->{{#if:{{{list17|}}}|+2}}{{#if:{{{list18|}}}|+2}}{{#if:{{{list19|}}}|+2}}{{#if:{{{list20|}}}|+2}}}}><div>\n" + 
+			"{{{image}}}</div></td>}}<!--\n" + 
+			"\n" + 
+			"--></tr>}}<!--\n" + 
+			"\n" + 
+			"\n" + 
+			"---Remaining groups/lists---\n" + 
+			"\n" + 
+			"-->{{#if:{{{list2|}}}|<!--\n" + 
+			" -->{{#if:{{{title|}}}{{{above|}}}{{{list1|}}}|<tr style=\"height:2px\"><td></td></tr>}}<tr><!--\n" + 
+			" -->{{#if:{{{group2|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group2style|}}}\"><!--\n" + 
+			" -->{{{group2}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list2style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list2}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list3|}}}|<!--\n" + 
+			" -->{{#if:{{{title|}}}{{{above|}}}{{{list1|}}}{{{list2|}}}|<tr style=\"height:2px\"><td></td></tr>}}<tr><!--\n" + 
+			" -->{{#if:{{{group3|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group3style|}}}\"><!--\n" + 
+			" -->{{{group3}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list3style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list3}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list4|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group4|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group4style|}}}\"><!--\n" + 
+			" -->{{{group4}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list4style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list4}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list5|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group5|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group5style|}}}\"><!--\n" + 
+			" -->{{{group5}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list5style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list5}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list6|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group6|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group6style|}}}\"><!--\n" + 
+			" -->{{{group6}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list6style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list6}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list7|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group7|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group7style|}}}\"><!--\n" + 
+			" -->{{{group7}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list7style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list7}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list8|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group8|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group8style|}}}\"><!--\n" + 
+			" -->{{{group8}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list8style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list8}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list9|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group9|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group9style|}}}\"><!--\n" + 
+			" -->{{{group9}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list9style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list9}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list10|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group10|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group10style|}}}\"><!--\n" + 
+			" -->{{{group10}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list10style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list10}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list11|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group11|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group11style|}}}\"><!--\n" + 
+			" -->{{{group11}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list11style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list11}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list12|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group12|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group12style|}}}\"><!--\n" + 
+			" -->{{{group12}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list12style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list12}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list13|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group13|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group13style|}}}\"><!--\n" + 
+			" -->{{{group13}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list13style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list13}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list14|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group14|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group14style|}}}\"><!--\n" + 
+			" -->{{{group14}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list14style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list14}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list15|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group15|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group15style|}}}\"><!--\n" + 
+			" -->{{{group15}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list15style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list15}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list16|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group16|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group16style|}}}\"><!--\n" + 
+			" -->{{{group16}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list16style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list16}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list17|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group17|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group17style|}}}\"><!--\n" + 
+			" -->{{{group17}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list17style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list17}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list18|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group18|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group18style|}}}\"><!--\n" + 
+			" -->{{{group18}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list18style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list18}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list19|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group19|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group19style|}}}\"><!--\n" + 
+			" -->{{{group19}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{oddstyle|}}};{{{list19style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|even|{{{evenodd|odd}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list19}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{list20|}}}|<!--\n" + 
+			" --><tr style=\"height:2px\"><td></td></tr><tr><!--\n" + 
+			" -->{{#if:{{{group20|}}}|<th scope=\"row\" class=\"navbox-group {{{groupclass|}}}\" <!--\n" + 
+			" -->style=\"{{{basestyle|}}};{{#if:{{{groupwidth|}}}|width:{{{groupwidth}}};}}{{{groupstyle|}}};{{{group20style|}}}\"><!--\n" + 
+			" -->{{{group20}}}</th><td style=\"text-align:left;border-left-width:2px;border-left-style:solid;|<td colspan=2 style=\"}}<!--\n" + 
+			" -->{{#if:{{{groupwidth|}}}||width:100%;}}padding:0px;{{{liststyle|}}};{{{evenstyle|}}};{{{list20style|}}}\" <!--\n" + 
+			" -->class=\"navbox-list navbox-{{#ifeq:{{{evenodd|}}}|swap|odd|{{{evenodd|even}}}}} {{{listclass|}}}\"><!--\n" + 
+			" --><div style=\"padding:{{{listpadding|0em 0.25em}}}\">\n" + 
+			"{{{list20}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"\n" + 
+			"---Below---\n" + 
+			"-->{{#if:{{{below|}}}|<!--\n" + 
+			" -->{{#if:{{{title|}}}{{{above|}}}{{{list1|}}}{{{list2|}}}{{{list3|}}}|<tr style=\"height:2px;\"><td></td></tr>}}<!--\n" + 
+			" --><tr><td class=\"navbox-abovebelow {{{belowclass|}}}\" style=\"{{{basestyle|}}};{{{belowstyle|}}}\" <!--\n" + 
+			" -->colspan=\"{{#expr:2{{#if:{{{imageleft|}}}|+1}}{{#if:{{{image|}}}|+1}}}}\"><div>\n" + 
+			"{{{below}}}</div></td></tr>}}<!--\n" + 
+			"\n" + 
+			"\n" + 
+			"--></table>{{#switch:{{{border|{{{1|}}}}}}|subgroup|child=<div>|none=|#default=</td></tr></table>}}<!--\n" + 
+			"\n" + 
+			"-->{{#ifeq:{{NAMESPACE}}|{{ns:10}}|{{#ifeq:{{{border|{{{1|}}}}}}|child||{{#ifeq:{{{border|{{{1|}}}}}}|subgroup||{{#switch:{{lc:{{SUBPAGENAME}}}}\n" + 
+			" |doc\n" + 
+			" |sandbox\n" + 
+			" |testcases =\n" + 
+			" |#default = {{#switch:{{{bodyclass|}}}\n" + 
+			"  |plainlist\n" + 
+			"  |hlist\n" + 
+			"  |hlist hnum\n" + 
+			"  |hlist vcard\n" + 
+			"  |vcard hlist = \n" + 
+			"  |#default = {{#switch:{{{listclass|}}}\n" + 
+			"   |plainlist\n" + 
+			"   |hlist\n" + 
+			"   |hlist hnum\n" + 
+			"   |hlist vcard\n" + 
+			"   |vcard hlist = \n" + 
+			"   |#default = {{#ifeq:{{{tracking|}}}|no||[[Category:Navigational boxes without horizontal lists]]}}\n" + 
+			"   }}\n" + 
+			"  }}\n" + 
+			" }}\n" + 
+			"}}}}}}<noinclude>\n" + 
+			"\n" + 
+			"{{documentation}}\n" + 
+			"<!-- Add categories and interwikis to the /doc subpage, not here! -->\n" + 
+			"</noinclude>";
 
-	public final static String NAVBAR_TEXT = "<includeonly><div class=\"noprint plainlinks hlist navbar {{#if:{{{mini|}}}|mini}}\" style=\"{{{style|}}}\"><!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{mini|}}}{{{plain|}}}|<!--nothing-->|<!--else:\n"
-			+ "--><span style=\"word-spacing:0;{{{fontstyle|}}}\">{{{text|This box:}}} </span>}}<!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{brackets|}}}|<span style=\"margin-right:-0.125em;{{{fontstyle|}}}\">&#91;</span>}}<!--\n"
-			+ "\n"
-			+ "--><ul><!--\n"
-			+ "--><li class=\"nv-view\">[[{{transclude|{{{1}}}}}|<span title=\"View this template\" <!--\n"
-			+ "-->style=\"{{{fontstyle|}}}\">{{#if:{{{mini|}}}|v|view}}</span>]]</li><!--\n"
-			+ "\n"
-			+ "--><li class=\"nv-talk\">[[{{TALKPAGENAME:{{transclude|{{{1}}}}}}}|<span title=\"Discuss this template\" <!--\n"
-			+ "-->style=\"{{{fontstyle|}}}\">{{#if:{{{mini|}}}|t|talk}}</span>]]</li><!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{noedit|}}}|<!--nothing-->|<!--else:\n"
-			+ "--><li class=\"nv-edit\">[{{fullurl:{{transclude|{{{1}}}}}|action=edit}} <span title=\"Edit this template\" <!--\n"
-			+ "-->style=\"{{{fontstyle|}}}\">{{#if:{{{mini|}}}|e|edit}}</span>]</li>}}<!--\n"
-			+ "--></ul><!--\n"
-			+ "\n"
-			+ "-->{{#if:{{{brackets|}}}|<span style=\"margin-left:-0.125em;{{{fontstyle|}}}\">&#93;</span>}}<!--\n"
-			+ "\n"
-			+ "--></div></includeonly><noinclude>\n" + "\n" + "{{documentation}}\n" + "</noinclude>";
-
-	public final static String TRANSCLUDE = "{{#switch: {{NAMESPACE: {{{1}}} }}\r\n"
-			+ " |#default = {{FULLPAGENAME: {{{1}}} }} <!-- eg \"User:Foo\" -->\r\n" + " |{{ns:0}} = \r\n"
-			+ "    {{#ifeq: {{NAMESPACE: {{{1}}} }} | {{NAMESPACE: Template{{{1}}} }}\r\n"
-			+ "      | Template:{{{1}}}            <!-- no leading colon, eg \"Foo\" -->\r\n"
-			+ "      | {{PAGENAME: {{{1}}} }}      <!-- leading colon, eg \":Foo\", so we want the article -->\r\n" + "    }}\r\n"
-			+ "}}<noinclude>\r\n" + "{{documentation}}\r\n" + "</noinclude>";
+	public final static String NAVBAR_TEXT = "<includeonly><div class=\"noprint plainlinks hlist navbar {{#if:{{{mini|}}}|mini}}\" style=\"{{{style|}}}\"><!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{mini|}}}{{{plain|}}}|<!--nothing-->|<!--else:\n" + 
+			"--><span style=\"word-spacing:0;{{{fontstyle|}}}\">{{{text|This box:}}} </span>}}<!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{brackets|}}}|<span style=\"margin-right:-0.125em;{{{fontstyle|}}}\">&#91;</span>}}<!--\n" + 
+			"\n" + 
+			"--><ul><!--\n" + 
+			"--><li class=\"nv-view\">[[{{transclude|{{{1}}}}}|<span title=\"View this template\" <!--\n" + 
+			"-->style=\"{{{fontstyle|}}}\">{{#if:{{{mini|}}}|v|view}}</span>]]</li><!--\n" + 
+			"\n" + 
+			"--><li class=\"nv-talk\">[[{{TALKPAGENAME:{{transclude|{{{1}}}}}}}|<span title=\"Discuss this template\" <!--\n" + 
+			"-->style=\"{{{fontstyle|}}}\">{{#if:{{{mini|}}}|t|talk}}</span>]]</li><!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{noedit|}}}|<!--nothing-->|<!--else:\n" + 
+			"--><li class=\"nv-edit\">[{{fullurl:{{transclude|{{{1}}}}}|action=edit}} <span title=\"Edit this template\" <!--\n" + 
+			"-->style=\"{{{fontstyle|}}}\">{{#if:{{{mini|}}}|e|edit}}</span>]</li>}}<!--\n" + 
+			"--></ul><!--\n" + 
+			"\n" + 
+			"-->{{#if:{{{brackets|}}}|<span style=\"margin-left:-0.125em;{{{fontstyle|}}}\">&#93;</span>}}<!--\n" + 
+			"\n" + 
+			"--></div></includeonly><noinclude>\n" + 
+			"\n" + 
+			"{{documentation}}\n" + 
+			"</noinclude>";
+	
+	public final static String TRANSCLUDE = "{{#switch: {{NAMESPACE: {{{1}}} }}\r\n" + 
+	" |#default = {{FULLPAGENAME: {{{1}}} }} <!-- eg \"User:Foo\" -->\r\n" + 
+	" |{{ns:0}} = \r\n" + 
+	"    {{#ifeq: {{NAMESPACE: {{{1}}} }} | {{NAMESPACE: Template{{{1}}} }}\r\n" + 
+	"      | Template:{{{1}}}            <!-- no leading colon, eg \"Foo\" -->\r\n" + 
+	"      | {{PAGENAME: {{{1}}} }}      <!-- leading colon, eg \":Foo\", so we want the article -->\r\n" + 
+	"    }}\r\n" + 
+	"}}<noinclude>\r\n" + 
+	"{{documentation}}\r\n" + 
+	"</noinclude>";
 	public final static String INFOBOX_SOFTWARE_TEXT = "<includeonly>{| class=\"infobox\" cellspacing=\"5\" style=\"width: 21em; font-size: 90%; text-align: left;\"\n"
 			+ "! colspan=\"2\" style=\"text-align: center; font-size: 130%;\" | {{{title|{{{name|{{PAGENAME}}}}}}}}\n"
 			+ "|-\n"
@@ -2498,19 +2441,6 @@ public class WikiTestModel extends WikiModel {
 			+ "      }}|{{{1|}}} }}<noinclude><!-- default='dmy'/'iso'/'mdy'/null/\"\"/unsupported option --></noinclude>\n" + "    }}\n"
 			+ "  }}    \n" + "}}<noinclude>\n" + "{{documentation}}\n" + "</noinclude>";
 
-	private static final String NLN = "{{1x|\n}}";
-	private static final String SPC = "{{1x| }}";
-
-	public static final String SELF_RECURSION = "Line1\n\n{{SELF_RECURSION}}";
-	public static final String SELF_RECURSION1 = "Line1\n\n{{{{{1}}}}}";
-	public static final String INDIRECT_SELF_RECURSION1 = "INDIRECT_SELF_RECURSION1\n\n{{INDIRECT_SELF_RECURSION2}}";
-	public static final String INDIRECT_SELF_RECURSION2 = "INDIRECT_SELF_RECURSION2\n\n{{INDIRECT_SELF_RECURSION1}}";
-	public static final String INDIRECT_SELF_RECURSION1a = "INDIRECT_SELF_RECURSION1a\n\n{{INDIRECT_SELF_RECURSION2a|{{#if:{{{1|}}}|{{#expr:{{{1}}}+1}}|1}}}}";
-	public static final String INDIRECT_SELF_RECURSION2a = "INDIRECT_SELF_RECURSION2a\n\n{{INDIRECT_SELF_RECURSION1a|{{#if:{{{1|}}}|{{#expr:{{{1}}}+1}}|1}}}}";
-
-	public static final String TEMPLATE_FOO = "FOO";
-	public static final String MAIN_FOO = "BAR";
-
 	boolean fSemanticWebActive;
 
 	static {
@@ -2520,6 +2450,10 @@ public class WikiTestModel extends WikiModel {
 		Configuration.DEFAULT_CONFIGURATION.addTokenTag("chart", new ChartTag());
 		Configuration.DEFAULT_CONFIGURATION.addTokenTag("inputbox", new IgnoreTag("inputbox"));
 		Configuration.DEFAULT_CONFIGURATION.addTokenTag("imagemap", new IgnoreTag("imagemap"));
+	}
+
+	public WikiTestModel(String imageBaseURL, String linkBaseURL) {
+		this(Locale.ENGLISH, imageBaseURL, linkBaseURL);
 	}
 
 	/**
@@ -2532,11 +2466,9 @@ public class WikiTestModel extends WikiModel {
 		super(Configuration.DEFAULT_CONFIGURATION, locale, imageBaseURL, linkBaseURL);
 		// set up a simple cache mock-up for JUnit tests. HashMap is not usable for
 		// production!
-		Configuration.DEFAULT_CONFIGURATION.setTemplateCallsCache(new HashMap<String, String>());
+		Configuration.DEFAULT_CONFIGURATION.setTemplateCallsCache(new HashMap());
 
 		fSemanticWebActive = false;
-		// add the German image namespace as an alias
-		fNamespace.getImage().addAlias("Bild");
 	}
 
 	/**
@@ -2545,14 +2477,14 @@ public class WikiTestModel extends WikiModel {
 	 * 
 	 */
 	@Override
-	public String getRawWikiContent(ParsedPageName parsedPagename, Map<String, String> map) {
-		String result = super.getRawWikiContent(parsedPagename, map);
+	public String getRawWikiContent(String namespace, String articleName, Map<String, String> map) {
+		String result = super.getRawWikiContent(namespace, articleName, map);
 		if (result != null) {
 			// found magic word template
 			return result;
 		}
-		String name = encodeTitleToUrl(parsedPagename.pagename, true);
-		if (parsedPagename.namespace.isType(NamespaceCode.TEMPLATE_NAMESPACE_KEY)) {
+		String name = encodeTitleToUrl(articleName, true);
+		if (isTemplateNamespace(namespace)) {
 			// if (MagicWord.isMagicWord(articleName)) {
 			// return MagicWord.processMagicWord(articleName, this);
 			// }
@@ -2582,14 +2514,8 @@ public class WikiTestModel extends WikiModel {
 				return SIDE_BOX;
 			} else if (name.equals("!")) {
 				return PIPE_SYMBOL;
-			} else if (name.equals("1x")) {
-				return SINGLE_PARAMETER;
 			} else if (name.equals("2x")) {
 				return DOUBLE_PARAMETER;
-			} else if (name.equals("1x1y")) {
-				return TWO_PARAMETER;
-			} else if (name.equals("1x1y_opt")) {
-				return TWO_PARAMETER_OPTIONAL;
 			} else if (name.equals("Cat")) {
 				return CAT;
 			} else if (name.equals("!")) {
@@ -2701,45 +2627,26 @@ public class WikiTestModel extends WikiModel {
 				return MAIN;
 			} else if (name.equals("See_also")) {
 				return SEE_ALSO;
-			} else if (name.equals("WeatherVal01")) {
-				return WEATHERVAL01;
-			} else if (name.equals("WeatherVal02")) {
-				return WEATHERVAL02;
-			} else if (name.equals("WeatherVal03")) {
-				return WEATHERVAL03;
-			} else if (name.equals("WeatherBox03")) {
-				return WEATHERBOX03;
-			} else if (name.equals("Nln")) {
-				return NLN;
-			} else if (name.equals("Spc")) {
-				return SPC;
-			} else if (name.equals("AdT-Vorschlag")) {
-				return ADTVorschlag;
-			} else if (name.equals("SELF_RECURSION")) {
-				return SELF_RECURSION;
-			} else if (name.equals("SELF_RECURSION1")) {
-				return SELF_RECURSION1;
-			} else if (name.equals("INDIRECT_SELF_RECURSION1")) {
-				return INDIRECT_SELF_RECURSION1;
-			} else if (name.equals("INDIRECT_SELF_RECURSION2")) {
-				return INDIRECT_SELF_RECURSION2;
-			} else if (name.equals("INDIRECT_SELF_RECURSION1a")) {
-				return INDIRECT_SELF_RECURSION1a;
-			} else if (name.equals("INDIRECT_SELF_RECURSION2a")) {
-				return INDIRECT_SELF_RECURSION2a;
-			} else if (name.equals("FOO")) {
-				return TEMPLATE_FOO;
-			} else if (name.equals("FOODATE")) {
-				return "FOO" + System.currentTimeMillis();
 			}
-		} else if (parsedPagename.namespace.isType(NamespaceCode.MAIN_NAMESPACE_KEY)) {
+		} else {
 			if (name.equals("Include_Page")) {
 				return "an include page";
-			} else if (name.equals("FOO")) {
-				return MAIN_FOO;
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Set the German image namespace
+	 */
+	@Override
+	public String getImageNamespace() {
+		return "Bild";
+	}
+
+	@Override
+	public boolean isImageNamespace(String name) {
+		return super.isImageNamespace(name) || name.equals(getImageNamespace());
 	}
 
 	@Override
@@ -2752,7 +2659,6 @@ public class WikiTestModel extends WikiModel {
 		this.fSemanticWebActive = semanticWeb;
 	}
 
-	@Override
 	public boolean showSyntax(String tagName) {
 		return true;
 	}

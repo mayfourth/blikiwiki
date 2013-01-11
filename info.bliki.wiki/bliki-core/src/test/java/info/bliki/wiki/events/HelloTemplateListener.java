@@ -15,7 +15,9 @@ public class HelloTemplateListener extends DefaultEventListener {
 
 	}
 
-	@Override
+	public void onHeader(char[] src, int rawStart, int rawEnd, int level) {
+	}
+
 	public void onTemplate(char[] src, int rawStart, int rawEnd) {
 		collectorBuffer.append(src, rawStart, rawEnd - rawStart);
 		collectorBuffer.append("\n");

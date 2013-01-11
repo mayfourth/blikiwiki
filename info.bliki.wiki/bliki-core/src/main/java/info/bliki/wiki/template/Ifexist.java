@@ -1,9 +1,6 @@
 package info.bliki.wiki.template;
 
-import info.bliki.wiki.filter.AbstractParser;
-import info.bliki.wiki.filter.AbstractParser.ParsedPageName;
 import info.bliki.wiki.model.IWikiModel;
-import info.bliki.wiki.namespaces.INamespace;
 
 import java.util.List;
 
@@ -24,18 +21,18 @@ public class Ifexist extends AbstractTemplateFunction {
 	public String parseFunction(List<String> list, IWikiModel model, char[] src, int beginIndex, int endIndex, boolean isSubst) {
 		if (list.size() > 1) {
 			String wikiTopicName = isSubst ? list.get(0) : parseTrim(list.get(0), model);
-			
-			final INamespace namespace = model.getNamespace();
-			// note: appended "#section" does not count for the check whether a page exists or not!
-			// -> strip off
-			ParsedPageName parsedPagename = AbstractParser.parsePageName(model, wikiTopicName, namespace.getMain(), false, true);
-			String rawWikiContent = null;
-			// if parsing failed, e.g. double "::" at the page titles beginning, this is the same as if the page does not exist.
-			if (parsedPagename.valid) {
-				rawWikiContent = model.getRawWikiContent(parsedPagename, null);
+			int index = wikiTopicName.indexOf(":");
+			String namespace = "";
+			String templateName = wikiTopicName;
+			if (index != -1) {
+				namespace = wikiTopicName.substring(0, index);
+				if (!model.isNamespace(namespace)) {
+					namespace = "";
+				} else {
+					templateName = wikiTopicName.substring(index + 1);
+				}
 			}
-			
-			if (rawWikiContent != null) {
+			if (model.getRawWikiContent(namespace, templateName, null) != null) {
 				return isSubst ? list.get(1) : parseTrim(list.get(1), model);
 			} else {
 				// the requested templateName doesn't exist

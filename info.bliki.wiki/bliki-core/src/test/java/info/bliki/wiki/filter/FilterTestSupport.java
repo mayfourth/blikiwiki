@@ -1,6 +1,7 @@
 package info.bliki.wiki.filter;
 
 import info.bliki.wiki.model.Configuration;
+import info.bliki.wiki.model.IWikiModel;
 import info.bliki.wiki.model.WikiModel;
 
 import java.util.Locale;
@@ -30,22 +31,10 @@ public class FilterTestSupport extends TestCase {
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    wikiModel = newWikiTestModel();
-  }
-
-  protected final WikiModel newWikiTestModel() {
-	  return newWikiTestModel(Locale.ENGLISH);
-  }
-  
-  protected WikiModel newWikiTestModel(Locale locale) {
-	  WikiTestModel wikiModel = new WikiTestModel(locale,
-			  "http://www.bliki.info/wiki/${image}",
-			  "http://www.bliki.info/wiki/${title}");
-	  wikiModel.setUp();
-	  return wikiModel;
-  }
-  
-  public void testStub() {
+    wikiModel = new WikiTestModel(Locale.ENGLISH,
+        "http://www.bliki.info/wiki/${image}",
+        "http://www.bliki.info/wiki/${title}");
+    wikiModel.setUp();
   }
 
   /**

@@ -35,7 +35,7 @@ public class PreFilterTest extends FilterTestSupport {
 	 */
 	public void testPre5() {
 	  assertEquals("<h2><span class=\"mw-headline\" id=\"Peanut_Butter_.28variant_2.29\">Peanut Butter (variant 2)</span></h2>\n" + 
-	  		"<pre>" + 
+	  		"<pre>\n" + 
 	  		"test0\n" + 
 	  		"\n" + 
 	  		"</pre>\n" + 
@@ -45,7 +45,7 @@ public class PreFilterTest extends FilterTestSupport {
 	  		"<div class=\"thumbcaption\">&#34;Smooth&#34; peanut butter in a jar</div></div>\n" + 
 	  		"</div>\n" + 
 	  		"\n" + 
-	  		"<pre>" + 
+	  		"<pre>\n" + 
 	  		"test2\n" + 
 	  		"</pre>\n" + 
 	  		"<p><b>Peanut butter</b> is a food paste made primarily from ...</p>", 
@@ -63,7 +63,7 @@ public class PreFilterTest extends FilterTestSupport {
 	 */
 	public void testPre6() {
 	  assertEquals("<h2><span class=\"mw-headline\" id=\"Peanut_Butter_.28variant_3.29\">Peanut Butter (variant 3)</span></h2>\n" + 
-	  		"<pre>" + 
+	  		"<pre>\n" + 
 	  		"test0\n" + 
 	  		"\n" + 
 	  		"</pre>\n" + 
@@ -74,7 +74,7 @@ public class PreFilterTest extends FilterTestSupport {
 	  		"<div class=\"thumbcaption\">&#34;Smooth&#34; peanut butter in a jar</div></div>\n" + 
 	  		"</div>\n" + 
 	  		"\n" + 
-	  		"<pre>" + 
+	  		"<pre>\n" + 
 	  		"test2\n" + 
 	  		"</pre>\n" + 
 	  		"<p><b>Peanut butter</b> is a food paste made primarily from ...</p>", 
@@ -92,10 +92,10 @@ public class PreFilterTest extends FilterTestSupport {
 	 */
 	public void testPre7() {
 			assertEquals("<h2><span class=\"mw-headline\" id=\"TestLBPre\">TestLBPre</span></h2>\n" + 
-					"<pre>" + 
+					"<pre>\n" + 
 					"test1\n" + 
 					"</pre>\n" + 
-					"<pre>" + 
+					"<pre>\n" + 
 					"test2\n" + 
 					"</pre>", wikiModel.render("== TestLBPre ==\n" + 
 					" test1\n" + 
@@ -109,7 +109,7 @@ public class PreFilterTest extends FilterTestSupport {
 	 */
 	public void testPre8() {
 			assertEquals("<h2><span class=\"mw-headline\" id=\"TestLBPre\">TestLBPre</span></h2>\n" + 
-					"<pre>" + 
+					"<pre>\n" + 
 					"test1\n" + 
 					"\n" + 
 					"test2\n" + 
@@ -128,19 +128,19 @@ public class PreFilterTest extends FilterTestSupport {
 	}
 
 	public void testPre1() {
-		assertEquals("\n" + "<p>First line:</p>\n" + "<pre>" + "pre text 1\n" + "pre text 2\n" + "</pre>\n" + "<p>last line</p>",
+		assertEquals("\n" + "<p>First line:</p>\n" + "<pre>\n" + "pre text 1\n" + "pre text 2\n" + "</pre>\n" + "<p>last line</p>",
 				wikiModel.render("First line:\n" + " pre text 1\n" + " pre text 2\n" + "last line", false));
 	}
 
 	public void testPre3() {
 		assertEquals("\n" + "\n" + "<ul>\n" + "<li>line 1 ...</li>\n" + "<li>line 2 &#60; test wrong tag</li>\n"
-				+ "<li>line 3 &#60; test wrong tag</li>\n</ul>\n" + "\n" + "<pre>" + "preformatted text\n" + "</pre>", wikiModel.render(
-				"\n" + "* line 1 ...\n" + "* line 2 < test wrong tag\n" + "* line 3 < test wrong tag\n" + "\n" + "<pre>"
+				+ "<li>line 3 &#60; test wrong tag</li></ul>\n" + "\n" + "<pre>\n" + "preformatted text\n" + "</pre>", wikiModel.render(
+				"\n" + "* line 1 ...\n" + "* line 2 < test wrong tag\n" + "* line 3 < test wrong tag\n" + "\n" + "<pre>\n"
 						+ "preformatted text\n" + "</pre>", false));
 	}
 
 	// public void testPre1() {
-	// assertEquals("", wikiModel.render("<pre><nowiki>\n" +
+	// assertEquals("", wikiModel.render("<pre>\n<nowiki>\n" +
 	// "The nowiki tag ignores [[Wiki]] ''markup''.\n" +
 	// "It reformats text by removing\n" +
 	// "newlines    and multiple spaces.\n" +
@@ -150,7 +150,7 @@ public class PreFilterTest extends FilterTestSupport {
 	// }
 	public void testPre2() {
 		assertEquals("\n" + 
-				"<pre>" + 
+				"<pre>\n" + 
 				"pre text\n" + 
 				"</pre>\n" + 
 				"\n" + 
@@ -165,7 +165,7 @@ public class PreFilterTest extends FilterTestSupport {
 				"\n"
 						+ "<p>Aufzählungstypen dienen zur automatischen Nummerierung der in der Aufzählung enthaltenen Elemente. Die Syntax für die Definition von Aufzählungstypen verwendet das Schlüsselwort <tt>enum</tt> (Kurzform für Enumeration).</p>\n"
 						+ "<p>Beim in C# verwendeten Aufzählungstyp kann ein zugrundeliegender Datentyp für die Nummerierung der Elemente angegeben werden kann. Per Voreinstellung wird der Datentyp <tt>int</tt> verwendet. </p> \n"
-						+ "<pre> public enum Woche : int\n" + " {\n" + "   Montag = 1,\n" + "   Dienstag,\n" + "   Mittwoch,\n"
+						+ "<pre>\n public enum Woche : int\n" + " {\n" + "   Montag = 1,\n" + "   Dienstag,\n" + "   Mittwoch,\n"
 						+ "   Donnerstag,\n" + "   Freitag,\n" + "   Samstag,\n" + "   Sonntag\n" + " }\n" + "\n</pre>",
 				wikiModel
 						.render(

@@ -117,6 +117,14 @@ public interface IParserFactory {
 	public abstract FractionNode createFraction(IntegerNode numerator, IntegerNode denominator);
 
 	/**
+	 * Create a string node from the scanned double quoted string
+	 * 
+	 * @param symbolName
+	 * @return
+	 */
+	public StringNode createString(StringBuffer buffer);
+
+	/**
 	 * Create a symbol from the scanned identifier string
 	 * 
 	 * @param symbolName

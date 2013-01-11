@@ -6,14 +6,11 @@ import info.bliki.api.creator.ImageData;
 import info.bliki.api.creator.TopicData;
 import info.bliki.api.creator.WikiDB;
 import info.bliki.htmlcleaner.TagNode;
-import info.bliki.wiki.filter.AbstractParser;
 import info.bliki.wiki.filter.Encoder;
 import info.bliki.wiki.filter.WikipediaParser;
-import info.bliki.wiki.filter.AbstractParser.ParsedPageName;
 import info.bliki.wiki.model.Configuration;
 import info.bliki.wiki.model.ImageFormat;
 import info.bliki.wiki.model.WikiModel;
-import info.bliki.wiki.namespaces.INamespace.NamespaceCode;
 import info.bliki.wiki.tags.WPATag;
 
 import java.io.File;
@@ -113,8 +110,10 @@ public class APIWikiModel extends WikiModel {
 	 * implementation uses a Derby database to cache downloaded wiki template
 	 * texts.
 	 * 
-	 * @param parsedPagename
-	 *          the parsed template name
+	 * @param namespace
+	 *          the namespace of this article
+	 * @param templateName
+	 *          the name of the template
 	 * @param templateParameters
 	 *          if the namespace is the <b>Template</b> namespace, the current
 	 *          template parameters are stored as <code>String</code>s in this map
@@ -124,18 +123,19 @@ public class APIWikiModel extends WikiModel {
 	 * @see info.bliki.api.User#queryContent(String[])
 	 */
 	@Override
-	public String getRawWikiContent(ParsedPageName parsedPagename, Map<String, String> templateParameters) {
-		String result = super.getRawWikiContent(parsedPagename, templateParameters);
+	public String getRawWikiContent(String namespace, String articleName, Map<String, String> templateParameters) {
+		String result = super.getRawWikiContent(namespace, articleName, templateParameters);
 		if (result != null) {
 			// found magic word template
 			return result;
 		}
 
-		if (parsedPagename.namespace.isType(NamespaceCode.TEMPLATE_NAMESPACE_KEY)) {
+		String templateNS = getTemplateNamespace() + ":";
+		String name = articleName;
+		if (namespace.equals(getTemplateNamespace())) {
 			String content = null;
-			String fullPageName = parsedPagename.namespace.makeFullPagename(parsedPagename.pagename);
 			try {
-				TopicData topicData = fWikiDB.selectTopic(fullPageName);
+				TopicData topicData = fWikiDB.selectTopic(templateNS + name);
 				if (topicData != null) {
 					content = topicData.getContent();
 					content = getRedirectedWikiContent(content, templateParameters);
@@ -146,7 +146,7 @@ public class APIWikiModel extends WikiModel {
 					}
 				}
 
-				String[] listOfTitleStrings = { fullPageName };
+				String[] listOfTitleStrings = { templateNS + name };
 				fUser.login();
 				List<Page> listOfPages = fUser.queryContent(listOfTitleStrings);
 				if (listOfPages.size() > 0) {
@@ -156,7 +156,7 @@ public class APIWikiModel extends WikiModel {
 						// System.out.println(name);
 						// System.out.println(content);
 						// System.out.println("-----------------------");
-						topicData = new TopicData(fullPageName, content);
+						topicData = new TopicData(templateNS + name, content);
 						fWikiDB.insertTopic(topicData);
 						content = getRedirectedWikiContent(content, templateParameters);
 						if (content != null) {
@@ -179,14 +179,23 @@ public class APIWikiModel extends WikiModel {
 		}
 		String redirectedLink = WikipediaParser.parseRedirect(rawWikitext, this);
 		if (redirectedLink != null) {
-			ParsedPageName redirParsedPage = AbstractParser.parsePageName(this, redirectedLink, fNamespace.getTemplate(), true, true);
+			String redirNamespace = "";
+			String redirArticle = redirectedLink;
+			int index = redirectedLink.indexOf(":");
+			if (index > 0) {
+				redirNamespace = redirectedLink.substring(0, index);
+				if (isNamespace(redirNamespace)) {
+					redirArticle = redirectedLink.substring(index + 1);
+				} else {
+					redirNamespace = "";
+				}
+			}
 			try {
 				int level = incrementRecursionLevel();
-				// TODO: what to do if parsing the title failed due to invalid syntax?
-				if (level > Configuration.PARSER_RECURSION_LIMIT || !redirParsedPage.valid) {
-					return "Error - getting content of redirected link: " + redirParsedPage.namespace + ":" + redirParsedPage.pagename;
+				if (level > Configuration.PARSER_RECURSION_LIMIT) {
+					return "Error - getting content of redirected link: " + redirNamespace + ":" + redirArticle;
 				}
-				return getRawWikiContent(redirParsedPage, templateParameters);
+				return getRawWikiContent(redirNamespace, redirArticle, templateParameters);
 			} finally {
 				decrementRecursionLevel();
 			}
@@ -205,7 +214,7 @@ public class APIWikiModel extends WikiModel {
 					return;
 				}
 			}
-			String imageNamespace = fNamespace.getImage().getPrimaryText();
+			String imageNamespace = getImageNamespace();
 			setDefaultThumbWidth(imageFormat);
 			String[] listOfTitleStrings = { imageNamespace + ":" + imageName };
 			fUser.login();

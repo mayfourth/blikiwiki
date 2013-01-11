@@ -2,23 +2,13 @@ package info.bliki.wiki.template;
 
 import info.bliki.wiki.model.IWikiModel;
 import info.bliki.wiki.namespaces.INamespace;
-import info.bliki.wiki.namespaces.INamespace.INamespaceValue;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 
 /**
  * A template parser function for <code>{{ns: ... }}</code> <i>namespace/i>
  * syntax
  * 
- * From <a href="https://www.mediawiki.org/wiki/Help:Magic_words#Namespaces_2">
- * MediaWiki</a>:
- * 
- * {{ns:}} returns the current localized name for the namespace with that index,
- * canonical name, or local alias. Thus {{ns:6}}, {{ns:File}}, and {{ns:Image}}
- * (an old name for the File namespace) all return "File". On a wiki where the
- * content language was French, {{ns:Fichier}} would also be valid, but
- * {{ns:Datei}} (the localisation of "File" into German) would not.
  */
 public class NS extends AbstractTemplateFunction {
 	public final static ITemplateFunction CONST = new NS();
@@ -34,18 +24,17 @@ public class NS extends AbstractTemplateFunction {
 			INamespace namespace = model.getNamespace();
 			try {
 				int numberCode = Integer.valueOf(arg0).intValue();
-				try {
-					return namespace.getNamespaceByNumber(numberCode).toString();
-				} catch (InvalidParameterException ipe) {
-					// nothing to do
+				if (numberCode >= (-2) || numberCode <= 15) {
+					return namespace.getNamespaceByNumber(numberCode);
 				}
 			} catch (NumberFormatException nfe) {
 				// the given argument could not be parsed as integer number
-				INamespaceValue value = namespace.getNamespace(arg0);
+				arg0 = arg0.replace(' ', '_');
+				String value = namespace.getNamespaceByLowercase(arg0.toLowerCase());
 				if (value != null) {
-					return value.getPrimaryText();
+					return value;
 				}
-				return "[[:" + namespace.getTemplate().getPrimaryText() + ":Ns:" + arg0 + "]]";
+				return "[[:Template:Ns:" + arg0 + "]]";
 			}
 		}
 		return null;

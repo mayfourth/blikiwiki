@@ -1,6 +1,6 @@
 package info.bliki.wiki.dump;
 
-import info.bliki.wiki.namespaces.INamespace.NamespaceCode;
+import info.bliki.wiki.namespaces.INamespace;
 
 /**
  * Represents a single wiki page from a Mediawiki dump.
@@ -71,11 +71,11 @@ public class WikiArticle {
 	 * @return
 	 */
 	public boolean isCategory() {
-		return integerNamespace.equals(NamespaceCode.CATEGORY_NAMESPACE_KEY.code);
+		return integerNamespace.equals(INamespace.CATEGORY_NAMESPACE_KEY);
 	}
 
 	public boolean isFile() {
-		return integerNamespace.equals(NamespaceCode.FILE_NAMESPACE_KEY.code);
+		return integerNamespace.equals(INamespace.FILE_NAMESPACE_KEY);
 	}
 
 	/**
@@ -84,11 +84,11 @@ public class WikiArticle {
 	 * @return
 	 */
 	public boolean isMain() {
-		return integerNamespace.equals(NamespaceCode.MAIN_NAMESPACE_KEY.code);
+		return integerNamespace.equals(INamespace.MAIN_NAMESPACE_KEY);
 	}
 
 	public boolean isProject() {
-		return integerNamespace.equals(NamespaceCode.PROJECT_NAMESPACE_KEY.code);
+		return integerNamespace.equals(INamespace.PROJECT_NAMESPACE_KEY);
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class WikiArticle {
 	 * @return
 	 */
 	public boolean isTemplate() {
-		return integerNamespace.equals(NamespaceCode.TEMPLATE_NAMESPACE_KEY.code);
+		return integerNamespace.equals(INamespace.TEMPLATE_NAMESPACE_KEY);
 	}
 
 	/**
@@ -142,6 +142,16 @@ public class WikiArticle {
 
 	public void setTimeStamp(String timeStamp) {
 		this.timeStamp = timeStamp;
+	}
+
+	/**
+	 * 
+	 * @param newTitle
+	 * @deprecated
+	 */
+	@Deprecated
+	public void setTitle(String newTitle) {
+		setTitle(newTitle, null);
 	}
 
 	public void setTitle(String newTitle, Siteinfo siteinfo) {

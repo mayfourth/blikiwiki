@@ -26,10 +26,4 @@ public class PTag extends HTMLBlockTag {
 			super.renderHTML(converter, buf, model);
 		}
 	}
-
-	@Override
-	public Object clone() {
-		PTag pt = new PTag();
-		return pt;
-	}
 }

@@ -8,11 +8,6 @@ import java.io.Serializable;
 public abstract class AbstractNode implements Serializable
 {
 	/**
-	 * Auto-generated serial version UID.
-	 */
-	private static final long serialVersionUID = 4457914271210928581L;
-
-	/**
 	 * The beginning position of the tag in the line
 	 */
 	protected int nodeBegin;
@@ -23,9 +18,11 @@ public abstract class AbstractNode implements Serializable
 	protected int nodeEnd;
 
 	/**
-	 * Create an abstract node with the page positions given. Remember the
-	 * start & end cursor positions.
+	 * Create an abstract node with the page positions given. Remember the page
+	 * and start & end cursor positions.
 	 * 
+	 * @param page
+	 *            The page this tag was read from.
 	 * @param start
 	 *            The starting offset of this node within the page.
 	 * @param end

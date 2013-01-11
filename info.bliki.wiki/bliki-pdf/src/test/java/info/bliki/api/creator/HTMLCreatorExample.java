@@ -13,10 +13,7 @@ import java.util.Locale;
 /**
  * Test to load a page, images and templates from en.wikipedia.org and render it
  * into an HTML file. The CSS is always included in the generated HTML text
- * which blows up the size of the HTML file. This is happening by using a local
- * Derby database for caching the templates content.
- * 
- * @see InMemoryCreatorExample
+ * which blows up the size of the HTML file.
  */
 public class HTMLCreatorExample {
 
@@ -130,7 +127,7 @@ public class HTMLCreatorExample {
 			creator.setFooter(HTMLConstants.HTML_FOOTER);
 			wikiModel.setUp();
 			// set up a simple cache for this example. HashMap is not usable for
-			// production! Use something like http://ehcache.org for production!
+			// production!
 			Configuration.DEFAULT_CONFIGURATION.setTemplateCallsCache(new HashMap());
 			creator.renderToFile(generatedHTMLFilename);
 			System.out.println("Created file: " + generatedHTMLFilename);

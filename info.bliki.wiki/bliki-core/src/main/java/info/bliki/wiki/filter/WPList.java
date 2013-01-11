@@ -7,6 +7,7 @@ import info.bliki.wiki.tags.util.TagStack;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a Wikipedia list. See <a
@@ -62,7 +63,7 @@ public class WPList extends WPTag {
 	/**
 	 * 
 	 * @param listElement
-	 * @return <tt>true</tt>
+	 * @return
 	 */
 	public boolean add(WPListElement listElement) {
 		char[] sequence = listElement.getSequence();
@@ -100,11 +101,11 @@ public class WPList extends WPTag {
 			// push stack
 			for (int i = level; i < s2Length; i++) {
 				list = new InternalList(sequence[i]);
-				fInternalListStack.get(fInternalListStack.size() - 1).add(list);
+				((List) fInternalListStack.get(fInternalListStack.size() - 1)).add(list);
 				fInternalListStack.add(list);
 			}
 		}
-		fInternalListStack.get(fInternalListStack.size() - 1).add(listElement);
+		((List) fInternalListStack.get(fInternalListStack.size() - 1)).add(listElement);
 
 		fLastSequence = sequence;
 		return true;
@@ -129,9 +130,9 @@ public class WPList extends WPTag {
 					InternalList subList = (InternalList) element;
 					beginHTMLTag(buf, subList);
 					renderSubListHTML(subList, converter, buf, wikiModel);
-					if (NEW_LINES) {
-						buf.append('\n');
-					}
+					// if (NEW_LINES) {
+					// buf.append('\n');
+					// }
 					if (subList.fChar == UL_CHAR) {
 						// bullet list
 						buf.append("</ul>");
@@ -169,9 +170,6 @@ public class WPList extends WPTag {
 	}
 
 	private void endHTMLTag(Appendable buf, InternalList subList) throws IOException {
-		if (NEW_LINES) {
-			buf.append('\n');
-		}
 		if (subList.fChar == UL_CHAR) {
 			// bullet list
 			buf.append("</ul>");
@@ -258,7 +256,6 @@ public class WPList extends WPTag {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Object clone() {
 		WPList tt = (WPList) super.clone();

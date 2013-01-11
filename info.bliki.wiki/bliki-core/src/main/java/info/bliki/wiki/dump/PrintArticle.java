@@ -28,7 +28,6 @@ public class PrintArticle implements IArticleFilter {
 		max_counter = max_count;
 	}
 
-	@Override
 	public void process(WikiArticle article, Siteinfo siteinfo) throws SAXException {
 		counter++;
 		if (counter >= max_counter) {

@@ -1,11 +1,11 @@
 package info.bliki.api;
 
 import info.bliki.wiki.model.WikiModel;
-import info.bliki.api.User;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.xml.sax.SAXException;

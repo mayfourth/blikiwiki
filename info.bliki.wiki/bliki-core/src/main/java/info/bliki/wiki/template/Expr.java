@@ -6,6 +6,8 @@ import info.bliki.wiki.model.IWikiModel;
 import info.bliki.wiki.template.expr.eval.DoubleEvaluator;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 
 /**

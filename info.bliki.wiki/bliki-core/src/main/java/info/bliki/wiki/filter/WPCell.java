@@ -87,11 +87,15 @@ public class WPCell {
 		fEndPos = endPos;
 		if (fEndPos > fStartPos) {
 			String content;
+			String params = null;
+			// WikipediaScanner scan = new WikipediaScanner(src, fStartPos);
+
+			// int index = indexOfAttributes(src, fStartPos);
 			if (fAttributesStartPos == (-1) || fAttributesStartPos >= fEndPos) {
 				content = new String(src, fStartPos, fEndPos - fStartPos);
 			} else {
 				content = new String(src, fAttributesStartPos + 1, fEndPos - fAttributesStartPos - 1);
-				String params = new String(src, fStartPos, fAttributesStartPos - fStartPos);
+				params = new String(src, fStartPos, fAttributesStartPos - fStartPos);
 				fAttributes = Util.getAttributes(params);
 			}
 			String rawWikiText = Utils.ltrimNewline(content);

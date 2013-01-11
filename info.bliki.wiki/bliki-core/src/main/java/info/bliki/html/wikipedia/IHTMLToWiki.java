@@ -13,7 +13,7 @@ public interface IHTMLToWiki {
 	 * @param resultBuffer
 	 *          the converted Wiki string
 	 */
-	public abstract void nodesToText(List<Object> nodes, StringBuilder resultBuffer);
+	public abstract void nodesToText(List nodes, StringBuilder resultBuffer);
 
 	/**
 	 * Convert the given HTML <code>node</code> into a <code>wikiText</code>

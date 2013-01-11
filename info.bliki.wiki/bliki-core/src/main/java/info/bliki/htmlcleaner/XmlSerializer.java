@@ -102,7 +102,7 @@ public abstract class XmlSerializer {
 	protected void serializeOpenTag(TagNode tagNode, boolean newLine) throws IOException {
 		String tagName = tagNode.getName();
 		Map<String, String> tagAtttributes = tagNode.getAttributes();
-		List<Object> tagChildren = tagNode.getChildren();
+		List tagChildren = tagNode.getChildren();
 
 		writer.write("<" + tagName);
 		for (Map.Entry<String, String> currEntry : tagAtttributes.entrySet()) {

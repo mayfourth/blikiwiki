@@ -85,22 +85,6 @@ public class DocumentCreator {
 		}
 	}
 
-	public void render(String rawWikiText, String title, ITextConverter converter, Appendable appendable) throws IOException {
-		if (rawWikiText != null) {
-			if (fHeader != null) {
-				appendable.append(fHeader);
-			}
-
-			fModel.setPageName(title);
-			String htmlText = fModel.render(converter, rawWikiText, false);
-			appendable.append(htmlText);
-
-			if (fFooter != null) {
-				appendable.append(fFooter);
-			}
-		}	
-	}
-	
 	public void renderToFile(String rawWikiText, String title, ITextConverter converter, String filename) throws IOException {
 		if (rawWikiText != null) {
 			File file = new File(filename);
@@ -110,7 +94,17 @@ public class DocumentCreator {
 			}
 			Writer fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
 			try {
-				render(rawWikiText, title, converter, fw);
+				if (fHeader != null) {
+					fw.append(fHeader);
+				}
+
+				fModel.setPageName(title);
+				String htmlText = fModel.render(converter, rawWikiText, false);
+				fw.append(htmlText);
+
+				if (fFooter != null) {
+					fw.append(fFooter);
+				}
 			} finally {
 				fw.close();
 			}

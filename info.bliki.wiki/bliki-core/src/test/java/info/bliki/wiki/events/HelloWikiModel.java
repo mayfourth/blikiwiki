@@ -1,11 +1,10 @@
 package info.bliki.wiki.events;
 
 
-import info.bliki.wiki.filter.AbstractParser.ParsedPageName;
-import info.bliki.wiki.model.WikiModel;
-import info.bliki.wiki.namespaces.INamespace.NamespaceCode;
-
 import java.util.Map;
+
+import info.bliki.wiki.filter.Encoder;
+import info.bliki.wiki.model.WikiModel;
 
 /**
  * Wiki model implementation which allows some special JUnit tests with
@@ -30,13 +29,13 @@ public class HelloWikiModel extends WikiModel {
 	 * 
 	 */
 	@Override
-	public String getRawWikiContent(ParsedPageName parsedPagename, Map<String, String> templateParameters) {
-		String result = super.getRawWikiContent(parsedPagename, templateParameters);
+	public String getRawWikiContent(String namespace, String templateName, Map templateParameters) {
+		String result = super.getRawWikiContent(namespace, templateName, templateParameters);
 		if (result != null) {
 			return result;
 		}
-		if (parsedPagename.namespace.isType(NamespaceCode.TEMPLATE_NAMESPACE_KEY)) {
-			String name = encodeTitleToUrl(parsedPagename.pagename, true);
+		if (namespace.equals("Template")) {
+			String name = encodeTitleToUrl(templateName, true);
 			// important: the Template name starts with an uppercase character!
 			if (name.equals("Reflist")) {
 				return REFLIST_TEXT;

@@ -1,10 +1,11 @@
 package info.bliki.wiki;
 
+import info.bliki.api.query.test.QueryTest;
 import info.bliki.html.test.AllHTMLTests;
-import info.bliki.wiki.filter.AllFilterTests;
-import info.bliki.wiki.tags.code.AllCodeTests;
 import info.bliki.wiki.template.TemplateFunctionsTest;
 import info.bliki.wiki.template.expr.EvalDoubleTestCase;
+import info.bliki.wiki.test.code.AllCodeTests;
+import info.bliki.wiki.test.filter.AllFilterTests;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -22,6 +23,7 @@ public class AllBlikiTests extends TestCase {
 		s.addTest(AllHTMLTests.suite());
 //		s.addTestSuite(WikiStringBuilderTest.class);
 		s.addTest(EvalDoubleTestCase.suite());
+		s.addTestSuite(QueryTest.class);
 		return s;
 	}
 

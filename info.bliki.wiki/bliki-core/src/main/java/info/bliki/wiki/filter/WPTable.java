@@ -7,7 +7,6 @@ import info.bliki.wiki.tags.WPTag;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,8 +48,8 @@ public class WPTable extends WPTag {
 	}
 
 	/**
-	 * @param row
-	 * @return <tt>true</tt>
+	 * @param o
+	 * @return
 	 */
 	public boolean add(WPRow row) {
 		return fRows.add(row);
@@ -58,7 +57,7 @@ public class WPTable extends WPTag {
 
 	/**
 	 * @param index
-	 * @return the row at the given index
+	 * @return
 	 */
 	public WPRow get(int index) {
 		return fRows.get(index);
@@ -69,7 +68,7 @@ public class WPTable extends WPTag {
 	}
 
 	/**
-	 * @return table size (number of rows)
+	 * @return
 	 */
 	public int size() {
 		return fRows.size();
@@ -78,11 +77,7 @@ public class WPTable extends WPTag {
 	@Override
 	public void renderHTML(ITextConverter converter, Appendable buf, IWikiModel wikiModel) throws IOException {
 		if (fRows.size() > 0) {
-			boolean hasContentRow = false;
-			if (Configuration.AVOID_PAGE_BREAK_IN_TABLE) {
-				// TODO: integrate into table attributes?
-				buf.append("\n<div style=\"page-break-inside: avoid;\">");
-			}
+			buf.append("\n<div style=\"page-break-inside: avoid;\">");
 			if (NEW_LINES) {
 				buf.append("\n<table");
 			} else {
@@ -93,19 +88,9 @@ public class WPTable extends WPTag {
 			WPRow row;
 			for (int i = 0; i < fRows.size(); i++) {
 				row = fRows.get(i);
-				if (row.getType() != WPCell.CAPTION) {
-					hasContentRow = true;
-				}
 				row.renderHTML(converter, buf, wikiModel);
 			}
-			if (!hasContentRow) {
-				row = new WPRow(Arrays.asList(new WPCell(0)));
-				row.renderHTML(converter, buf, wikiModel);
-			}
-			buf.append("</table>");
-			if (Configuration.AVOID_PAGE_BREAK_IN_TABLE) {
-				buf.append("</div>");
-			}
+			buf.append("</table></div>");
 		}
 	}
 
@@ -121,7 +106,6 @@ public class WPTable extends WPTag {
 		return maxCols;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Object clone() {
 		WPTable tt = (WPTable) super.clone();
